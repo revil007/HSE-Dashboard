@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -231,7 +230,6 @@
     .panels{grid-template-columns:1fr;}
   }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -252,7 +250,8 @@
 
 <div class="layout">
   <nav class="sidebar">
-    <div class="item active" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Monthly Inspection</div>
+    <div class="item active" data-category="All Tasks" onclick="switchCategory('All Tasks', this)"><span class="icon">📊</span> All Tasks</div>
+    <div class="item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Monthly Inspection</div>
     <div class="item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
     <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
     <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon">👁</span> Safety Observations</div>
@@ -295,8 +294,8 @@
 
       <div class="panel">
         <h3>Safety Observations</h3>
-        <div class="caption">Monthly Safety Observation Trend (Current Year)</div>
-        <canvas id="trendChart" height="150"></canvas>
+        <div class="caption">Last 6 months — synced from Observation Form</div>
+        <svg id="trendChart" width="100%" height="150" viewBox="0 0 320 150" preserveAspectRatio="none"></svg>
       </div>
 
       <div class="panel">
@@ -319,7 +318,7 @@ const CONFIG = {
 };
 
 let STATE = { tasks: [], observations: [], notes: [] };
-let currentCategory = 'Monthly Inspection';
+let currentCategory = 'All Tasks';
 
 function switchCategory(category, el){
   currentCategory = category;
@@ -327,6 +326,12 @@ function switchCategory(category, el){
   el.classList.add('active');
   document.getElementById('boardTitle').textContent = category;
   document.getElementById('newTaskInput').placeholder = 'New ' + category.toLowerCase() + ' task...';
+  
+  const addRow=document.querySelector('.add-task-row');
+  if(addRow){
+    addRow.style.display = category==='All Tasks' ? 'none':'flex';
+  }
+const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=currentCategory==='All Tasks'?'none':'flex';}
   renderBoard();
 }
 
@@ -373,7 +378,7 @@ function render(){
 function renderBoard(){
   const groups = { todo: [], progress: [], done: [] };
   (STATE.tasks || [])
-    .filter(t => (t.Category || 'Monthly Inspection') === currentCategory)
+    .filter(t => currentCategory==='All Tasks' ? true : ((t.Category || 'Monthly Inspection')===currentCategory))
     .forEach(t => {
       const key = STATUS_MAP[t.Status] || 'todo';
       groups[key].push(t);
@@ -409,7 +414,7 @@ function renderBoard(){
 }
 
 function renderDonut(){
-  const catTasks = (STATE.tasks || []).filter(t => (t.Category || 'Monthly Inspection') === currentCategory);
+  const catTasks = (STATE.tasks || []).filter(t => currentCategory==='All Tasks' ? true : ((t.Category || 'Monthly Inspection')===currentCategory));
   const total = catTasks.length;
   const groups = { todo: 0, progress: 0, done: 0 };
   catTasks.forEach(t => { groups[STATUS_MAP[t.Status] || 'todo']++; });
@@ -452,51 +457,50 @@ function renderDonut(){
   }).join('');
 }
 
-let trendChartInstance=null;
-
 function renderTrend(){
-  const canvas=document.getElementById('trendChart');
-  if(!canvas) return;
+  const svg=document.getElementById('trendChart');
+  svg.innerHTML='';
   const obs=STATE.observations||[];
-
-  if(trendChartInstance){
-    trendChartInstance.destroy();
-  }
-
   if(obs.length===0){
-    const ctx=canvas.getContext('2d');
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.font='12px Arial';
-    ctx.fillStyle='#6B7480';
-    ctx.fillText('No observation data',20,40);
+    svg.innerHTML='<text x="10" y="75" fill="#6B7480" font-size="12">No observation logs yet</text>';
     return;
   }
+  const series=[
+    {key:'UnsafeAct',color:'#D6484B',label:'Unsafe Act'},
+    {key:'UnsafeCondition',color:'#E8A33D',label:'Unsafe Condition'},
+    {key:'Suggestion',color:'#2F80ED',label:'Suggestion'},
+    {key:'GoodPractice',color:'#3E8F63',label:'Good Practice'}
+  ];
+  const w=320,h=150,padL=28,padB=22,padT=10;
+  let max=5;
+  obs.forEach(r=>series.forEach(s=>max=Math.max(max,Number(r[s.key])||0)));
+  const step=(w-padL-10)/Math.max(obs.length-1,1);
 
-  const ctx=canvas.getContext('2d');
-
-  trendChartInstance=new Chart(ctx,{
-    type:'line',
-    data:{
-      labels:obs.map(x=>x.Month),
-      datasets:[
-        {label:'Unsafe Act',data:obs.map(x=>x.UnsafeAct||0),borderWidth:2,tension:.35},
-        {label:'Unsafe Condition',data:obs.map(x=>x.UnsafeCondition||0),borderWidth:2,tension:.35},
-        {label:'Suggestion',data:obs.map(x=>x.Suggestion||0),borderWidth:2,tension:.35},
-        {label:'Good Practice',data:obs.map(x=>x.GoodPractice||0),borderWidth:2,tension:.35}
-      ]
-    },
-    options:{
-      responsive:true,
-      interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{position:'bottom'},
-        tooltip:{mode:'index',intersect:false}
-      },
-      scales:{
-        y:{beginAtZero:true,ticks:{precision:0}}
-      }
-    }
+  series.forEach(s=>{
+    let path='';
+    obs.forEach((r,i)=>{
+      const x=padL+i*step;
+      const y=padT+(1-(Number(r[s.key])||0)/max)*(h-padT-padB);
+      path+=(i===0?'M':'L')+x.toFixed(1)+','+y.toFixed(1)+' ';
+    });
+    svg.innerHTML+=`<path d="${path}" fill="none" stroke="${s.color}" stroke-width="2.5"/>`;
+    obs.forEach((r,i)=>{
+      const x=padL+i*step;
+      const y=padT+(1-(Number(r[s.key])||0)/max)*(h-padT-padB);
+      svg.innerHTML+=`<circle cx="${x}" cy="${y}" r="3" fill="${s.color}"/>`;
+    });
   });
+
+  obs.forEach((r,i)=>{
+    const x=padL+i*step;
+    svg.innerHTML+=`<text x="${x}" y="${h-4}" font-size="9" text-anchor="middle" fill="#6B7480">${r.Month}</text>`;
+  });
+
+  svg.innerHTML+=`
+  <text x="10" y="12" font-size="9" fill="#D6484B">■ Unsafe Act</text>
+  <text x="90" y="12" font-size="9" fill="#E8A33D">■ Unsafe Condition</text>
+  <text x="215" y="12" font-size="9" fill="#2F80ED">■ Suggestion</text>
+  <text x="10" y="24" font-size="9" fill="#3E8F63">■ Good Practice</text>`;
 }
 
 function renderNotes(){
