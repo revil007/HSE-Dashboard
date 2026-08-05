@@ -251,7 +251,8 @@
 
 <div class="layout">
   <nav class="sidebar">
-    <div class="item active" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Monthly Inspection</div>
+    <div class="item active" data-category="All Tasks" onclick="switchCategory('All Tasks', this)"><span class="icon">📊</span> All Tasks</div>
+    <div class="item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Monthly Inspection</div>
     <div class="item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
     <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
     <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon">👁</span> Safety Observations</div>
@@ -261,7 +262,7 @@
   <main>
     <section class="board-card">
       <div class="hazard-stripe"></div>
-      <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; margin-bottom:16px; color:var(--navy);">Monthly Inspection</h2>
+      <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; margin-bottom:16px; color:var(--navy);">All Tasks</h2>
       <div class="board-columns">
         <div class="column" id="col-todo">
           <h2>To Do <span class="count mono" id="count-todo">0</span></h2>
@@ -294,7 +295,7 @@
 
       <div class="panel">
         <h3>Safety Observations</h3>
-        <div class="caption">Last 6 months — synced from Observation Form</div>
+        <div class="caption">Current Year — Synced from Observation Form</div>
         <canvas id="trendChart" height="150"></canvas>
       </div>
 
@@ -318,14 +319,17 @@ const CONFIG = {
 };
 
 let STATE = { tasks: [], observations: [], notes: [] };
-let currentCategory = 'Monthly Inspection';
+let currentCategory = 'All Tasks';
 
 function switchCategory(category, el){
   currentCategory = category;
   document.querySelectorAll('nav.sidebar .item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('boardTitle').textContent = category;
-  document.getElementById('newTaskInput').placeholder = 'New ' + category.toLowerCase() + ' task...';
+  document.getElementById('newTaskInput').placeholder =
+      category==='All Tasks' ? 'Select a category to add task...' : 'New ' + category.toLowerCase() + ' task...';
+  const addRow=document.querySelector('.add-task-row');
+  if(addRow) addRow.style.display = category==='All Tasks' ? 'none' : 'flex';
   renderBoard();
 }
 
@@ -363,6 +367,7 @@ async function loadData(){
 }
 
 function render(){
+  const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=currentCategory==='All Tasks'?'none':'flex';}
   renderBoard();
   renderDonut();
   renderTrend();
@@ -372,7 +377,10 @@ function render(){
 function renderBoard(){
   const groups = { todo: [], progress: [], done: [] };
   (STATE.tasks || [])
-    .filter(t => (t.Category || 'Monthly Inspection') === currentCategory)
+    .filter(t=>{
+      if(currentCategory==='All Tasks') return true;
+      return (t.Category || 'Monthly Inspection')===currentCategory;
+    })
     .forEach(t => {
       const key = STATUS_MAP[t.Status] || 'todo';
       groups[key].push(t);
@@ -391,6 +399,9 @@ function renderBoard(){
       card.className = 'task-card ' + key;
       card.innerHTML = `
         <div class="name">${escapeHtml(t.Task)}</div>
+        ${currentCategory==='All Tasks'
+          ? `<div style="font-size:11px;color:#6B7480;margin-bottom:6px;">📁 ${escapeHtml(t.Category||'Monthly Inspection')}</div>`
+          : ''}
         <div class="row">
           <span class="badge ${key}">${STATUS_LABEL[key]}</span>
           <select class="status-select" onchange="changeStatus('${t.ID}', this.value)">
@@ -408,7 +419,10 @@ function renderBoard(){
 }
 
 function renderDonut(){
-  const catTasks = (STATE.tasks || []).filter(t => (t.Category || 'Monthly Inspection') === currentCategory);
+  const catTasks = (STATE.tasks || []).filter(t=>{
+      if(currentCategory==='All Tasks') return true;
+      return (t.Category || 'Monthly Inspection')===currentCategory;
+    });
   const total = catTasks.length;
   const groups = { todo: 0, progress: 0, done: 0 };
   catTasks.forEach(t => { groups[STATUS_MAP[t.Status] || 'todo']++; });
