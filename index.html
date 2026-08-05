@@ -451,32 +451,49 @@ function renderDonut(){
 }
 
 function renderTrend(){
-  const svg = document.getElementById('trendChart');
-  svg.innerHTML = '';
-  const obs = (STATE.observations || []).slice(-6);
-  if (obs.length === 0){
-    svg.innerHTML = '<text x="10" y="75" fill="#6B7480" font-size="12">No observation logs yet</text>';
+  const svg=document.getElementById('trendChart');
+  svg.innerHTML='';
+  const obs=STATE.observations||[];
+  if(obs.length===0){
+    svg.innerHTML='<text x="10" y="75" fill="#6B7480" font-size="12">No observation logs yet</text>';
     return;
   }
-  const maxVal = Math.max(...obs.map(o => Number(o.Count) || 0), 10);
-  const w = 320, h = 150, padL = 26, padB = 22, padT = 10;
-  const stepX = (w - padL - 10) / (obs.length - 1 || 1);
+  const series=[
+    {key:'UnsafeAct',color:'#D6484B',label:'Unsafe Act'},
+    {key:'UnsafeCondition',color:'#E8A33D',label:'Unsafe Condition'},
+    {key:'Suggestion',color:'#2F80ED',label:'Suggestion'},
+    {key:'GoodPractice',color:'#3E8F63',label:'Good Practice'}
+  ];
+  const w=320,h=150,padL=28,padB=22,padT=10;
+  let max=5;
+  obs.forEach(r=>series.forEach(s=>max=Math.max(max,Number(r[s.key])||0)));
+  const step=(w-padL-10)/Math.max(obs.length-1,1);
 
-  const points = obs.map((o,i) => {
-    const x = padL + i * stepX;
-    const y = padT + (1 - (Number(o.Count)||0) / maxVal) * (h - padT - padB);
-    return [x,y];
+  series.forEach(s=>{
+    let path='';
+    obs.forEach((r,i)=>{
+      const x=padL+i*step;
+      const y=padT+(1-(Number(r[s.key])||0)/max)*(h-padT-padB);
+      path+=(i===0?'M':'L')+x.toFixed(1)+','+y.toFixed(1)+' ';
+    });
+    svg.innerHTML+=`<path d="${path}" fill="none" stroke="${s.color}" stroke-width="2.5"/>`;
+    obs.forEach((r,i)=>{
+      const x=padL+i*step;
+      const y=padT+(1-(Number(r[s.key])||0)/max)*(h-padT-padB);
+      svg.innerHTML+=`<circle cx="${x}" cy="${y}" r="3" fill="${s.color}"/>`;
+    });
   });
 
-  const linePath = points.map((p,i) => (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
-  const areaPath = linePath + ` L${points[points.length-1][0].toFixed(1)},${h-padB} L${points[0][0].toFixed(1)},${h-padB} Z`;
+  obs.forEach((r,i)=>{
+    const x=padL+i*step;
+    svg.innerHTML+=`<text x="${x}" y="${h-4}" font-size="9" text-anchor="middle" fill="#6B7480">${r.Month}</text>`;
+  });
 
-  svg.innerHTML = `
-    <path d="${areaPath}" fill="#3E8F6333"></path>
-    <path d="${linePath}" fill="none" stroke="#3E8F63" stroke-width="2.5"></path>
-    ${points.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#fff" stroke="#3E8F63" stroke-width="2.5"></circle>`).join('')}
-    ${obs.map((o,i) => `<text x="${points[i][0]}" y="${h-4}" font-size="9" fill="#6B7480" text-anchor="middle">${o.Month}</text>`).join('')}
-  `;
+  svg.innerHTML+=`
+  <text x="10" y="12" font-size="9" fill="#D6484B">■ Unsafe Act</text>
+  <text x="90" y="12" font-size="9" fill="#E8A33D">■ Unsafe Condition</text>
+  <text x="215" y="12" font-size="9" fill="#2F80ED">■ Suggestion</text>
+  <text x="10" y="24" font-size="9" fill="#3E8F63">■ Good Practice</text>`;
 }
 
 function renderNotes(){
