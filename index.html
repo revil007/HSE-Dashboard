@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCI HSE Dashboard</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1C2430">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1C2430;
+    --navy-2:#232D3B;
+    --surface:#F0F2EE;
+    --card:#FFFFFF;
+    --ink:#1A2028;
+    --muted:#6B7480;
+    --border:#E1E4DF;
+    --yellow:#F4B400;
+    --red:#D6484B;
+    --red-bg:#FBE7E7;
+    --amber:#E8A33D;
+    --amber-bg:#FBF0DD;
+    --green:#3E8F63;
+    --green-bg:#E4F1E9;
+    --radius:10px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--surface);
+    color:var(--ink);
+    min-height:100vh;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .display{font-family:'Barlow Condensed',sans-serif; font-weight:800; letter-spacing:0.02em;}
+
+  /* Hazard stripe signature element */
+  .hazard-stripe{
+    height:6px;
+    background:repeating-linear-gradient(135deg, var(--yellow) 0 14px, var(--navy) 14px 28px);
+  }
+
+  header.topbar{
+    background:var(--navy);
+    color:#fff;
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  header.topbar .brand{
+    display:flex; align-items:center; gap:12px;
+  }
+  header.topbar .brand .mark{
+    width:38px; height:38px; border-radius:8px;
+    background:var(--yellow);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; color:var(--navy); font-size:18px;
+  }
+  header.topbar h1{
+    font-size:26px;
+    text-transform:uppercase;
+  }
+  header.topbar .sub{
+    font-size:12px; color:#AEB6C2; font-family:'IBM Plex Mono',monospace; letter-spacing:0.05em;
+  }
+  header.topbar .status-cluster{
+    display:flex; align-items:center; gap:18px; font-size:14px;
+  }
+  header.topbar .alert-pill{
+    background:var(--red);
+    color:#fff;
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+    display:flex; align-items:center; gap:6px;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:22px;
+    padding:24px 28px 40px;
+    max-width:1400px;
+    margin:0 auto;
+  }
+  nav.sidebar{
+    display:flex; flex-direction:column; gap:8px;
+  }
+  nav.sidebar .item{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 14px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    font-weight:600; font-size:14px;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  nav.sidebar .item.active{
+    background:var(--navy);
+    color:#fff;
+    border-color:var(--navy);
+  }
+  nav.sidebar .item .icon{font-size:16px;}
+
+  main{display:flex; flex-direction:column; gap:22px;}
+
+  .board-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px 22px 24px;
+  }
+  .board-card > .hazard-stripe{margin:-20px -22px 18px; border-radius:var(--radius) var(--radius) 0 0;}
+
+  .board-columns{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+  }
+  .column h2{
+    font-size:15px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--muted);
+    padding-bottom:10px;
+    margin-bottom:14px;
+    border-bottom:2px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .column h2 .count{
+    font-family:'IBM Plex Mono',monospace;
+    background:var(--surface);
+    padding:2px 8px;
+    border-radius:12px;
+    font-size:12px;
+  }
+  .task-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:4px solid var(--muted);
+    border-radius:8px;
+    padding:12px 14px;
+    margin-bottom:12px;
+  }
+  .task-card.todo{border-left-color:var(--red);}
+  .task-card.progress{border-left-color:var(--amber);}
+  .task-card.done{border-left-color:var(--green);}
+  .task-card .name{font-weight:600; font-size:14.5px; margin-bottom:8px;}
+  .task-card .row{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .badge{
+    font-size:11.5px; font-weight:700; text-transform:uppercase;
+    padding:3px 9px; border-radius:20px; letter-spacing:0.03em;
+  }
+  .badge.todo{background:var(--red-bg); color:var(--red);}
+  .badge.progress{background:var(--amber-bg); color:var(--amber);}
+  .badge.done{background:var(--green-bg); color:var(--green);}
+  select.status-select{
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:4px 6px;
+    background:#fff;
+    cursor:pointer;
+  }
+  .add-task-row{
+    display:flex; gap:8px; margin-top:6px;
+  }
+  .add-task-row input{
+    flex:1; border:1px dashed var(--border); border-radius:6px; padding:8px 10px; font-size:13px; font-family:'Inter',sans-serif;
+    background:transparent;
+  }
+  .add-task-row button, .btn{
+    background:var(--navy); color:#fff; border:none; border-radius:6px;
+    padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .add-task-row button:hover, .btn:hover{background:var(--navy-2);}
+
+  .panels{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:20px;
+  }
+  .panel{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .panel h3{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:19px; text-transform:uppercase; letter-spacing:0.02em;
+    margin-bottom:14px;
+  }
+  .panel .caption{font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:14px; font-family:'IBM Plex Mono',monospace;}
+
+  .donut-wrap{display:flex; align-items:center; gap:18px;}
+  .legend{display:flex; flex-direction:column; gap:10px; font-size:13.5px;}
+  .legend .row{display:flex; align-items:center; gap:8px;}
+  .legend .dot{width:11px; height:11px; border-radius:3px;}
+
+  .notes-list{display:flex; flex-direction:column; gap:10px; margin-bottom:12px;}
+  .note-item{
+    background:#FCF7E3;
+    border:1px solid #EEDFA8;
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:13.5px;
+    position:relative;
+  }
+  .note-item .del{
+    position:absolute; top:6px; right:8px; cursor:pointer; color:var(--muted); font-size:12px; border:none; background:none;
+  }
+  .note-item .date{display:block; margin-top:6px; font-size:10.5px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
+  .note-add{display:flex; gap:8px;}
+  .note-add input{flex:1; border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-size:13px;}
+
+  .empty{color:var(--muted); font-size:13px; font-style:italic;}
+  .loading{padding:40px; text-align:center; color:var(--muted);}
+
+  @media (max-width: 980px){
+    .layout{grid-template-columns:1fr;}
+    nav.sidebar{flex-direction:row; overflow-x:auto;}
+    .board-columns{grid-template-columns:1fr;}
+    .panels{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark">HSE</div>
+    <div>
+      <h1 class="display">SCI HSE Dashboard</h1>
+      <div class="sub">SEPANGAR CHEMICAL INDUSTRY · HEALTH SAFETY ENVIRONMENT</div>
+    </div>
+  </div>
+  <div class="status-cluster">
+    <div class="alert-pill">⚠ <span id="alertCount">0</span> Pending</div>
+    <div id="clock" class="mono" style="color:#AEB6C2;font-size:13px;"></div>
+  </div>
+</header>
+<div class="hazard-stripe"></div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="item active"><span class="icon">📋</span> Monthly Inspection</div>
+    <div class="item"><span class="icon">🎓</span> Training</div>
+    <div class="item"><span class="icon">📅</span> Meetings</div>
+    <div class="item"><span class="icon">👁</span> Safety Observations</div>
+    <div class="item"><span class="icon">📁</span> Others</div>
+  </nav>
+
+  <main>
+    <section class="board-card">
+      <div class="hazard-stripe"></div>
+      <div class="board-columns">
+        <div class="column" id="col-todo">
+          <h2>To Do <span class="count mono" id="count-todo">0</span></h2>
+          <div class="cards"></div>
+          <div class="add-task-row">
+            <input type="text" placeholder="New task..." id="newTaskInput">
+            <button onclick="addTask()">Add</button>
+          </div>
+        </div>
+        <div class="column" id="col-progress">
+          <h2>In Progress <span class="count mono" id="count-progress">0</span></h2>
+          <div class="cards"></div>
+        </div>
+        <div class="column" id="col-done">
+          <h2>Done <span class="count mono" id="count-done">0</span></h2>
+          <div class="cards"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panels">
+      <div class="panel">
+        <h3>Task Status</h3>
+        <div class="caption" id="taskTotalCaption">— tasks tracked</div>
+        <div class="donut-wrap">
+          <svg id="donutChart" width="150" height="150" viewBox="0 0 150 150"></svg>
+          <div class="legend" id="donutLegend"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Safety Observations</h3>
+        <div class="caption">Last 6 months</div>
+        <svg id="trendChart" width="100%" height="150" viewBox="0 0 320 150" preserveAspectRatio="none"></svg>
+        <div class="note-add" style="margin-top:12px;">
+          <input type="number" id="obsCountInput" placeholder="Count for this month">
+          <button class="btn" onclick="logObservation()">Log</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Personal Notes</h3>
+        <div class="notes-list" id="notesList"></div>
+        <div class="note-add">
+          <input type="text" id="newNoteInput" placeholder="Reminder...">
+          <button class="btn" onclick="addNote()">Pin</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+const CONFIG = {
+  // Paste your Apps Script Web App URL here after deploying Code.gs
+  API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
+};
+
+let STATE = { tasks: [], observations: [], notes: [] };
+const STATUS_MAP = { 'To Do': 'todo', 'In Progress': 'progress', 'Done': 'done' };
+const STATUS_LABEL = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
+const STATUS_COLORS = { todo: '#D6484B', progress: '#E8A33D', done: '#3E8F63' };
+
+function tickClock(){
+  document.getElementById('clock').textContent = new Date().toLocaleString('en-MY', { hour12:false });
+}
+tickClock(); setInterval(tickClock, 1000);
+
+async function apiGet(){
+  const res = await fetch(CONFIG.API_URL);
+  return res.json();
+}
+async function apiPost(payload){
+  const res = await fetch(CONFIG.API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+  return res.json();
+}
+
+async function loadData(){
+  try{
+    STATE = await apiGet();
+  }catch(err){
+    console.error('Failed to load data', err);
+    document.querySelectorAll('.cards').forEach(c => c.innerHTML = '<div class="empty">Could not connect. Check CONFIG.API_URL.</div>');
+    return;
+  }
+  render();
+}
+
+function render(){
+  renderBoard();
+  renderDonut();
+  renderTrend();
+  renderNotes();
+}
+
+function renderBoard(){
+  const groups = { todo: [], progress: [], done: [] };
+  (STATE.tasks || []).forEach(t => {
+    const key = STATUS_MAP[t.Status] || 'todo';
+    groups[key].push(t);
+  });
+
+  ['todo','progress','done'].forEach(key => {
+    const col = document.querySelector('#col-' + key + ' .cards');
+    document.getElementById('count-' + key).textContent = groups[key].length;
+    col.innerHTML = '';
+    if (groups[key].length === 0){
+      col.innerHTML = '<div class="empty">No tasks</div>';
+      return;
+    }
+    groups[key].forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'task-card ' + key;
+      card.innerHTML = `
+        <div class="name">${escapeHtml(t.Task)}</div>
+        <div class="row">
+          <span class="badge ${key}">${STATUS_LABEL[key]}</span>
+          <select class="status-select" onchange="changeStatus('${t.ID}', this.value)">
+            <option value="To Do" ${t.Status==='To Do'?'selected':''}>To Do</option>
+            <option value="In Progress" ${t.Status==='In Progress'?'selected':''}>In Progress</option>
+            <option value="Done" ${t.Status==='Done'?'selected':''}>Done</option>
+          </select>
+        </div>`;
+      col.appendChild(card);
+    });
+  });
+
+  const pending = groups.todo.length;
+  document.getElementById('alertCount').textContent = pending;
+}
+
+function renderDonut(){
+  const total = (STATE.tasks || []).length;
+  const groups = { todo: 0, progress: 0, done: 0 };
+  (STATE.tasks || []).forEach(t => { groups[STATUS_MAP[t.Status] || 'todo']++; });
+
+  document.getElementById('taskTotalCaption').textContent = total + ' tasks tracked';
+
+  const svg = document.getElementById('donutChart');
+  svg.innerHTML = '';
+  if (total === 0){
+    svg.innerHTML = '<circle cx="75" cy="75" r="60" fill="none" stroke="#E1E4DF" stroke-width="22"/>';
+    document.getElementById('donutLegend').innerHTML = '<div class="empty">No data yet</div>';
+    return;
+  }
+
+  const order = ['done','progress','todo'];
+  let angleStart = -90;
+  const r = 60, cx = 75, cy = 75, circumference = 2 * Math.PI * r;
+
+  order.forEach(key => {
+    const value = groups[key];
+    if (value === 0) return;
+    const frac = value / total;
+    const dash = frac * circumference;
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', r);
+    circle.setAttribute('fill', 'none');
+    circle.setAttribute('stroke', STATUS_COLORS[key]);
+    circle.setAttribute('stroke-width', 22);
+    circle.setAttribute('stroke-dasharray', `${dash} ${circumference - dash}`);
+    circle.setAttribute('transform', `rotate(${angleStart} ${cx} ${cy})`);
+    svg.appendChild(circle);
+    angleStart += frac * 360;
+  });
+
+  const legend = document.getElementById('donutLegend');
+  legend.innerHTML = order.map(key => {
+    const pct = Math.round((groups[key] / total) * 100);
+    if (groups[key] === 0) return '';
+    return `<div class="row"><span class="dot" style="background:${STATUS_COLORS[key]}"></span>${pct}% ${STATUS_LABEL[key]}</div>`;
+  }).join('');
+}
+
+function renderTrend(){
+  const svg = document.getElementById('trendChart');
+  svg.innerHTML = '';
+  const obs = (STATE.observations || []).slice(-6);
+  if (obs.length === 0){
+    svg.innerHTML = '<text x="10" y="75" fill="#6B7480" font-size="12">No observation logs yet</text>';
+    return;
+  }
+  const maxVal = Math.max(...obs.map(o => Number(o.Count) || 0), 10);
+  const w = 320, h = 150, padL = 26, padB = 22, padT = 10;
+  const stepX = (w - padL - 10) / (obs.length - 1 || 1);
+
+  const points = obs.map((o,i) => {
+    const x = padL + i * stepX;
+    const y = padT + (1 - (Number(o.Count)||0) / maxVal) * (h - padT - padB);
+    return [x,y];
+  });
+
+  const linePath = points.map((p,i) => (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const areaPath = linePath + ` L${points[points.length-1][0].toFixed(1)},${h-padB} L${points[0][0].toFixed(1)},${h-padB} Z`;
+
+  svg.innerHTML = `
+    <path d="${areaPath}" fill="#3E8F6333"></path>
+    <path d="${linePath}" fill="none" stroke="#3E8F63" stroke-width="2.5"></path>
+    ${points.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#fff" stroke="#3E8F63" stroke-width="2.5"></circle>`).join('')}
+    ${obs.map((o,i) => `<text x="${points[i][0]}" y="${h-4}" font-size="9" fill="#6B7480" text-anchor="middle">${o.Month}</text>`).join('')}
+  `;
+}
+
+function renderNotes(){
+  const list = document.getElementById('notesList');
+  const notes = STATE.notes || [];
+  if (notes.length === 0){
+    list.innerHTML = '<div class="empty">No notes pinned</div>';
+    return;
+  }
+  list.innerHTML = notes.map(n => `
+    <div class="note-item">
+      <button class="del" onclick="deleteNote('${n.ID}')">✕</button>
+      ${escapeHtml(n.Text)}
+      <span class="date">${formatDate(n.DateAdded)}</span>
+    </div>
+  `).join('');
+}
+
+async function changeStatus(id, status){
+  await apiPost({ action:'updateStatus', id, status });
+  loadData();
+}
+
+async function addTask(){
+  const input = document.getElementById('newTaskInput');
+  const task = input.value.trim();
+  if (!task) return;
+  input.value = '';
+  await apiPost({ action:'addTask', task, status:'To Do' });
+  loadData();
+}
+
+async function logObservation(){
+  const input = document.getElementById('obsCountInput');
+  const count = input.value.trim();
+  if (!count) return;
+  const month = new Date().toLocaleString('en-US', { month:'short' });
+  input.value = '';
+  await apiPost({ action:'addObservation', month, count });
+  loadData();
+}
+
+async function addNote(){
+  const input = document.getElementById('newNoteInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  await apiPost({ action:'addNote', text });
+  loadData();
+}
+
+async function deleteNote(id){
+  await apiPost({ action:'deleteNote', id });
+  loadData();
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+function formatDate(d){
+  if (!d) return '';
+  const date = new Date(d);
+  if (isNaN(date)) return d;
+  return date.toLocaleDateString('en-MY', { day:'2-digit', month:'short' });
+}
+
+loadData();
+</script>
+</body>
+</html>
