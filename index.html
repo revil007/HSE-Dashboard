@@ -250,16 +250,17 @@
 
 <div class="layout">
   <nav class="sidebar">
-    <div class="item active"><span class="icon">📋</span> Monthly Inspection</div>
-    <div class="item"><span class="icon">🎓</span> Training</div>
-    <div class="item"><span class="icon">📅</span> Meetings</div>
-    <div class="item"><span class="icon">👁</span> Safety Observations</div>
-    <div class="item"><span class="icon">📁</span> Others</div>
+    <div class="item active" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Monthly Inspection</div>
+    <div class="item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
+    <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
+    <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon">👁</span> Safety Observations</div>
+    <div class="item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon">📁</span> Others</div>
   </nav>
 
   <main>
     <section class="board-card">
       <div class="hazard-stripe"></div>
+      <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; margin-bottom:16px; color:var(--navy);">Monthly Inspection</h2>
       <div class="board-columns">
         <div class="column" id="col-todo">
           <h2>To Do <span class="count mono" id="count-todo">0</span></h2>
@@ -292,12 +293,8 @@
 
       <div class="panel">
         <h3>Safety Observations</h3>
-        <div class="caption">Last 6 months</div>
+        <div class="caption">Last 6 months — synced from Observation Form</div>
         <svg id="trendChart" width="100%" height="150" viewBox="0 0 320 150" preserveAspectRatio="none"></svg>
-        <div class="note-add" style="margin-top:12px;">
-          <input type="number" id="obsCountInput" placeholder="Count for this month">
-          <button class="btn" onclick="logObservation()">Log</button>
-        </div>
       </div>
 
       <div class="panel">
@@ -320,6 +317,17 @@ const CONFIG = {
 };
 
 let STATE = { tasks: [], observations: [], notes: [] };
+let currentCategory = 'Monthly Inspection';
+
+function switchCategory(category, el){
+  currentCategory = category;
+  document.querySelectorAll('nav.sidebar .item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('boardTitle').textContent = category;
+  document.getElementById('newTaskInput').placeholder = 'New ' + category.toLowerCase() + ' task...';
+  renderBoard();
+}
+
 const STATUS_MAP = { 'To Do': 'todo', 'In Progress': 'progress', 'Done': 'done' };
 const STATUS_LABEL = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
 const STATUS_COLORS = { todo: '#D6484B', progress: '#E8A33D', done: '#3E8F63' };
@@ -362,10 +370,12 @@ function render(){
 
 function renderBoard(){
   const groups = { todo: [], progress: [], done: [] };
-  (STATE.tasks || []).forEach(t => {
-    const key = STATUS_MAP[t.Status] || 'todo';
-    groups[key].push(t);
-  });
+  (STATE.tasks || [])
+    .filter(t => (t.Category || 'Monthly Inspection') === currentCategory)
+    .forEach(t => {
+      const key = STATUS_MAP[t.Status] || 'todo';
+      groups[key].push(t);
+    });
 
   ['todo','progress','done'].forEach(key => {
     const col = document.querySelector('#col-' + key + ' .cards');
@@ -392,16 +402,17 @@ function renderBoard(){
     });
   });
 
-  const pending = groups.todo.length;
-  document.getElementById('alertCount').textContent = pending;
+  const globalPending = (STATE.tasks || []).filter(t => (STATUS_MAP[t.Status] || 'todo') === 'todo').length;
+  document.getElementById('alertCount').textContent = globalPending;
 }
 
 function renderDonut(){
-  const total = (STATE.tasks || []).length;
+  const catTasks = (STATE.tasks || []).filter(t => (t.Category || 'Monthly Inspection') === currentCategory);
+  const total = catTasks.length;
   const groups = { todo: 0, progress: 0, done: 0 };
-  (STATE.tasks || []).forEach(t => { groups[STATUS_MAP[t.Status] || 'todo']++; });
+  catTasks.forEach(t => { groups[STATUS_MAP[t.Status] || 'todo']++; });
 
-  document.getElementById('taskTotalCaption').textContent = total + ' tasks tracked';
+  document.getElementById('taskTotalCaption').textContent = total + ' ' + currentCategory.toLowerCase() + ' tasks';
 
   const svg = document.getElementById('donutChart');
   svg.innerHTML = '';
@@ -494,17 +505,7 @@ async function addTask(){
   const task = input.value.trim();
   if (!task) return;
   input.value = '';
-  await apiPost({ action:'addTask', task, status:'To Do' });
-  loadData();
-}
-
-async function logObservation(){
-  const input = document.getElementById('obsCountInput');
-  const count = input.value.trim();
-  if (!count) return;
-  const month = new Date().toLocaleString('en-US', { month:'short' });
-  input.value = '';
-  await apiPost({ action:'addObservation', month, count });
+  await apiPost({ action:'addTask', task, status:'To Do', category: currentCategory });
   loadData();
 }
 
