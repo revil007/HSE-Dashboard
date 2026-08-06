@@ -355,7 +355,7 @@
 
   .panels{
     display:grid;
-    grid-template-columns:1fr 1fr 1fr;
+    grid-template-columns:0.85fr 1.5fr 0.85fr;
     gap:20px;
   }
   .panel{
@@ -376,6 +376,21 @@
     display:flex; align-items:center; gap:8px;
   }
   .panel .caption, .board-card .caption{font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:14px; font-family:'IBM Plex Mono',monospace;}
+
+  .trend-panel-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+    margin-bottom:14px; padding-bottom:10px; border-bottom:2px solid var(--surface);
+  }
+  .trend-total{text-align:right; line-height:1.1;}
+  .trend-total .n{
+    display:block; font-family:'Barlow Condensed',sans-serif; font-weight:800;
+    font-size:26px; color:var(--navy);
+  }
+  .trend-total .l{
+    display:block; font-size:10px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:0.05em; font-family:'IBM Plex Mono',monospace; margin-top:1px;
+  }
+  .trend-chart-wrap{position:relative; height:230px;}
 
   .donut-wrap{display:flex; align-items:center; gap:18px;}
   .legend{display:flex; flex-direction:column; gap:10px; font-size:13.5px;}
@@ -435,6 +450,9 @@
     .inspection-sections{grid-template-columns:1fr;}
 
     .insp-chart-wrap{height:280px;}
+    .trend-chart-wrap{height:220px;}
+    .trend-panel-head{flex-direction:column; align-items:flex-start; gap:6px;}
+    .trend-total{text-align:left;}
     .insp-chart-head{flex-direction:column; align-items:flex-start;}
   }
 </style>
@@ -509,9 +527,18 @@
       </div>
 
       <div class="panel">
-        <h3>Safety Observations</h3>
-        <div class="caption">Current Year — Synced from Observation Form</div>
-        <canvas id="trendChart" height="150"></canvas>
+        <div class="trend-panel-head">
+          <div>
+            <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Safety Observations</h3>
+            <div class="caption" style="margin:0;">Current Year · Synced from Observation Form</div>
+          </div>
+          <div class="trend-total" id="trendTotalStat">
+            <span class="n">—</span><span class="l">Total logged</span>
+          </div>
+        </div>
+        <div class="trend-chart-wrap">
+          <canvas id="trendChart"></canvas>
+        </div>
       </div>
 
       <div class="panel">
@@ -827,23 +854,44 @@ function renderDonut(){
 
 let trendChartInstance=null;
 
+const TREND_SERIES = [
+  { key:'UnsafeAct',       label:'Unsafe Act',       color:'#D6484B' },
+  { key:'UnsafeCondition', label:'Unsafe Condition', color:'#E2993B' },
+  { key:'Suggestion',      label:'Suggestion',       color:'#3B82A6' },
+  { key:'GoodPractice',    label:'Good Practice',    color:'#2F8F5B' }
+];
+
 function renderTrend(){
   const canvas=document.getElementById('trendChart');
+  const wrap=canvas ? canvas.parentElement : null;
   if(!canvas) return;
   const obs=STATE.observations||[];
 
   if(trendChartInstance){
     trendChartInstance.destroy();
+    trendChartInstance = null;
   }
 
+  const totalEl = document.querySelector('#trendTotalStat .n');
+  if(totalEl){
+    const total = obs.reduce((sum, m) => sum + (m.UnsafeAct||0) + (m.UnsafeCondition||0) + (m.Suggestion||0) + (m.GoodPractice||0), 0);
+    totalEl.textContent = obs.length ? total : '—';
+  }
+
+  let emptyEl = wrap.querySelector('.trend-empty');
   if(obs.length===0){
-    const ctx=canvas.getContext('2d');
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.font='12px Arial';
-    ctx.fillStyle='#6B7480';
-    ctx.fillText('No observation data',20,40);
+    canvas.style.display='none';
+    if(!emptyEl){
+      emptyEl = document.createElement('div');
+      emptyEl.className = 'trend-empty insp-chart-empty';
+      emptyEl.innerHTML = '<div class="icon">👁</div><div class="msg">No observation data</div><div class="sub">Records sync automatically from the Observation Form</div>';
+      wrap.appendChild(emptyEl);
+    }
+    emptyEl.style.display='flex';
     return;
   }
+  canvas.style.display='block';
+  if(emptyEl) emptyEl.style.display='none';
 
   const ctx=canvas.getContext('2d');
 
@@ -851,22 +899,58 @@ function renderTrend(){
     type:'line',
     data:{
       labels:obs.map(x=>x.Month),
-      datasets:[
-        {label:'Unsafe Act',data:obs.map(x=>x.UnsafeAct||0),borderWidth:2,tension:.35},
-        {label:'Unsafe Condition',data:obs.map(x=>x.UnsafeCondition||0),borderWidth:2,tension:.35},
-        {label:'Suggestion',data:obs.map(x=>x.Suggestion||0),borderWidth:2,tension:.35},
-        {label:'Good Practice',data:obs.map(x=>x.GoodPractice||0),borderWidth:2,tension:.35}
-      ]
+      datasets: TREND_SERIES.map(s => ({
+        label: s.label,
+        data: obs.map(x => x[s.key] || 0),
+        borderColor: s.color,
+        backgroundColor: s.color,
+        borderWidth: 2.5,
+        tension: 0.35,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        pointBackgroundColor: s.color,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1.5,
+        pointHoverBorderWidth: 2
+      }))
     },
     options:{
       responsive:true,
+      maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
+      layout:{padding:{top:6, right:6}},
       plugins:{
-        legend:{position:'bottom'},
-        tooltip:{mode:'index',intersect:false}
+        legend:{
+          position:'bottom',
+          labels:{
+            usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8,
+            padding:14,
+            font:{family:"'Inter', sans-serif", size:11.5, weight:600},
+            color:'#171B22'
+          }
+        },
+        tooltip:{
+          mode:'index', intersect:false,
+          backgroundColor:'#171B22',
+          padding:11,
+          cornerRadius:8,
+          titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700},
+          bodyFont:{family:"'Inter', sans-serif", size:12},
+          bodySpacing:5,
+          usePointStyle:true,
+          boxPadding:4
+        }
       },
       scales:{
-        y:{beginAtZero:true,ticks:{precision:0}}
+        x:{
+          grid:{display:false},
+          ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}
+        },
+        y:{
+          beginAtZero:true,
+          grid:{color:'#EDEEE9'},
+          ticks:{precision:0, font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}
+        }
       }
     }
   });
