@@ -175,6 +175,21 @@
   .insp-card .i-meta{
     font-size:11px; color:var(--muted); margin-top:10px; font-family:'IBM Plex Mono',monospace;
   }
+  .insp-chart-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid var(--surface);
+  }
+  .insp-legend{display:flex; gap:16px; font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
+  .insp-legend span{display:flex; align-items:center; gap:6px;}
+  .insp-legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
+  .insp-chart-wrap{position:relative; height:340px;}
+  .insp-chart-empty{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    height:100%; color:var(--muted); gap:8px; text-align:center;
+  }
+  .insp-chart-empty .icon{font-size:28px; opacity:0.5;}
+  .insp-chart-empty .msg{font-size:13.5px; font-weight:600;}
+  .insp-chart-empty .sub{font-size:12px; font-family:'IBM Plex Mono',monospace;}
   .board-header{
     display:flex; align-items:center; justify-content:space-between; gap:16px;
     margin-bottom:16px; flex-wrap:wrap;
@@ -470,9 +485,25 @@
     </section>
 
     <section class="board-card">
-      <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Inspection Score by Section</h3>
-      <div class="caption" style="margin-bottom:14px;">Average score (%) from Workplace Inspection records</div>
-      <canvas id="inspectionChart" height="110"></canvas>
+      <div class="insp-chart-head">
+        <div>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Inspection Score by Section</h3>
+          <div class="caption" style="margin:0;">Average score (%) from Workplace Inspection records · Target 80%</div>
+        </div>
+        <div class="insp-legend">
+          <span><i style="background:var(--green);"></i> ≥80%</span>
+          <span><i style="background:var(--amber);"></i> 60–79%</span>
+          <span><i style="background:var(--red);"></i> &lt;60%</span>
+        </div>
+      </div>
+      <div class="insp-chart-wrap">
+        <canvas id="inspectionChart"></canvas>
+        <div class="insp-chart-empty" id="inspectionChartEmpty" style="display:none;">
+          <div class="icon">📋</div>
+          <div class="msg">No inspection records yet</div>
+          <div class="sub">Complete a section under "Monthly Inspection" to see scores here</div>
+        </div>
+      </div>
     </section>
   </main>
 </div>
@@ -804,23 +835,67 @@ function renderTrend(){
 const INSPECTION_SECTIONS = ['Kawasan Store','Maintenance','Glue Plant','Formalin','Quality Control','Hardener','Admin'];
 let inspectionChartInstance=null;
 
+const targetLinePlugin = {
+  id: 'targetLine',
+  afterDraw(chart){
+    const {ctx, chartArea, scales} = chart;
+    if(!chartArea || !scales.x) return;
+    const x = scales.x.getPixelForValue(80);
+    ctx.save();
+    ctx.strokeStyle = '#B8BEC4';
+    ctx.setLineDash([4,4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, chartArea.top);
+    ctx.lineTo(x, chartArea.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#8A93A0';
+    ctx.font = "600 10.5px 'IBM Plex Mono', monospace";
+    ctx.textAlign = 'center';
+    ctx.fillText('TARGET 80%', x, chartArea.top - 6);
+    ctx.restore();
+  }
+};
+
+const barValueLabelPlugin = {
+  id: 'barValueLabel',
+  afterDatasetsDraw(chart){
+    const {ctx} = chart;
+    chart.data.datasets.forEach((dataset, di) => {
+      const meta = chart.getDatasetMeta(di);
+      meta.data.forEach((bar, i) => {
+        const value = dataset.data[i];
+        ctx.save();
+        ctx.font = "700 12px 'Inter', sans-serif";
+        ctx.fillStyle = '#171B22';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(value + '%', bar.x + 8, bar.y);
+        ctx.restore();
+      });
+    });
+  }
+};
+
 function renderInspectionChart(){
   const canvas=document.getElementById('inspectionChart');
+  const emptyEl=document.getElementById('inspectionChartEmpty');
   if(!canvas) return;
   const records = STATE.inspections || [];
 
   if(inspectionChartInstance){
     inspectionChartInstance.destroy();
+    inspectionChartInstance = null;
   }
 
   if(records.length===0){
-    const ctx=canvas.getContext('2d');
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.font='12px Arial';
-    ctx.fillStyle='#6B7480';
-    ctx.fillText('No inspection records yet',20,40);
+    canvas.style.display='none';
+    if(emptyEl) emptyEl.style.display='flex';
     return;
   }
+  canvas.style.display='block';
+  if(emptyEl) emptyEl.style.display='none';
 
   const avgScores = INSPECTION_SECTIONS.map(sec => {
     const secRecords = records.filter(r => r.Section === sec);
@@ -829,7 +904,7 @@ function renderInspectionChart(){
     return Math.round(sum / secRecords.length);
   });
 
-  const barColors = avgScores.map(s => s >= 80 ? '#3E8F63' : (s >= 60 ? '#E8A33D' : '#D6484B'));
+  const barColors = avgScores.map(s => s >= 80 ? '#2F8F5B' : (s >= 60 ? '#E2993B' : '#D6484B'));
 
   const ctx=canvas.getContext('2d');
   inspectionChartInstance=new Chart(ctx,{
@@ -840,19 +915,39 @@ function renderInspectionChart(){
         label:'Average Score (%)',
         data: avgScores,
         backgroundColor: barColors,
-        borderRadius: 4
+        borderRadius: 5,
+        barPercentage: 0.65,
+        categoryPercentage: 0.7
       }]
     },
     options:{
+      indexAxis: 'y',
       responsive:true,
+      maintainAspectRatio:false,
+      layout:{ padding:{ top:22, right:38 } },
       plugins:{
         legend:{display:false},
-        tooltip:{callbacks:{label: ctx => ctx.parsed.y + '%'}}
+        tooltip:{
+          backgroundColor:'#171B22',
+          padding:10,
+          titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700},
+          bodyFont:{family:"'Inter', sans-serif", size:12.5},
+          callbacks:{label: ctx => 'Average score: ' + ctx.parsed.x + '%'}
+        }
       },
       scales:{
-        y:{beginAtZero:true, max:100, ticks:{callback: v => v + '%'}}
+        x:{
+          beginAtZero:true, max:100,
+          grid:{color:'#EDEEE9'},
+          ticks:{callback: v => v + '%', font:{family:"'IBM Plex Mono', monospace", size:11}, color:'#6B7280'}
+        },
+        y:{
+          grid:{display:false},
+          ticks:{font:{family:"'Inter', sans-serif", size:13, weight:600}, color:'#171B22'}
+        }
       }
-    }
+    },
+    plugins:[targetLinePlugin, barValueLabelPlugin]
   });
 }
 
