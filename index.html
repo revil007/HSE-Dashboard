@@ -392,10 +392,30 @@
   }
   .trend-chart-wrap{position:relative; height:230px;}
 
-  .donut-wrap{display:flex; align-items:center; gap:18px;}
-  .legend{display:flex; flex-direction:column; gap:10px; font-size:13.5px;}
-  .legend .row{display:flex; align-items:center; gap:8px;}
-  .legend .dot{width:11px; height:11px; border-radius:3px;}
+  .donut-wrap{display:flex; align-items:center; gap:22px;}
+  .donut-svg-wrap{position:relative; width:150px; height:150px; flex-shrink:0;}
+  .donut-svg-wrap svg{width:100%; height:100%; display:block;}
+  .donut-center{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; pointer-events:none;
+  }
+  .donut-center .n{
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:29px;
+    color:var(--navy); line-height:1;
+  }
+  .donut-center .l{
+    font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;
+    font-family:'IBM Plex Mono',monospace; margin-top:3px;
+  }
+  .legend{display:flex; flex-direction:column; gap:12px; font-size:13px; flex:1; min-width:0;}
+  .legend .row{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .legend .row .label{display:flex; align-items:center; gap:8px; color:var(--ink); font-weight:600; min-width:0;}
+  .legend .row .label span.txt{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .legend .dot{width:10px; height:10px; border-radius:3px; flex-shrink:0;}
+  .legend .row .count{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); flex-shrink:0;
+  }
+  .legend .row .count b{color:var(--ink); font-weight:700;}
 
   .notes-list{display:flex; flex-direction:column; gap:10px; margin-bottom:12px;}
   .note-item{
@@ -518,10 +538,16 @@
 
     <section class="panels">
       <div class="panel">
-        <h3>Task Status</h3>
-        <div class="caption" id="taskTotalCaption">— tasks tracked</div>
+        <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Task Status</h3>
+        <div class="caption" id="taskTotalCaption" style="margin:0 0 14px;">— tasks tracked</div>
         <div class="donut-wrap">
-          <svg id="donutChart" width="150" height="150" viewBox="0 0 150 150"></svg>
+          <div class="donut-svg-wrap">
+            <svg id="donutChart" viewBox="0 0 150 150"></svg>
+            <div class="donut-center" id="donutCenter">
+              <span class="n">0%</span>
+              <span class="l">Complete</span>
+            </div>
+          </div>
           <div class="legend" id="donutLegend"></div>
         </div>
       </div>
@@ -621,7 +647,7 @@ function switchCategory(category, el){
 
 const STATUS_MAP = { 'To Do': 'todo', 'In Progress': 'progress', 'Done': 'done' };
 const STATUS_LABEL = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
-const STATUS_COLORS = { todo: '#D6484B', progress: '#E8A33D', done: '#3E8F63' };
+const STATUS_COLORS = { todo: '#D6484B', progress: '#E2993B', done: '#2F8F5B' };
 
 const INSPECTION_SECTIONS_META = [
   { name: 'Kawasan Store', scope: 'Store Office, Loading Bay, Tank Area & Warehouse' },
@@ -817,38 +843,61 @@ function renderDonut(){
   document.getElementById('taskTotalCaption').textContent = total + ' ' + currentCategory.toLowerCase() + ' tasks';
 
   const svg = document.getElementById('donutChart');
+  const centerN = document.querySelector('#donutCenter .n');
+  const centerL = document.querySelector('#donutCenter .l');
   svg.innerHTML = '';
+
   if (total === 0){
-    svg.innerHTML = '<circle cx="75" cy="75" r="60" fill="none" stroke="#E1E4DF" stroke-width="22"/>';
+    svg.innerHTML = '<circle cx="75" cy="75" r="58" fill="none" stroke="#EEEFEA" stroke-width="18"/>';
+    if(centerN){ centerN.textContent = '—'; centerL.textContent = 'No tasks'; }
     document.getElementById('donutLegend').innerHTML = '<div class="empty">No data yet</div>';
     return;
   }
 
   const order = ['done','progress','todo'];
+  const r = 58, cx = 75, cy = 75, strokeW = 18;
+  const circumference = 2 * Math.PI * r;
+  const gapPx = order.filter(k => groups[k] > 0).length > 1 ? 6 : 0;
   let angleStart = -90;
-  const r = 60, cx = 75, cy = 75, circumference = 2 * Math.PI * r;
+
+  // faint track behind the segments
+  const track = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  track.setAttribute('cx', cx); track.setAttribute('cy', cy); track.setAttribute('r', r);
+  track.setAttribute('fill', 'none'); track.setAttribute('stroke', '#EEEFEA');
+  track.setAttribute('stroke-width', strokeW);
+  svg.appendChild(track);
 
   order.forEach(key => {
     const value = groups[key];
     if (value === 0) return;
     const frac = value / total;
-    const dash = frac * circumference;
+    const dash = Math.max(frac * circumference - gapPx, 0);
     const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
     circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', r);
     circle.setAttribute('fill', 'none');
     circle.setAttribute('stroke', STATUS_COLORS[key]);
-    circle.setAttribute('stroke-width', 22);
+    circle.setAttribute('stroke-width', strokeW);
+    circle.setAttribute('stroke-linecap', 'round');
     circle.setAttribute('stroke-dasharray', `${dash} ${circumference - dash}`);
     circle.setAttribute('transform', `rotate(${angleStart} ${cx} ${cy})`);
     svg.appendChild(circle);
     angleStart += frac * 360;
   });
 
+  if(centerN){
+    const donePct = Math.round((groups.done / total) * 100);
+    centerN.textContent = donePct + '%';
+    centerL.textContent = 'Complete';
+  }
+
   const legend = document.getElementById('donutLegend');
   legend.innerHTML = order.map(key => {
-    const pct = Math.round((groups[key] / total) * 100);
     if (groups[key] === 0) return '';
-    return `<div class="row"><span class="dot" style="background:${STATUS_COLORS[key]}"></span>${pct}% ${STATUS_LABEL[key]}</div>`;
+    const pct = Math.round((groups[key] / total) * 100);
+    return `<div class="row">
+      <span class="label"><span class="dot" style="background:${STATUS_COLORS[key]}"></span><span class="txt">${STATUS_LABEL[key]}</span></span>
+      <span class="count"><b>${groups[key]}</b> · ${pct}%</span>
+    </div>`;
   }).join('');
 }
 
