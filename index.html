@@ -122,6 +122,44 @@
     grid-template-columns:repeat(3,1fr);
     gap:20px;
   }
+  .board-header{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    margin-bottom:16px; flex-wrap:wrap;
+  }
+  .meeting-date-box{
+    display:none; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .quarter-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 12px;
+    display:flex; flex-direction:column; gap:6px;
+    min-width:138px;
+  }
+  .quarter-card.done{
+    border-color:var(--green);
+    background:var(--green-bg);
+  }
+  .quarter-card .q-top{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .quarter-card .q-label{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14px;
+    color:var(--navy); text-transform:uppercase; letter-spacing:0.02em;
+  }
+  .quarter-card input[type=date]{
+    border:1px solid var(--border); border-radius:6px; padding:5px 6px;
+    font-family:'Inter',sans-serif; font-size:12px; background:#fff; width:100%;
+  }
+  .quarter-card .q-done-btn{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    padding:4px 8px; border-radius:20px; border:1px solid var(--border);
+    background:#fff; color:var(--muted); cursor:pointer;
+  }
+  .quarter-card.done .q-done-btn{
+    background:var(--green); color:#fff; border-color:var(--green);
+  }
   .column h2{
     font-size:15px;
     text-transform:uppercase;
@@ -150,8 +188,45 @@
   .task-card.todo{border-left-color:var(--red);}
   .task-card.progress{border-left-color:var(--amber);}
   .task-card.done{border-left-color:var(--green);}
-  .task-card .name{font-weight:600; font-size:14.5px; margin-bottom:8px;}
+  .task-card.editing{border-left-color:var(--navy); background:#fff;}
+  .task-card .name{font-weight:600; font-size:14.5px; margin-bottom:0;}
+  .task-card .card-top{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
+    margin-bottom:8px;
+  }
+  .task-card .card-top .name{flex:1;}
+  .card-icons{display:flex; gap:4px; flex-shrink:0;}
+  .icon-btn-sm{
+    background:none; border:1px solid var(--border); border-radius:6px;
+    width:24px; height:24px; font-size:12px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; color:var(--muted);
+    padding:0;
+  }
+  .icon-btn-sm:hover{background:#fff; color:var(--ink);}
+  .icon-btn-sm.danger:hover{background:var(--red-bg); color:var(--red); border-color:var(--red);}
   .task-card .row{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .task-card .meta{
+    display:flex; flex-wrap:wrap; gap:10px;
+    font-size:11px; color:var(--muted); margin-bottom:8px;
+  }
+  .task-card .meta .overdue{color:var(--red); font-weight:700;}
+  .task-card .actions{
+    display:flex; gap:6px; margin-top:10px; padding-top:10px;
+    border-top:1px solid var(--border);
+  }
+  .icon-btn{
+    background:none; border:1px solid var(--border); border-radius:6px;
+    padding:4px 9px; font-size:11px; font-weight:600; cursor:pointer; color:var(--muted);
+    font-family:'Inter',sans-serif;
+  }
+  .icon-btn:hover{background:#fff; color:var(--ink);}
+  .icon-btn.danger:hover{background:var(--red-bg); color:var(--red); border-color:var(--red);}
+  .edit-input{
+    width:100%; border:1px solid var(--border); border-radius:6px;
+    padding:7px 9px; font-size:13px; font-family:'Inter',sans-serif;
+    margin-bottom:8px; background:#fff;
+  }
+  .edit-input.small-label{font-size:10.5px; color:var(--muted); margin-bottom:2px; display:block;}
   .badge{
     font-size:11.5px; font-weight:700; text-transform:uppercase;
     padding:3px 9px; border-radius:20px; letter-spacing:0.03em;
@@ -169,11 +244,18 @@
     cursor:pointer;
   }
   .add-task-row{
-    display:flex; gap:8px; margin-top:6px;
+    display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;
   }
-  .add-task-row input{
-    flex:1; border:1px dashed var(--border); border-radius:6px; padding:8px 10px; font-size:13px; font-family:'Inter',sans-serif;
+  .add-task-row input[type=text]{
+    flex:1; min-width:110px; border:1px dashed var(--border); border-radius:6px; padding:8px 10px; font-size:13px; font-family:'Inter',sans-serif;
     background:transparent;
+  }
+  .add-task-row input[type=date]{
+    border:1px dashed var(--border); border-radius:6px; padding:8px 10px; font-size:12px; font-family:'Inter',sans-serif;
+    background:transparent;
+  }
+  .add-task-row input#newTaskAssignedTo{
+    max-width:120px;
   }
   .add-task-row button, .btn{
     background:var(--navy); color:#fff; border:none; border-radius:6px;
@@ -262,13 +344,18 @@
   <main>
     <section class="board-card">
       <div class="hazard-stripe"></div>
-      <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; margin-bottom:16px; color:var(--navy);">All Tasks</h2>
+      <div class="board-header">
+        <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">All Tasks</h2>
+        <div class="meeting-date-box" id="meetingDateBox"></div>
+      </div>
       <div class="board-columns">
         <div class="column" id="col-todo">
           <h2>To Do <span class="count mono" id="count-todo">0</span></h2>
           <div class="cards"></div>
           <div class="add-task-row">
             <input type="text" placeholder="New task..." id="newTaskInput">
+            <input type="date" id="newTaskDueDate" title="Due date">
+            <input type="text" placeholder="Assigned to..." id="newTaskAssignedTo">
             <button onclick="addTask()">Add</button>
           </div>
         </div>
@@ -318,8 +405,19 @@ const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
 };
 
-let STATE = { tasks: [], observations: [], notes: [] };
+let STATE = { tasks: [], observations: [], notes: [], meetings: [] };
 let currentCategory = 'All Tasks';
+let editingTaskId = null;
+const QUARTERS = ['Q1','Q2','Q3','Q4'];
+
+function getMeetingsData(){
+  // Ensure all 4 quarters always exist, merging with whatever backend returns
+  const existing = STATE.meetings || [];
+  return QUARTERS.map(q => {
+    const found = existing.find(m => m.quarter === q);
+    return found || { quarter: q, expectedDate: '', done: false };
+  });
+}
 
 function switchCategory(category, el){
   currentCategory = category;
@@ -330,6 +428,9 @@ function switchCategory(category, el){
       category==='All Tasks' ? 'Select a category to add task...' : 'New ' + category.toLowerCase() + ' task...';
   const addRow=document.querySelector('.add-task-row');
   if(addRow) addRow.style.display = category==='All Tasks' ? 'none' : 'flex';
+  const meetingBox=document.getElementById('meetingDateBox');
+  if(meetingBox) meetingBox.style.display = category==='Meetings' ? 'flex' : 'none';
+  if(category==='Meetings') renderMeetingQuarters();
   renderBoard();
 }
 
@@ -368,10 +469,28 @@ async function loadData(){
 
 function render(){
   const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=currentCategory==='All Tasks'?'none':'flex';}
+  const meetingBox=document.getElementById('meetingDateBox');
+  if(meetingBox) meetingBox.style.display = currentCategory==='Meetings' ? 'flex' : 'none';
+  renderMeetingQuarters();
   renderBoard();
   renderDonut();
   renderTrend();
   renderNotes();
+}
+
+function renderMeetingQuarters(){
+  const box = document.getElementById('meetingDateBox');
+  if(!box) return;
+  const meetings = getMeetingsData();
+  box.innerHTML = meetings.map(m => `
+    <div class="quarter-card ${m.done ? 'done' : ''}" id="qcard-${m.quarter}">
+      <div class="q-top">
+        <span class="q-label">${m.quarter}</span>
+        <button class="q-done-btn" onclick="toggleMeetingDone('${m.quarter}')">${m.done ? '✓ Done' : 'Mark Done'}</button>
+      </div>
+      <input type="date" value="${m.expectedDate || ''}" onchange="updateMeetingDate('${m.quarter}', this.value)">
+    </div>
+  `).join('');
 }
 
 function renderBoard(){
@@ -396,12 +515,45 @@ function renderBoard(){
     }
     groups[key].forEach(t => {
       const card = document.createElement('div');
+
+      if (editingTaskId === t.ID){
+        card.className = 'task-card editing';
+        card.innerHTML = `
+          <label class="edit-input small-label">Task</label>
+          <input type="text" class="edit-input" id="edit-task-${t.ID}" value="${escapeHtml(t.Task)}">
+          <label class="edit-input small-label">Due date</label>
+          <input type="date" class="edit-input" id="edit-due-${t.ID}" value="${t.DueDate || ''}">
+          <label class="edit-input small-label">Assigned to</label>
+          <input type="text" class="edit-input" id="edit-assigned-${t.ID}" value="${escapeHtml(t.AssignedTo || '')}">
+          <div class="actions">
+            <button class="icon-btn" onclick="saveTaskEdit('${t.ID}')">💾 Save</button>
+            <button class="icon-btn" onclick="cancelEdit()">✕ Cancel</button>
+          </div>`;
+        col.appendChild(card);
+        return;
+      }
+
+      const today = new Date(); today.setHours(0,0,0,0);
+      const due = t.DueDate ? new Date(t.DueDate) : null;
+      const isOverdue = due && !isNaN(due) && due < today && key !== 'done';
+
       card.className = 'task-card ' + key;
       card.innerHTML = `
-        <div class="name">${escapeHtml(t.Task)}</div>
+        <div class="card-top">
+          <div class="name">${escapeHtml(t.Task)}</div>
+          <div class="card-icons">
+            <button class="icon-btn-sm" onclick="editTask('${t.ID}')" title="Edit">✏️</button>
+            <button class="icon-btn-sm danger" onclick="deleteTask('${t.ID}')" title="Delete">🗑️</button>
+          </div>
+        </div>
         ${currentCategory==='All Tasks'
           ? `<div style="font-size:11px;color:#6B7480;margin-bottom:6px;">📁 ${escapeHtml(t.Category||'Monthly Inspection')}</div>`
           : ''}
+        ${(t.DueDate || t.AssignedTo) ? `
+        <div class="meta">
+          ${t.DueDate ? `<span class="${isOverdue ? 'overdue' : ''}">📆 ${formatDate(t.DueDate)}${isOverdue ? ' (Overdue)' : ''}</span>` : ''}
+          ${t.AssignedTo ? `<span>👤 ${escapeHtml(t.AssignedTo)}</span>` : ''}
+        </div>` : ''}
         <div class="row">
           <span class="badge ${key}">${STATUS_LABEL[key]}</span>
           <select class="status-select" onchange="changeStatus('${t.ID}', this.value)">
@@ -535,11 +687,67 @@ async function changeStatus(id, status){
 
 async function addTask(){
   const input = document.getElementById('newTaskInput');
+  const dueDateInput = document.getElementById('newTaskDueDate');
+  const assignedInput = document.getElementById('newTaskAssignedTo');
   const task = input.value.trim();
   if (!task) return;
+  const dueDate = dueDateInput ? dueDateInput.value : '';
+  const assignedTo = assignedInput ? assignedInput.value.trim() : '';
   input.value = '';
-  await apiPost({ action:'addTask', task, status:'To Do', category: currentCategory });
+  if (dueDateInput) dueDateInput.value = '';
+  if (assignedInput) assignedInput.value = '';
+  await apiPost({ action:'addTask', task, status:'To Do', category: currentCategory, dueDate, assignedTo });
   loadData();
+}
+
+function editTask(id){
+  editingTaskId = id;
+  renderBoard();
+}
+
+function cancelEdit(){
+  editingTaskId = null;
+  renderBoard();
+}
+
+async function saveTaskEdit(id){
+  const taskInput = document.getElementById('edit-task-' + id);
+  const dueInput = document.getElementById('edit-due-' + id);
+  const assignedInput = document.getElementById('edit-assigned-' + id);
+  const task = taskInput.value.trim();
+  if (!task) return;
+  await apiPost({
+    action:'updateTask',
+    id,
+    task,
+    dueDate: dueInput.value,
+    assignedTo: assignedInput.value.trim()
+  });
+  editingTaskId = null;
+  loadData();
+}
+
+async function deleteTask(id){
+  if (!confirm('Padam task ni?')) return;
+  await apiPost({ action:'deleteTask', id });
+  loadData();
+}
+
+async function updateMeetingDate(quarter, date){
+  const meetings = getMeetingsData();
+  const m = meetings.find(x => x.quarter === quarter);
+  if(m) m.expectedDate = date;
+  STATE.meetings = meetings;
+  await apiPost({ action:'setMeetingDate', quarter, date });
+}
+
+async function toggleMeetingDone(quarter){
+  const meetings = getMeetingsData();
+  const m = meetings.find(x => x.quarter === quarter);
+  if(m) m.done = !m.done;
+  STATE.meetings = meetings;
+  renderMeetingQuarters();
+  await apiPost({ action:'toggleMeetingDone', quarter, done: m ? m.done : false });
 }
 
 async function addNote(){
