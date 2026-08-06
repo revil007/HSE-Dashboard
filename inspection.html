@@ -161,7 +161,7 @@
   <div class="actions">
     <button class="btn secondary" onclick="window.location.href='index.html'">← Dashboard</button>
     <button class="btn secondary" onclick="window.print()">🖨 Print</button>
-    <button class="btn" onclick="saveInspection()">💾 Save Record</button>
+    <button class="btn" id="saveBtn" onclick="saveInspection()">💾 Save Record</button>
   </div>
 </header>
 <div class="hazard-stripe no-print"></div>
@@ -330,9 +330,24 @@ const SECTIONS = [
   }
 ];
 
+const urlParams = new URLSearchParams(window.location.search);
+const sectionFilter = urlParams.get('section');
+const ACTIVE_SECTIONS = sectionFilter
+  ? SECTIONS.filter(s => s.name === sectionFilter)
+  : SECTIONS;
+
 function buildForm(){
+  if (sectionFilter && ACTIVE_SECTIONS.length === 0){
+    document.getElementById('sectionsContainer').innerHTML =
+      `<p style="padding:20px;color:var(--red);">⚠ Section "${sectionFilter}" tidak dijumpai. <a href="inspection.html">Buka borang penuh</a>.</p>`;
+    return;
+  }
+  if (sectionFilter){
+    document.querySelector('.doc-head h2').textContent = 'Pemeriksaan — ' + sectionFilter;
+    document.title = 'Inspection — ' + sectionFilter + ' — SCI HSE';
+  }
   const container = document.getElementById('sectionsContainer');
-  container.innerHTML = SECTIONS.map((sec, si) => `
+  container.innerHTML = ACTIVE_SECTIONS.map((sec, si) => `
     <div class="section-block" id="section-${si}">
       <div class="s-head">
         <div>
@@ -369,7 +384,7 @@ function buildForm(){
 }
 
 function updateScore(si){
-  const sec = SECTIONS[si];
+  const sec = ACTIVE_SECTIONS[si];
   let yes = 0, answered = 0;
   sec.items.forEach((item, ii) => {
     const checked = document.querySelector(`input[name="item-${si}-${ii}"]:checked`);
@@ -384,7 +399,7 @@ function updateScore(si){
 
 function updateOverall(){
   let totalYes = 0, totalItems = 0;
-  SECTIONS.forEach((sec, si) => {
+  ACTIVE_SECTIONS.forEach((sec, si) => {
     sec.items.forEach((item, ii) => {
       totalItems++;
       const checked = document.querySelector(`input[name="item-${si}-${ii}"]:checked`);
@@ -398,7 +413,7 @@ function updateOverall(){
 }
 
 function collectSectionResults(){
-  return SECTIONS.map((sec, si) => {
+  return ACTIVE_SECTIONS.map((sec, si) => {
     let yes = 0, no = 0;
     const remarksList = [];
     sec.items.forEach((item, ii) => {
@@ -450,7 +465,15 @@ async function saveInspection(){
     const data = await res.json();
     if (data && data.success){
       statusEl.className = 'status-msg ok';
-      statusEl.textContent = '✓ Rekod pemeriksaan berjaya disimpan.';
+      statusEl.textContent = sectionFilter
+        ? '✓ Pemeriksaan "' + sectionFilter + '" berjaya disimpan sebagai Done bulan ini. Kembali ke dashboard...'
+        : '✓ Rekod pemeriksaan berjaya disimpan.';
+      document.getElementById('saveBtn').disabled = true;
+      document.getElementById('saveBtn').style.opacity = '0.5';
+      document.getElementById('saveBtn').textContent = '✓ Saved';
+      if (sectionFilter){
+        setTimeout(() => { window.location.href = 'index.html'; }, 1800);
+      }
     } else {
       statusEl.className = 'status-msg err';
       statusEl.textContent = '⚠ Gagal simpan: ' + (data && data.error ? data.error : 'unknown error');

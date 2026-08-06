@@ -122,6 +122,32 @@
     grid-template-columns:repeat(3,1fr);
     gap:20px;
   }
+  .inspection-sections{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+    gap:14px;
+  }
+  .insp-card{
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    padding:16px; cursor:pointer; transition:box-shadow .15s, transform .15s;
+    border-left:4px solid var(--red);
+  }
+  .insp-card:hover{box-shadow:0 3px 12px rgba(0,0,0,0.08); transform:translateY(-1px);}
+  .insp-card.done{border-left-color:var(--green); cursor:default; opacity:0.85;}
+  .insp-card.done:hover{box-shadow:none; transform:none;}
+  .insp-card .i-name{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:17px;
+    text-transform:uppercase; color:var(--navy); margin-bottom:8px;
+  }
+  .insp-card .i-status{
+    display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.03em; padding:3px 10px; border-radius:12px;
+  }
+  .insp-card .i-status.pending{background:var(--red-bg); color:var(--red);}
+  .insp-card .i-status.done{background:var(--green-bg); color:var(--green);}
+  .insp-card .i-meta{
+    font-size:11px; color:var(--muted); margin-top:10px; font-family:'IBM Plex Mono',monospace;
+  }
   .board-header{
     display:flex; align-items:center; justify-content:space-between; gap:16px;
     margin-bottom:16px; flex-wrap:wrap;
@@ -347,9 +373,10 @@
       <div class="board-header">
         <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">All Tasks</h2>
         <div class="meeting-date-box" id="meetingDateBox"></div>
-        <button class="btn" id="newInspectionBtn" style="display:none;" onclick="window.open('inspection.html','_blank')">📋 New Workplace Inspection</button>
       </div>
-      <div class="board-columns">
+      <div class="caption" id="inspectionCaption" style="display:none;">Klik section untuk mula pemeriksaan bulan ini — status auto reset setiap bulan baru</div>
+      <div class="inspection-sections" id="inspectionSectionsGrid" style="display:none;"></div>
+      <div class="board-columns" id="boardColumns">
         <div class="column" id="col-todo">
           <h2>To Do <span class="count mono" id="count-todo">0</span></h2>
           <div class="cards"></div>
@@ -433,19 +460,66 @@ function switchCategory(category, el){
   document.getElementById('boardTitle').textContent = category;
   document.getElementById('newTaskInput').placeholder =
       category==='All Tasks' ? 'Select a category to add task...' : 'New ' + category.toLowerCase() + ' task...';
+  const isInspection = category === 'Monthly Inspection';
   const addRow=document.querySelector('.add-task-row');
-  if(addRow) addRow.style.display = category==='All Tasks' ? 'none' : 'flex';
+  if(addRow) addRow.style.display = (category==='All Tasks' || isInspection) ? 'none' : 'flex';
   const meetingBox=document.getElementById('meetingDateBox');
   if(meetingBox) meetingBox.style.display = category==='Meetings' ? 'flex' : 'none';
   if(category==='Meetings') renderMeetingQuarters();
-  const inspBtn=document.getElementById('newInspectionBtn');
-  if(inspBtn) inspBtn.style.display = category==='Monthly Inspection' ? 'inline-block' : 'none';
+  const inspGrid=document.getElementById('inspectionSectionsGrid');
+  const inspCaption=document.getElementById('inspectionCaption');
+  const boardCols=document.getElementById('boardColumns');
+  if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
+  if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
+  if(boardCols) boardCols.style.display = isInspection ? 'none' : 'grid';
+  if(isInspection) renderInspectionSections();
   renderBoard();
 }
 
 const STATUS_MAP = { 'To Do': 'todo', 'In Progress': 'progress', 'Done': 'done' };
 const STATUS_LABEL = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
 const STATUS_COLORS = { todo: '#D6484B', progress: '#E8A33D', done: '#3E8F63' };
+
+const INSPECTION_SECTIONS_META = [
+  { name: 'Kawasan Store', scope: 'Store Office, Loading Bay, Tank Area & Warehouse' },
+  { name: 'Maintenance', scope: 'Boiler, Gen Set Room, Electrical Room & Workshop' },
+  { name: 'Glue Plant', scope: 'Reactor & Urea Storage Area' },
+  { name: 'Formalin', scope: 'Formalin Plant, Formalin Control Room & Tank Area' },
+  { name: 'Quality Control', scope: 'Office, Sample Rack & Cutting Machine Area' },
+  { name: 'Hardener', scope: 'Packing Area & Hardener Process Area' },
+  { name: 'Admin', scope: 'Admin Building & Car Park Area' }
+];
+
+function currentMonthKey(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+function renderInspectionSections(){
+  const grid = document.getElementById('inspectionSectionsGrid');
+  if (!grid) return;
+  const monthKey = currentMonthKey();
+  const records = STATE.inspections || [];
+
+  grid.innerHTML = INSPECTION_SECTIONS_META.map(sec => {
+    const rec = records.find(r => r.Section === sec.name && String(r.Date || '').startsWith(monthKey));
+    const isDone = !!rec;
+    return `
+      <div class="insp-card ${isDone ? 'done' : ''}" ${isDone ? '' : `onclick="openInspectionSection('${sec.name.replace(/'/g,"\\'")}')"`}>
+        <div class="i-name">${sec.name}</div>
+        <span class="i-status ${isDone ? 'done' : 'pending'}">${isDone ? '✓ Done' : 'Pending'}</span>
+        <div class="i-meta">${sec.scope}</div>
+        ${isDone
+          ? `<div class="i-meta">Score: ${rec.ScorePercent}% · ${rec.Date}</div>`
+          : `<div class="i-meta">Klik untuk mula pemeriksaan →</div>`}
+      </div>`;
+  }).join('');
+}
+
+function openInspectionSection(sectionName){
+  const monthKey = currentMonthKey();
+  window.open('inspection.html?section=' + encodeURIComponent(sectionName) + '&month=' + monthKey, '_blank');
+}
 
 function tickClock(){
   document.getElementById('clock').textContent = new Date().toLocaleString('en-MY', { hour12:false });
@@ -477,11 +551,17 @@ async function loadData(){
 }
 
 function render(){
-  const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=currentCategory==='All Tasks'?'none':'flex';}
+  const isInspection = currentCategory === 'Monthly Inspection';
+  const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=(currentCategory==='All Tasks'||isInspection)?'none':'flex';}
   const meetingBox=document.getElementById('meetingDateBox');
   if(meetingBox) meetingBox.style.display = currentCategory==='Meetings' ? 'flex' : 'none';
-  const inspBtn=document.getElementById('newInspectionBtn');
-  if(inspBtn) inspBtn.style.display = currentCategory==='Monthly Inspection' ? 'inline-block' : 'none';
+  const inspGrid=document.getElementById('inspectionSectionsGrid');
+  const inspCaption=document.getElementById('inspectionCaption');
+  const boardCols=document.getElementById('boardColumns');
+  if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
+  if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
+  if(boardCols) boardCols.style.display = isInspection ? 'none' : 'grid';
+  if(isInspection) renderInspectionSections();
   renderMeetingQuarters();
   renderBoard();
   renderDonut();
