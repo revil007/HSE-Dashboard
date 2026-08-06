@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workplace Inspection Form — SCI HSE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1C2430;
+    --navy-2:#232D3B;
+    --surface:#F0F2EE;
+    --card:#FFFFFF;
+    --ink:#1A2028;
+    --muted:#6B7480;
+    --border:#E1E4DF;
+    --yellow:#F4B400;
+    --red:#D6484B;
+    --red-bg:#FBE7E7;
+    --green:#3E8F63;
+    --green-bg:#E4F1E9;
+    --radius:10px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--surface);
+    color:var(--ink);
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .display{font-family:'Barlow Condensed',sans-serif; font-weight:800; letter-spacing:0.02em;}
+  .hazard-stripe{
+    height:6px;
+    background:repeating-linear-gradient(135deg, var(--yellow) 0 14px, var(--navy) 14px 28px);
+  }
+  header.topbar{
+    background:var(--navy); color:#fff; padding:18px 28px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  }
+  header.topbar .brand{display:flex; align-items:center; gap:12px;}
+  header.topbar .mark{
+    width:38px; height:38px; border-radius:8px; background:var(--yellow);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; color:var(--navy); font-size:18px;
+  }
+  header.topbar h1{font-size:22px; text-transform:uppercase;}
+  header.topbar .sub{font-size:12px; color:#AEB6C2; font-family:'IBM Plex Mono',monospace; letter-spacing:0.05em;}
+  header.topbar .actions{display:flex; gap:10px;}
+  .btn{
+    background:var(--yellow); color:var(--navy); border:none; border-radius:6px;
+    padding:10px 18px; font-size:13px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.02em;
+  }
+  .btn.secondary{background:transparent; color:#fff; border:1px solid #4A5468;}
+  .btn:hover{opacity:0.9;}
+
+  .sheet{
+    max-width:850px; margin:24px auto; background:var(--card);
+    border:1px solid var(--border); border-radius:var(--radius); padding:30px 34px 40px;
+  }
+  .doc-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
+    border-bottom:3px solid var(--navy); padding-bottom:16px; margin-bottom:20px;
+  }
+  .doc-head h2{font-size:24px; text-transform:uppercase; color:var(--navy);}
+  .doc-head .co{font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-top:4px;}
+  .doc-head .doc-no{font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; text-align:right;}
+
+  .meta-row{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px;
+  }
+  .field{display:flex; flex-direction:column; gap:4px;}
+  .field label{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted);}
+  .field input, .field select{
+    border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-size:13.5px; font-family:'Inter',sans-serif;
+  }
+
+  .section-block{margin-bottom:26px; page-break-inside:avoid;}
+  .section-block .s-head{
+    display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+    background:var(--navy); color:#fff; padding:9px 14px; border-radius:6px 6px 0 0;
+  }
+  .section-block .s-head .s-name{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16.5px; text-transform:uppercase;}
+  .section-block .s-head .s-scope{font-size:11px; color:#AEB6C2; font-family:'IBM Plex Mono',monospace;}
+  .section-block .s-score{
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:700;
+    background:var(--yellow); color:var(--navy); padding:3px 9px; border-radius:12px;
+  }
+
+  table.checklist{width:100%; border-collapse:collapse; border:1px solid var(--border); border-top:none;}
+  table.checklist th{
+    background:var(--surface); font-size:11px; text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--muted); text-align:left; padding:8px 10px; border-bottom:1px solid var(--border);
+  }
+  table.checklist td{
+    padding:8px 10px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:top;
+  }
+  table.checklist tr:last-child td{border-bottom:none;}
+  table.checklist td.no{width:26px; color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12px;}
+  table.checklist td.yn{width:110px; text-align:center;}
+  table.checklist td.remarks input{
+    width:100%; border:none; border-bottom:1px dashed var(--border); font-size:12px; font-family:'Inter',sans-serif;
+    padding:3px 2px; background:transparent;
+  }
+  .yn-group{display:flex; gap:14px; justify-content:center;}
+  .yn-group label{display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer;}
+  .yn-group input{cursor:pointer;}
+
+  .overall-box{
+    margin-top:8px; display:flex; justify-content:flex-end; align-items:center; gap:12px;
+  }
+  .overall-box .label{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em;}
+  .overall-box .score{
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:30px; color:var(--navy);
+  }
+  .overall-box .score.pass{color:var(--green);}
+  .overall-box .score.fail{color:var(--red);}
+
+  .sign-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:34px; padding-top:20px; border-top:2px solid var(--border);
+  }
+  .sign-block .field{margin-bottom:14px;}
+  .sign-block .sig-line{
+    border-bottom:1px solid var(--ink); height:46px; margin-bottom:4px;
+  }
+  .sign-block .sig-title{font-size:12px; font-weight:700; text-transform:uppercase; color:var(--navy); margin-bottom:10px;}
+
+  .status-msg{
+    max-width:850px; margin:0 auto 12px; padding:0 34px;
+    font-size:13px; color:var(--muted);
+  }
+  .status-msg.ok{color:var(--green); font-weight:600;}
+  .status-msg.err{color:var(--red); font-weight:600;}
+
+  @media print{
+    body{background:#fff; padding-bottom:0;}
+    header.topbar, .status-msg, .no-print{display:none !important;}
+    .sheet{box-shadow:none; border:none; margin:0; padding:0; max-width:100%;}
+    .hazard-stripe{display:none;}
+    .section-block{page-break-inside:avoid;}
+    @page{ size:portrait; margin:14mm; }
+  }
+  @media (max-width:700px){
+    .meta-row{grid-template-columns:1fr;}
+    .sign-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar no-print">
+  <div class="brand">
+    <div class="mark">HSE</div>
+    <div>
+      <h1 class="display">Workplace Inspection Form</h1>
+      <div class="sub">SEPANGAR CHEMICAL INDUSTRY · HEALTH SAFETY ENVIRONMENT</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn secondary" onclick="window.location.href='index.html'">← Dashboard</button>
+    <button class="btn secondary" onclick="window.print()">🖨 Print</button>
+    <button class="btn" onclick="saveInspection()">💾 Save Record</button>
+  </div>
+</header>
+<div class="hazard-stripe no-print"></div>
+
+<div class="status-msg" id="statusMsg"></div>
+
+<div class="sheet" id="sheet">
+  <div class="doc-head">
+    <div>
+      <h2 class="display">Borang Pemeriksaan Tempat Kerja</h2>
+      <div class="co">SEPANGAR CHEMICAL INDUSTRY SDN BHD — WORKPLACE INSPECTION CHECKLIST</div>
+    </div>
+    <div class="doc-no">SCI-HSE-FRM-005<br>Rev. 0</div>
+  </div>
+
+  <div class="meta-row">
+    <div class="field">
+      <label>Tarikh Pemeriksaan</label>
+      <input type="date" id="inspDate">
+    </div>
+    <div class="field">
+      <label>Nama Pemeriksa (Inspector)</label>
+      <input type="text" id="inspector" placeholder="Nama penuh...">
+    </div>
+  </div>
+
+  <div id="sectionsContainer"></div>
+
+  <div class="overall-box">
+    <span class="label">Skor Keseluruhan (Overall Score)</span>
+    <span class="score" id="overallScore">—</span>
+  </div>
+
+  <div class="sign-grid">
+    <div class="sign-block">
+      <div class="sig-title">Disahkan Oleh — Safety Section</div>
+      <div class="field">
+        <label>Nama</label>
+        <input type="text" id="safetyName" placeholder="Nama penuh...">
+      </div>
+      <div class="sig-line"></div>
+      <div class="field">
+        <label>Tandatangan & Tarikh</label>
+        <input type="date" id="safetyDate">
+      </div>
+    </div>
+    <div class="sign-block">
+      <div class="sig-title">Disahkan Oleh — Section Owner</div>
+      <div class="field">
+        <label>Nama</label>
+        <input type="text" id="ownerName" placeholder="Nama penuh...">
+      </div>
+      <div class="sig-line"></div>
+      <div class="field">
+        <label>Tandatangan & Tarikh</label>
+        <input type="date" id="ownerDate">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+const CONFIG = {
+  API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
+};
+
+const SECTIONS = [
+  {
+    name: 'Kawasan Store',
+    scope: 'Store Office, Loading Bay, Tank Area & Warehouse',
+    items: [
+      'Housekeeping kawasan store bersih dan tersusun',
+      'Laluan kecemasan / loading bay tidak berhalangan',
+      'Alat pemadam api tersedia & tarikh servis sah',
+      'Penyusunan/stacking barang selamat (rak tidak rosak)',
+      'Tank area — tiada tanda kebocoran / tumpahan',
+      'PPE (helmet / safety boots) dipakai oleh pekerja',
+      'Signage keselamatan & label bahan jelas dipaparkan',
+      'Pencahayaan kawasan store mencukupi'
+    ]
+  },
+  {
+    name: 'Maintenance',
+    scope: 'Boiler, Gen Set Room, Electrical Room & Workshop',
+    items: [
+      'Boiler room bersih, tiada kebocoran wap / minyak',
+      'Gen set room — pengudaraan & bunyi bising terkawal',
+      'Electrical room berkunci & akses terhad',
+      'Panel elektrik dilabel dan tiada wayar terdedah',
+      'Workshop — mesin dilengkapi guard yang sempurna',
+      'APD (sarung tangan, goggle, ear plug) digunakan',
+      'Alat pemadam api sesuai (Class C) tersedia berdekatan',
+      'Housekeeping workshop bebas daripada bahan mudah terbakar bertaburan'
+    ]
+  },
+  {
+    name: 'Glue Plant',
+    scope: 'Reactor & Urea Storage Area',
+    items: [
+      'Reactor — tiada tanda kebocoran / kerosakan pada gasket / injap',
+      'Suhu & tekanan reactor dalam had selamat (rekod dipantau)',
+      'Urea storage — bahan disimpan mengikut SDS & tersusun',
+      'Laluan akses ke reactor dan storage bebas halangan',
+      'PPE (respirator / sarung tangan kimia) dipakai',
+      'Sistem pengudaraan berfungsi dengan baik',
+      'Tanda amaran bahan kimia jelas dipaparkan',
+      'Prosedur kecemasan tumpahan bahan kimia dipamerkan'
+    ]
+  },
+  {
+    name: 'Formalin',
+    scope: 'Formalin Plant, Formalin Control Room & Tank Area',
+    items: [
+      'Formalin plant — tiada bau / kebocoran gas formalin dikesan',
+      'Tank area — bund wall / containment dalam keadaan baik',
+      'Control room — paparan monitor / alarm berfungsi normal',
+      'PPE (respirator formaldehyde, sarung tangan) digunakan',
+      'Eye wash / safety shower berfungsi & mudah diakses',
+      'SDS formalin tersedia dan mudah diakses',
+      'Signage bahaya kesihatan (toksik / karsinogenik) dipamerkan',
+      'Prosedur kecemasan tumpahan / kebocoran dipamerkan'
+    ]
+  },
+  {
+    name: 'Quality Control',
+    scope: 'Office, Sample Rack & Cutting Machine Area',
+    items: [
+      'Office — susun atur meja / kerusi selamat & ergonomik',
+      'Sample rack tersusun kemas dan berlabel',
+      'Cutting machine dilengkapi guard / pelindung',
+      'PPE (safety glasses, sarung tangan) dipakai semasa uji sampel',
+      'Bahan kimia makmal (jika ada) disimpan dengan betul',
+      'Laluan kerja bersih & tidak berselerak',
+      'Pencahayaan kawasan kerja mencukupi',
+      'Alat pemadam api / prosedur kecemasan berdekatan tersedia'
+    ]
+  },
+  {
+    name: 'Hardener',
+    scope: 'Packing Area & Hardener Process Area',
+    items: [
+      'Packing area bersih & tersusun, tiada tumpahan bahan',
+      'Hardener process area — tiada kebocoran bahan kimia',
+      'PPE (sarung tangan kimia, respirator) dipakai',
+      'Bekas / container hardener berlabel dengan betul',
+      'Sistem pengudaraan berfungsi baik',
+      'Laluan kecemasan tidak berhalangan',
+      'Signage amaran bahan reaktif / mudah terbakar dipamerkan',
+      'Eye wash / safety shower berfungsi & mudah diakses'
+    ]
+  },
+  {
+    name: 'Admin',
+    scope: 'Admin Building & Car Park Area',
+    items: [
+      'Bangunan admin — laluan keluar kecemasan tidak berhalangan',
+      'Alat pemadam api tersedia & tarikh servis sah',
+      'Susun atur pejabat kemas, tiada wayar / kord berselerak',
+      'Tangga / laluan bebas daripada halangan',
+      'Car park — laluan kenderaan & pejalan kaki jelas',
+      'Signage keselamatan (no smoking, speed limit) dipamerkan',
+      'Pencahayaan kawasan car park mencukupi (waktu malam)',
+      'First aid kit tersedia dan lengkap'
+    ]
+  }
+];
+
+function buildForm(){
+  const container = document.getElementById('sectionsContainer');
+  container.innerHTML = SECTIONS.map((sec, si) => `
+    <div class="section-block" id="section-${si}">
+      <div class="s-head">
+        <div>
+          <div class="s-name">${sec.name}</div>
+          <div class="s-scope">${sec.scope}</div>
+        </div>
+        <div class="s-score" id="score-${si}">0 / ${sec.items.length}</div>
+      </div>
+      <table class="checklist">
+        <thead>
+          <tr><th class="no">No</th><th>Perkara Pemeriksaan</th><th style="width:110px;text-align:center;">Keputusan</th><th style="width:180px;">Catatan</th></tr>
+        </thead>
+        <tbody>
+          ${sec.items.map((item, ii) => `
+            <tr>
+              <td class="no">${ii + 1}</td>
+              <td>${item}</td>
+              <td class="yn">
+                <div class="yn-group">
+                  <label><input type="radio" name="item-${si}-${ii}" value="yes" onchange="updateScore(${si})"> Ya</label>
+                  <label><input type="radio" name="item-${si}-${ii}" value="no" onchange="updateScore(${si})"> Tidak</label>
+                </div>
+              </td>
+              <td class="remarks"><input type="text" placeholder="Catatan (jika ada)..." id="remark-${si}-${ii}"></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `).join('');
+
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('inspDate').value = today;
+}
+
+function updateScore(si){
+  const sec = SECTIONS[si];
+  let yes = 0, answered = 0;
+  sec.items.forEach((item, ii) => {
+    const checked = document.querySelector(`input[name="item-${si}-${ii}"]:checked`);
+    if (checked){
+      answered++;
+      if (checked.value === 'yes') yes++;
+    }
+  });
+  document.getElementById('score-' + si).textContent = yes + ' / ' + sec.items.length;
+  updateOverall();
+}
+
+function updateOverall(){
+  let totalYes = 0, totalItems = 0;
+  SECTIONS.forEach((sec, si) => {
+    sec.items.forEach((item, ii) => {
+      totalItems++;
+      const checked = document.querySelector(`input[name="item-${si}-${ii}"]:checked`);
+      if (checked && checked.value === 'yes') totalYes++;
+    });
+  });
+  const pct = totalItems ? Math.round((totalYes / totalItems) * 100) : 0;
+  const el = document.getElementById('overallScore');
+  el.textContent = totalItems ? (pct + '% (' + totalYes + '/' + totalItems + ')') : '—';
+  el.className = 'score ' + (pct >= 80 ? 'pass' : (totalItems ? 'fail' : ''));
+}
+
+function collectSectionResults(){
+  return SECTIONS.map((sec, si) => {
+    let yes = 0, no = 0;
+    const remarksList = [];
+    sec.items.forEach((item, ii) => {
+      const checked = document.querySelector(`input[name="item-${si}-${ii}"]:checked`);
+      if (checked){
+        if (checked.value === 'yes') yes++; else no++;
+      }
+      const remarkVal = document.getElementById(`remark-${si}-${ii}`).value.trim();
+      if (remarkVal) remarksList.push(item + ': ' + remarkVal);
+    });
+    const total = sec.items.length;
+    return {
+      section: sec.name,
+      yesCount: yes,
+      noCount: no,
+      totalItems: total,
+      scorePercent: total ? Math.round((yes / total) * 100) : 0,
+      remarks: remarksList.join(' | ')
+    };
+  });
+}
+
+async function saveInspection(){
+  const statusEl = document.getElementById('statusMsg');
+  const sections = collectSectionResults();
+  const unanswered = sections.reduce((sum, s) => sum + (s.totalItems - s.yesCount - s.noCount), 0);
+  if (unanswered > 0){
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = `⚠ Masih ada ${unanswered} soalan belum dijawab. Sila lengkapkan semua item sebelum simpan.`;
+    return;
+  }
+  const payload = {
+    action: 'submitInspection',
+    inspectionId: 'INSP-' + Date.now(),
+    date: document.getElementById('inspDate').value,
+    inspector: document.getElementById('inspector').value.trim(),
+    safetyOfficerName: document.getElementById('safetyName').value.trim(),
+    sectionOwnerName: document.getElementById('ownerName').value.trim(),
+    sections: sections
+  };
+  statusEl.className = 'status-msg';
+  statusEl.textContent = 'Menyimpan rekod...';
+  try{
+    const res = await fetch(CONFIG.API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data && data.success){
+      statusEl.className = 'status-msg ok';
+      statusEl.textContent = '✓ Rekod pemeriksaan berjaya disimpan.';
+    } else {
+      statusEl.className = 'status-msg err';
+      statusEl.textContent = '⚠ Gagal simpan: ' + (data && data.error ? data.error : 'unknown error');
+    }
+  }catch(err){
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = '⚠ Tidak dapat sambung ke server. Cuba lagi.';
+  }
+}
+
+buildForm();
+</script>
+</body>
+</html>

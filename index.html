@@ -279,7 +279,7 @@
     font-size:19px; text-transform:uppercase; letter-spacing:0.02em;
     margin-bottom:14px;
   }
-  .panel .caption{font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:14px; font-family:'IBM Plex Mono',monospace;}
+  .panel .caption, .board-card .caption{font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:14px; font-family:'IBM Plex Mono',monospace;}
 
   .donut-wrap{display:flex; align-items:center; gap:18px;}
   .legend{display:flex; flex-direction:column; gap:10px; font-size:13.5px;}
@@ -347,6 +347,7 @@
       <div class="board-header">
         <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">All Tasks</h2>
         <div class="meeting-date-box" id="meetingDateBox"></div>
+        <button class="btn" id="newInspectionBtn" style="display:none;" onclick="window.open('inspection.html','_blank')">📋 New Workplace Inspection</button>
       </div>
       <div class="board-columns">
         <div class="column" id="col-todo">
@@ -395,6 +396,12 @@
         </div>
       </div>
     </section>
+
+    <section class="board-card">
+      <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Inspection Score by Section</h3>
+      <div class="caption" style="margin-bottom:14px;">Average score (%) from Workplace Inspection records</div>
+      <canvas id="inspectionChart" height="110"></canvas>
+    </section>
   </main>
 </div>
 
@@ -405,7 +412,7 @@ const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
 };
 
-let STATE = { tasks: [], observations: [], notes: [], meetings: [] };
+let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [] };
 let currentCategory = 'All Tasks';
 let editingTaskId = null;
 const QUARTERS = ['Q1','Q2','Q3','Q4'];
@@ -431,6 +438,8 @@ function switchCategory(category, el){
   const meetingBox=document.getElementById('meetingDateBox');
   if(meetingBox) meetingBox.style.display = category==='Meetings' ? 'flex' : 'none';
   if(category==='Meetings') renderMeetingQuarters();
+  const inspBtn=document.getElementById('newInspectionBtn');
+  if(inspBtn) inspBtn.style.display = category==='Monthly Inspection' ? 'inline-block' : 'none';
   renderBoard();
 }
 
@@ -471,10 +480,13 @@ function render(){
   const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=currentCategory==='All Tasks'?'none':'flex';}
   const meetingBox=document.getElementById('meetingDateBox');
   if(meetingBox) meetingBox.style.display = currentCategory==='Meetings' ? 'flex' : 'none';
+  const inspBtn=document.getElementById('newInspectionBtn');
+  if(inspBtn) inspBtn.style.display = currentCategory==='Monthly Inspection' ? 'inline-block' : 'none';
   renderMeetingQuarters();
   renderBoard();
   renderDonut();
   renderTrend();
+  renderInspectionChart();
   renderNotes();
 }
 
@@ -659,6 +671,61 @@ function renderTrend(){
       },
       scales:{
         y:{beginAtZero:true,ticks:{precision:0}}
+      }
+    }
+  });
+}
+
+const INSPECTION_SECTIONS = ['Kawasan Store','Maintenance','Glue Plant','Formalin','Quality Control','Hardener','Admin'];
+let inspectionChartInstance=null;
+
+function renderInspectionChart(){
+  const canvas=document.getElementById('inspectionChart');
+  if(!canvas) return;
+  const records = STATE.inspections || [];
+
+  if(inspectionChartInstance){
+    inspectionChartInstance.destroy();
+  }
+
+  if(records.length===0){
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.font='12px Arial';
+    ctx.fillStyle='#6B7480';
+    ctx.fillText('No inspection records yet',20,40);
+    return;
+  }
+
+  const avgScores = INSPECTION_SECTIONS.map(sec => {
+    const secRecords = records.filter(r => r.Section === sec);
+    if (secRecords.length === 0) return 0;
+    const sum = secRecords.reduce((acc, r) => acc + (Number(r.ScorePercent) || 0), 0);
+    return Math.round(sum / secRecords.length);
+  });
+
+  const barColors = avgScores.map(s => s >= 80 ? '#3E8F63' : (s >= 60 ? '#E8A33D' : '#D6484B'));
+
+  const ctx=canvas.getContext('2d');
+  inspectionChartInstance=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels: INSPECTION_SECTIONS,
+      datasets:[{
+        label:'Average Score (%)',
+        data: avgScores,
+        backgroundColor: barColors,
+        borderRadius: 4
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label: ctx => ctx.parsed.y + '%'}}
+      },
+      scales:{
+        y:{beginAtZero:true, max:100, ticks:{callback: v => v + '%'}}
       }
     }
   });
