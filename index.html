@@ -110,22 +110,22 @@
   .layout{
     display:grid;
     grid-template-columns:225px 1fr;
-    grid-template-areas:
-      "sidebar main"
-      "notes   main";
     align-content:start;
     gap:24px;
     padding:26px 30px 44px;
     max-width:1400px;
     margin:0 auto;
   }
+  .sidebar-col{
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+    align-self:start;
+  }
   nav.sidebar{
-    grid-area:sidebar;
     display:flex; flex-direction:column; gap:7px;
   }
-  main{grid-area:main;}
   .notes-widget{
-    grid-area:notes;
     background:var(--card);
     border:1px solid var(--border);
     border-radius:var(--radius);
@@ -161,6 +161,12 @@
     box-shadow:0 6px 16px rgba(21,28,39,.28);
   }
   nav.sidebar .item .icon{font-size:16px;}
+  nav.sidebar .item{position:relative;}
+  .nav-badge{
+    margin-left:auto; background:var(--red); color:#fff; font-size:10.5px; font-weight:700;
+    border-radius:20px; padding:1px 7px; font-family:'IBM Plex Mono',monospace;
+    box-shadow:0 0 0 2px var(--card);
+  }
 
   main{display:flex; flex-direction:column; gap:24px;}
 
@@ -229,6 +235,46 @@
     text-transform:uppercase; color:var(--navy);
   }
   .link-card .lc-desc{font-size:12px; color:var(--muted); line-height:1.4;}
+
+  .obs-notif-banner{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:linear-gradient(155deg, var(--navy) 0%, var(--navy-3) 130%);
+    color:#fff; border-radius:10px; padding:12px 16px; margin-bottom:16px;
+    box-shadow:var(--shadow-sm);
+  }
+  .obs-notif-banner .txt{font-size:13px; font-weight:600;}
+  .obs-notif-banner .txt b{color:var(--yellow);}
+  .obs-notif-banner button{
+    background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); color:#fff;
+    border-radius:6px; padding:6px 12px; font-size:11.5px; font-weight:600; cursor:pointer;
+  }
+  .obs-notif-banner button:hover{background:rgba(255,255,255,0.2);}
+
+  .obs-feed{display:flex; flex-direction:column; gap:12px;}
+  .obs-card{
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    padding:14px 16px; box-shadow:var(--shadow-sm); position:relative;
+    border-left:4px solid var(--navy-3);
+  }
+  .obs-card.new{border-left-color:var(--yellow-deep);}
+  .obs-card .oc-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px;}
+  .obs-card .oc-badges{display:flex; gap:6px; flex-wrap:wrap;}
+  .obs-card .oc-type{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.02em;
+    padding:3px 9px; border-radius:20px;
+  }
+  .obs-card .oc-type.unsafeact{background:var(--red-bg); color:var(--red);}
+  .obs-card .oc-type.unsafecondition{background:var(--amber-bg); color:var(--amber);}
+  .obs-card .oc-type.suggestion{background:#EBE7F5; color:#6E5AA8;}
+  .obs-card .oc-type.goodpractice{background:var(--green-bg); color:var(--green);}
+  .obs-card .oc-newtag{
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    background:var(--yellow); color:var(--navy); border-radius:20px; padding:2px 8px;
+  }
+  .obs-card .oc-date{font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; flex-shrink:0;}
+  .obs-card .oc-desc{font-size:13.5px; color:var(--ink); line-height:1.5; margin-bottom:10px;}
+  .obs-card .oc-meta{display:flex; gap:16px; flex-wrap:wrap; font-size:11.5px; color:var(--muted);}
+  .obs-card .oc-meta span{display:flex; align-items:center; gap:4px;}
   .insp-chart-head{
     display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;
     margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid var(--surface);
@@ -236,7 +282,7 @@
   .insp-legend{display:flex; gap:16px; font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
   .insp-legend span{display:flex; align-items:center; gap:6px;}
   .insp-legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
-  .insp-chart-wrap{position:relative; height:340px;}
+  .insp-chart-wrap{position:relative; height:260px;}
   .insp-chart-empty{
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     height:100%; color:var(--muted); gap:8px; text-align:center;
@@ -402,6 +448,7 @@
     grid-template-columns:0.8fr 1.4fr;
     gap:20px;
   }
+  .panels.chart-row-2{grid-template-columns:1.3fr 1fr;}
   .panel{
     background:var(--card);
     border:1px solid var(--border);
@@ -435,6 +482,33 @@
     letter-spacing:0.05em; font-family:'IBM Plex Mono',monospace; margin-top:1px;
   }
   .trend-chart-wrap{position:relative; height:230px;}
+  .trend-chart-wrap.tall{height:260px;}
+
+  .hse-stats-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+    gap:14px;
+  }
+  .hse-stat-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:14px 16px;
+  }
+  .hse-stat-card.highlight{
+    background:linear-gradient(155deg, var(--navy) 0%, var(--navy-3) 130%);
+    border-color:var(--navy);
+  }
+  .hse-stat-card .v{
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:27px;
+    color:var(--navy); line-height:1;
+  }
+  .hse-stat-card.highlight .v{color:var(--yellow);}
+  .hse-stat-card .k{
+    font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;
+    font-family:'IBM Plex Mono',monospace; margin-top:5px;
+  }
+  .hse-stat-card.highlight .k{color:#AEB6C2;}
+  .hse-stat-card .sub{font-size:11px; color:var(--muted); margin-top:3px;}
+  .hse-stat-card.highlight .sub{color:#9AA6B8;}
 
   .donut-wrap{display:flex; align-items:center; gap:22px;}
   .donut-svg-wrap{position:relative; width:150px; height:150px; flex-shrink:0;}
@@ -488,9 +562,13 @@
         "main"
         "notes";
     }
-    nav.sidebar{flex-direction:row; overflow-x:auto;}
+    .sidebar-col{display:contents;}
+    nav.sidebar{grid-area:sidebar; flex-direction:row; overflow-x:auto;}
+    .notes-widget{grid-area:notes;}
+    main{grid-area:main;}
     .board-columns{grid-template-columns:1fr;}
     .panels{grid-template-columns:1fr;}
+    .panels.chart-row-2{grid-template-columns:1fr;}
   }
 
   @media (max-width: 600px){
@@ -519,8 +597,9 @@
 
     .inspection-sections{grid-template-columns:1fr;}
 
-    .insp-chart-wrap{height:280px;}
+    .insp-chart-wrap{height:220px;}
     .trend-chart-wrap{height:220px;}
+    .trend-chart-wrap.tall{height:220px;}
     .trend-panel-head{flex-direction:column; align-items:flex-start; gap:6px;}
     .trend-total{text-align:left;}
     .insp-chart-head{flex-direction:column; align-items:flex-start;}
@@ -546,26 +625,29 @@
 <div class="hazard-stripe"></div>
 
 <div class="layout">
-  <nav class="sidebar">
-    <div class="item active" data-category="All Tasks" onclick="switchCategory('All Tasks', this)"><span class="icon">📊</span> All Tasks</div>
-    <div class="item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Monthly Inspection</div>
-    <div class="item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
-    <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
-    <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon">👁</span> Safety Observations</div>
-    <div class="item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon">📁</span> Others</div>
-  </nav>
+  <div class="sidebar-col">
+    <nav class="sidebar">
+      <div class="item" data-category="Dashboard" onclick="switchCategory('Dashboard', this)"><span class="icon">📊</span> Dashboard</div>
+      <div class="item active" data-category="All Tasks" onclick="switchCategory('All Tasks', this)"><span class="icon">🗂️</span> All Tasks</div>
+      <div class="item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Monthly Inspection</div>
+      <div class="item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
+      <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
+      <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon">👁</span> Safety Observations <span class="nav-badge" id="obsNavBadge" style="display:none;">0</span></div>
+      <div class="item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon">📁</span> Others</div>
+    </nav>
 
-  <aside class="notes-widget">
-    <h3>📌 Personal Notes</h3>
-    <div class="notes-list" id="notesList"></div>
-    <div class="note-add">
-      <input type="text" id="newNoteInput" placeholder="Reminder...">
-      <button class="btn" onclick="addNote()">Pin</button>
-    </div>
-  </aside>
+    <aside class="notes-widget">
+      <h3>📌 Personal Notes</h3>
+      <div class="notes-list" id="notesList"></div>
+      <div class="note-add">
+        <input type="text" id="newNoteInput" placeholder="Reminder...">
+        <button class="btn" onclick="addNote()">Pin</button>
+      </div>
+    </aside>
+  </div>
 
   <main>
-    <section class="board-card">
+    <section class="board-card" id="mainBoardCard">
       <div class="hazard-stripe"></div>
       <div class="board-header">
         <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">All Tasks</h2>
@@ -575,6 +657,9 @@
       <div class="inspection-sections" id="inspectionSectionsGrid" style="display:none;"></div>
       <div class="caption" id="othersCaption" style="display:none;">Klik untuk buka borang / laman berkaitan dalam tab baru</div>
       <div class="others-links" id="othersLinksGrid" style="display:none;"></div>
+      <div class="caption" id="obsCaption" style="display:none;">Pemerhatian keselamatan bulan semasa (disync dari borang)</div>
+      <div class="obs-notif-banner" id="obsNotifBanner" style="display:none;"></div>
+      <div class="obs-feed" id="obsFeedGrid" style="display:none;"></div>
       <div class="board-columns" id="boardColumns">
         <div class="column" id="col-todo">
           <h2>To Do <span class="count mono" id="count-todo">0</span></h2>
@@ -597,59 +682,113 @@
       </div>
     </section>
 
-    <section class="panels">
-      <div class="panel">
-        <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Task Status</h3>
-        <div class="caption" id="taskTotalCaption" style="margin:0 0 14px;">— tasks tracked</div>
-        <div class="donut-wrap">
-          <div class="donut-svg-wrap">
-            <svg id="donutChart" viewBox="0 0 150 150"></svg>
-            <div class="donut-center" id="donutCenter">
-              <span class="n">0%</span>
-              <span class="l">Complete</span>
+    <div id="dashboardView" style="display:none; flex-direction:column; gap:24px;">
+      <section class="panels">
+        <div class="panel">
+          <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Task Status</h3>
+          <div class="caption" id="taskTotalCaption" style="margin:0 0 14px;">— tasks tracked</div>
+          <div class="donut-wrap">
+            <div class="donut-svg-wrap">
+              <svg id="donutChart" viewBox="0 0 150 150"></svg>
+              <div class="donut-center" id="donutCenter">
+                <span class="n">0%</span>
+                <span class="l">Complete</span>
+              </div>
+            </div>
+            <div class="legend" id="donutLegend"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="trend-panel-head">
+            <div>
+              <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Safety Observations</h3>
+              <div class="caption" style="margin:0;">Current Year · Synced from Observation Form</div>
+            </div>
+            <div class="trend-total" id="trendTotalStat">
+              <span class="n">—</span><span class="l">Total logged</span>
             </div>
           </div>
-          <div class="legend" id="donutLegend"></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="trend-panel-head">
-          <div>
-            <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Safety Observations</h3>
-            <div class="caption" style="margin:0;">Current Year · Synced from Observation Form</div>
-          </div>
-          <div class="trend-total" id="trendTotalStat">
-            <span class="n">—</span><span class="l">Total logged</span>
+          <div class="trend-chart-wrap">
+            <canvas id="trendChart"></canvas>
           </div>
         </div>
-        <div class="trend-chart-wrap">
-          <canvas id="trendChart"></canvas>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="board-card">
-      <div class="insp-chart-head">
-        <div>
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Inspection Score by Section</h3>
-          <div class="caption" style="margin:0;">Average score (%) from Workplace Inspection records · Target 80%</div>
+      <section class="panels chart-row-2">
+        <div class="board-card">
+          <div class="insp-chart-head">
+            <div>
+              <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Inspection Score by Section</h3>
+              <div class="caption" style="margin:0;">Average score (%) · Target 80%</div>
+            </div>
+          </div>
+          <div class="insp-legend" style="margin-bottom:10px;">
+            <span><i style="background:var(--green);"></i> ≥80%</span>
+            <span><i style="background:var(--amber);"></i> 60–79%</span>
+            <span><i style="background:var(--red);"></i> &lt;60%</span>
+          </div>
+          <div class="insp-chart-wrap">
+            <canvas id="inspectionChart"></canvas>
+            <div class="insp-chart-empty" id="inspectionChartEmpty" style="display:none;">
+              <div class="icon">📋</div>
+              <div class="msg">No inspection records yet</div>
+              <div class="sub">Complete a section under "Monthly Inspection" to see scores here</div>
+            </div>
+          </div>
         </div>
-        <div class="insp-legend">
-          <span><i style="background:var(--green);"></i> ≥80%</span>
-          <span><i style="background:var(--amber);"></i> 60–79%</span>
-          <span><i style="background:var(--red);"></i> &lt;60%</span>
+
+        <div class="board-card">
+          <div class="insp-chart-head">
+            <div>
+              <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Safety Induction</h3>
+              <div class="caption" style="margin:0;">Total YTD: <b id="siTotal" style="color:var(--navy);">—</b></div>
+            </div>
+          </div>
+          <div class="trend-chart-wrap tall" style="margin-top:10px;">
+            <canvas id="siChart"></canvas>
+            <div class="insp-chart-empty" id="siEmpty" style="display:none;">
+              <div class="icon">🪪</div>
+              <div class="msg">No induction data yet</div>
+              <div class="sub">Data will appear once the sheet is populated</div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="insp-chart-wrap">
-        <canvas id="inspectionChart"></canvas>
-        <div class="insp-chart-empty" id="inspectionChartEmpty" style="display:none;">
-          <div class="icon">📋</div>
-          <div class="msg">No inspection records yet</div>
-          <div class="sub">Complete a section under "Monthly Inspection" to see scores here</div>
+      </section>
+
+      <section class="board-card">
+        <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">HSE Performance Statistics</h3>
+        <div class="caption" style="margin:0 0 16px;">Year-to-date · Synced from HSE Performance Statistic sheet</div>
+
+        <div class="hse-stats-row" id="hseStatsRow"></div>
+
+        <div class="panel" style="margin-top:20px; box-shadow:none; border-color:var(--surface); padding:16px 0 0;">
+          <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Monthly Incident Counts</h3>
+          <div class="caption" style="margin:0;">Near Miss · First Aid · Minor / Major LTI · Fatality</div>
+          <div class="trend-chart-wrap" style="margin-top:10px;">
+            <canvas id="hseIncidentChart"></canvas>
+            <div class="insp-chart-empty" id="hseIncidentEmpty" style="display:none;">
+              <div class="icon">📈</div>
+              <div class="msg">No HSE statistic data yet</div>
+              <div class="sub">Data will appear once the sheet is populated</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+
+        <div class="panel" style="margin-top:8px; box-shadow:none; border-color:var(--surface); padding:16px 0 0;">
+          <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Safety Rates</h3>
+          <div class="caption" style="margin:0;">Frequency Rate · Incident Rate · Severity Rate</div>
+          <div class="trend-chart-wrap" style="margin-top:10px;">
+            <canvas id="hseRatesChart"></canvas>
+            <div class="insp-chart-empty" id="hseRatesEmpty" style="display:none;">
+              <div class="icon">📈</div>
+              <div class="msg">No rate data yet</div>
+              <div class="sub">Data will appear once the sheet is populated</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 </div>
 
@@ -660,7 +799,7 @@ const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
 };
 
-let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [] };
+let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null };
 let currentCategory = 'All Tasks';
 let editingTaskId = null;
 const QUARTERS = ['Q1','Q2','Q3','Q4'];
@@ -708,10 +847,27 @@ function switchCategory(category, el){
   document.getElementById('boardTitle').textContent = category;
   document.getElementById('newTaskInput').placeholder =
       category==='All Tasks' ? 'Select a category to add task...' : 'New ' + category.toLowerCase() + ' task...';
+
+  const isDashboard = category === 'Dashboard';
+  const mainBoardCard = document.getElementById('mainBoardCard');
+  const dashboardView = document.getElementById('dashboardView');
+  if(mainBoardCard) mainBoardCard.style.display = isDashboard ? 'none' : 'block';
+  if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
+
+  if(isDashboard){
+    renderDonut();
+    renderTrend();
+    renderInspectionChart();
+    renderHseStats();
+    renderSafetyInduction();
+    return;
+  }
+
   const isInspection = category === 'Monthly Inspection';
   const isOthers = category === 'Others';
+  const isObsFeed = category === 'Safety Observations';
   const addRow=document.querySelector('.add-task-row');
-  if(addRow) addRow.style.display = (category==='All Tasks' || isInspection || isOthers) ? 'none' : 'flex';
+  if(addRow) addRow.style.display = (category==='All Tasks' || isInspection || isOthers || isObsFeed) ? 'none' : 'flex';
   const meetingBox=document.getElementById('meetingDateBox');
   if(meetingBox) meetingBox.style.display = category==='Meetings' ? 'flex' : 'none';
   if(category==='Meetings') renderMeetingQuarters();
@@ -719,14 +875,21 @@ function switchCategory(category, el){
   const inspCaption=document.getElementById('inspectionCaption');
   const othersGrid=document.getElementById('othersLinksGrid');
   const othersCaption=document.getElementById('othersCaption');
+  const obsCaption=document.getElementById('obsCaption');
+  const obsFeedGrid=document.getElementById('obsFeedGrid');
+  const obsNotifBanner=document.getElementById('obsNotifBanner');
   const boardCols=document.getElementById('boardColumns');
   if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
   if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
   if(othersGrid) othersGrid.style.display = isOthers ? 'grid' : 'none';
   if(othersCaption) othersCaption.style.display = isOthers ? 'block' : 'none';
-  if(boardCols) boardCols.style.display = (isInspection || isOthers) ? 'none' : 'grid';
+  if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
+  if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
+  if(obsNotifBanner && !isObsFeed) obsNotifBanner.style.display = 'none';
+  if(boardCols) boardCols.style.display = (isInspection || isOthers || isObsFeed) ? 'none' : 'grid';
   if(isInspection) renderInspectionSections();
   if(isOthers) renderOthersLinks();
+  if(isObsFeed) renderObsFeed(true);
   renderBoard();
 }
 
@@ -824,28 +987,46 @@ async function loadData(){
 }
 
 function render(){
-  const isInspection = currentCategory === 'Monthly Inspection';
-  const isOthers = currentCategory === 'Others';
-  const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=(currentCategory==='All Tasks'||isInspection||isOthers)?'none':'flex';}
-  const meetingBox=document.getElementById('meetingDateBox');
-  if(meetingBox) meetingBox.style.display = currentCategory==='Meetings' ? 'flex' : 'none';
-  const inspGrid=document.getElementById('inspectionSectionsGrid');
-  const inspCaption=document.getElementById('inspectionCaption');
-  const othersGrid=document.getElementById('othersLinksGrid');
-  const othersCaption=document.getElementById('othersCaption');
-  const boardCols=document.getElementById('boardColumns');
-  if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
-  if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
-  if(othersGrid) othersGrid.style.display = isOthers ? 'grid' : 'none';
-  if(othersCaption) othersCaption.style.display = isOthers ? 'block' : 'none';
-  if(boardCols) boardCols.style.display = (isInspection || isOthers) ? 'none' : 'grid';
-  if(isInspection) renderInspectionSections();
-  if(isOthers) renderOthersLinks();
+  const isDashboard = currentCategory === 'Dashboard';
+  const mainBoardCard = document.getElementById('mainBoardCard');
+  const dashboardView = document.getElementById('dashboardView');
+  if(mainBoardCard) mainBoardCard.style.display = isDashboard ? 'none' : 'block';
+  if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
+
+  if(!isDashboard){
+    const isInspection = currentCategory === 'Monthly Inspection';
+    const isOthers = currentCategory === 'Others';
+    const isObsFeed = currentCategory === 'Safety Observations';
+    const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=(currentCategory==='All Tasks'||isInspection||isOthers||isObsFeed)?'none':'flex';}
+    const meetingBox=document.getElementById('meetingDateBox');
+    if(meetingBox) meetingBox.style.display = currentCategory==='Meetings' ? 'flex' : 'none';
+    const inspGrid=document.getElementById('inspectionSectionsGrid');
+    const inspCaption=document.getElementById('inspectionCaption');
+    const othersGrid=document.getElementById('othersLinksGrid');
+    const othersCaption=document.getElementById('othersCaption');
+    const obsCaption=document.getElementById('obsCaption');
+    const obsFeedGrid=document.getElementById('obsFeedGrid');
+    const boardCols=document.getElementById('boardColumns');
+    if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
+    if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
+    if(othersGrid) othersGrid.style.display = isOthers ? 'grid' : 'none';
+    if(othersCaption) othersCaption.style.display = isOthers ? 'block' : 'none';
+    if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
+    if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
+    if(boardCols) boardCols.style.display = (isInspection || isOthers || isObsFeed) ? 'none' : 'grid';
+    if(isInspection) renderInspectionSections();
+    if(isOthers) renderOthersLinks();
+    if(isObsFeed) renderObsFeed(true);
+    renderBoard();
+  }
+
+  updateObsNavBadge();
   renderMeetingQuarters();
-  renderBoard();
   renderDonut();
   renderTrend();
   renderInspectionChart();
+  renderHseStats();
+  renderSafetyInduction();
   renderNotes();
 }
 
@@ -943,14 +1124,15 @@ function renderBoard(){
 
 function renderDonut(){
   const catTasks = (STATE.tasks || []).filter(t=>{
-      if(currentCategory==='All Tasks') return true;
+      if(currentCategory==='All Tasks' || currentCategory==='Dashboard') return true;
       return (t.Category || 'Monthly Inspection')===currentCategory;
     });
   const total = catTasks.length;
   const groups = { todo: 0, progress: 0, done: 0 };
   catTasks.forEach(t => { groups[STATUS_MAP[t.Status] || 'todo']++; });
 
-  document.getElementById('taskTotalCaption').textContent = total + ' ' + currentCategory.toLowerCase() + ' tasks';
+  const captionLabel = currentCategory==='Dashboard' ? 'all' : currentCategory.toLowerCase();
+  document.getElementById('taskTotalCaption').textContent = total + ' ' + captionLabel + ' tasks';
 
   const svg = document.getElementById('donutChart');
   const centerN = document.querySelector('#donutCenter .n');
@@ -1232,6 +1414,293 @@ function renderInspectionChart(){
     },
     plugins:[targetLinePlugin, barValueLabelPlugin]
   });
+}
+
+let hseIncidentChartInstance=null;
+let hseRatesChartInstance=null;
+
+function renderHseStats(){
+  const stats = STATE.hseStats;
+  const row = document.getElementById('hseStatsRow');
+  if (!row) return;
+
+  if (!stats || !stats.metrics || Object.keys(stats.metrics).length === 0){
+    row.innerHTML = '<div class="empty">No HSE statistic data available</div>';
+    ['hseIncidentChart','hseRatesChart'].forEach(id => {
+      const c = document.getElementById(id);
+      if (c) c.style.display = 'none';
+    });
+    ['hseIncidentEmpty','hseRatesEmpty'].forEach(id => {
+      const e = document.getElementById(id);
+      if (e) e.style.display = 'flex';
+    });
+    return;
+  }
+
+  const manhours = stats.metrics['Total Manhours'];
+  const employees = stats.metrics['Avarage Number of Employee'] || stats.metrics['Average Number of Employee'];
+
+  const cards = [
+    {
+      k: 'Days Without LTI', v: stats.daysWithoutLTI !== null ? stats.daysWithoutLTI.toLocaleString() : '—',
+      sub: stats.lastLTIDate ? ('Last LTI: ' + stats.lastLTIDate) : '', highlight: true
+    },
+    { k: 'Manhours (To Date)', v: manhours && manhours.toDate !== null ? manhours.toDate.toLocaleString() : '—', sub: '' },
+    { k: 'Avg Employees', v: employees && employees.toDate !== null ? employees.toDate : '—', sub: 'Year-to-date average' }
+  ];
+
+  row.innerHTML = cards.map(c => `
+    <div class="hse-stat-card ${c.highlight ? 'highlight' : ''}">
+      <div class="v">${c.v}</div>
+      <div class="k">${c.k}</div>
+      ${c.sub ? `<div class="sub">${c.sub}</div>` : ''}
+    </div>
+  `).join('');
+
+  renderHseIncidentChart(stats);
+  renderHseRatesChart(stats);
+}
+
+function renderHseIncidentChart(stats){
+  const canvas = document.getElementById('hseIncidentChart');
+  const emptyEl = document.getElementById('hseIncidentEmpty');
+  if (!canvas) return;
+
+  const series = [
+    { key:'Near Miss', color:'#3B82A6' },
+    { key:'First Aid/ Medical Treatment', color:'#E2993B' },
+    { key:'Minor Accident (MC < 4 days) LTI', color:'#D6484B' },
+    { key:'Major Accident (MC > 4 days) LTI', color:'#A6334F' },
+    { key:'Fatality', color:'#171B22' }
+  ].filter(s => stats.metrics[s.key]);
+
+  if (hseIncidentChartInstance){ hseIncidentChartInstance.destroy(); hseIncidentChartInstance=null; }
+
+  const totalPoints = series.reduce((sum,s) => sum + stats.metrics[s.key].months.filter(v=>v!==null).length, 0);
+  if (series.length === 0 || totalPoints === 0){
+    canvas.style.display='none';
+    if(emptyEl) emptyEl.style.display='flex';
+    return;
+  }
+  canvas.style.display='block';
+  if(emptyEl) emptyEl.style.display='none';
+
+  const ctx = canvas.getContext('2d');
+  hseIncidentChartInstance = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels: stats.months,
+      datasets: series.map(s => ({
+        label: s.key.replace(/\s*\(.*?\)\s*/g,'').trim(),
+        data: stats.metrics[s.key].months.map(v => v === null ? 0 : v),
+        backgroundColor: s.color,
+        borderRadius: 3,
+        stack: 'incidents'
+      }))
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom', labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{family:"'Inter', sans-serif", size:11}, color:'#171B22'}},
+        tooltip:{backgroundColor:'#171B22', padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
+      },
+      scales:{
+        x:{stacked:true, grid:{display:false}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}},
+        y:{stacked:true, beginAtZero:true, grid:{color:'#EDEEE9'}, ticks:{precision:0, font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}}
+      }
+    }
+  });
+}
+
+function renderHseRatesChart(stats){
+  const canvas = document.getElementById('hseRatesChart');
+  const emptyEl = document.getElementById('hseRatesEmpty');
+  if (!canvas) return;
+
+  const series = [
+    { key:'Frequency Rate', color:'#3B82A6' },
+    { key:'Incident Rate', color:'#E2993B' },
+    { key:'Severity Rate', color:'#D6484B' }
+  ].filter(s => stats.metrics[s.key]);
+
+  if (hseRatesChartInstance){ hseRatesChartInstance.destroy(); hseRatesChartInstance=null; }
+
+  const totalPoints = series.reduce((sum,s) => sum + stats.metrics[s.key].months.filter(v=>v!==null).length, 0);
+  if (series.length === 0 || totalPoints === 0){
+    canvas.style.display='none';
+    if(emptyEl) emptyEl.style.display='flex';
+    return;
+  }
+  canvas.style.display='block';
+  if(emptyEl) emptyEl.style.display='none';
+
+  const ctx = canvas.getContext('2d');
+  hseRatesChartInstance = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels: stats.months,
+      datasets: series.map(s => ({
+        label: s.key,
+        data: stats.metrics[s.key].months.map(v => v === null ? null : v),
+        borderColor: s.color, backgroundColor: s.color,
+        borderWidth: 2.5, tension:0.35, pointRadius:3, pointHoverRadius:6,
+        pointBackgroundColor: s.color, pointBorderColor:'#fff', pointBorderWidth:1.5, spanGaps:true
+      }))
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{
+        legend:{position:'bottom', labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{family:"'Inter', sans-serif", size:11}, color:'#171B22'}},
+        tooltip:{mode:'index', intersect:false, backgroundColor:'#171B22', padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}},
+        y:{beginAtZero:true, grid:{color:'#EDEEE9'}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}}
+      }
+    }
+  });
+}
+
+let siChartInstance=null;
+
+function renderSafetyInduction(){
+  const data = STATE.safetyInduction;
+  const canvas = document.getElementById('siChart');
+  const emptyEl = document.getElementById('siEmpty');
+  const totalEl = document.getElementById('siTotal');
+  if (!canvas) return;
+
+  if (totalEl) totalEl.textContent = data && data.grandTotal ? data.grandTotal : (data ? '0' : '—');
+
+  if (siChartInstance){ siChartInstance.destroy(); siChartInstance=null; }
+
+  const hasData = data && data.monthlyTotals && data.monthlyTotals.some(v => v > 0);
+  if (!hasData){
+    canvas.style.display='none';
+    if(emptyEl) emptyEl.style.display='flex';
+    return;
+  }
+  canvas.style.display='block';
+  if(emptyEl) emptyEl.style.display='none';
+
+  const ctx = canvas.getContext('2d');
+  siChartInstance = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels: data.months,
+      datasets:[{
+        label:'Inductions',
+        data: data.monthlyTotals,
+        backgroundColor:'#3B82A6',
+        borderRadius:4,
+        barPercentage:0.6,
+        categoryPercentage:0.7
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#171B22', padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}},
+        y:{beginAtZero:true, grid:{color:'#EDEEE9'}, ticks:{precision:0, font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}}
+      }
+    }
+  });
+}
+
+/* ---------------- Safety Observation feed + notifications ---------------- */
+
+function getObsLastSeenId(){
+  return Number(localStorage.getItem('sci_hse_obs_last_seen_id') || 0);
+}
+function setObsLastSeenId(id){
+  try { localStorage.setItem('sci_hse_obs_last_seen_id', String(id)); } catch(e){}
+}
+
+function updateObsNavBadge(){
+  const badge = document.getElementById('obsNavBadge');
+  if(!badge) return;
+  const entries = STATE.obsEntries || [];
+  const lastSeen = getObsLastSeenId();
+  const newCount = entries.filter(e => e.id > lastSeen).length;
+  if(newCount > 0){
+    badge.textContent = newCount > 99 ? '99+' : newCount;
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function markObsSeen(){
+  const entries = STATE.obsEntries || [];
+  if(entries.length === 0) return;
+  const maxId = Math.max(...entries.map(e => e.id));
+  setObsLastSeenId(maxId);
+  updateObsNavBadge();
+  renderObsFeed();
+}
+
+function obsTypeClass(type){
+  const t = (type || '').toLowerCase();
+  if(t.indexOf('unsafe act') !== -1) return 'unsafeact';
+  if(t.indexOf('unsafe condition') !== -1) return 'unsafecondition';
+  if(t.indexOf('suggest') !== -1) return 'suggestion';
+  if(t.indexOf('good') !== -1) return 'goodpractice';
+  return 'unsafeact';
+}
+
+function renderObsFeed(){
+  const grid = document.getElementById('obsFeedGrid');
+  const banner = document.getElementById('obsNotifBanner');
+  if(!grid) return;
+
+  const entries = STATE.obsEntries || [];
+  const lastSeen = getObsLastSeenId();
+
+  const now = new Date();
+  const curMonthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  const monthEntries = entries.filter(e => e.date && e.date.indexOf(curMonthKey) === 0);
+  const newEntries = entries.filter(e => e.id > lastSeen);
+
+  if(banner){
+    if(newEntries.length > 0){
+      banner.style.display = 'flex';
+      banner.innerHTML =
+        '<span class="txt">🔔 <b>' + newEntries.length + '</b> pemerhatian keselamatan baru dihantar</span>' +
+        '<button onclick="markObsSeen()">Tandakan Sudah Dibaca</button>';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
+  if(monthEntries.length === 0){
+    grid.innerHTML = '<div class="empty">Tiada pemerhatian direkod bulan ini</div>';
+    return;
+  }
+
+  grid.innerHTML = monthEntries.map(e => {
+    const isNew = e.id > lastSeen;
+    return `
+      <div class="obs-card ${isNew ? 'new' : ''}">
+        <div class="oc-top">
+          <div class="oc-badges">
+            <span class="oc-type ${obsTypeClass(e.type)}">${escapeHtml((e.type || '—').split('(')[0].trim())}</span>
+            ${isNew ? '<span class="oc-newtag">Baru</span>' : ''}
+          </div>
+          <span class="oc-date">${formatDate(e.date)}</span>
+        </div>
+        <div class="oc-desc">${escapeHtml(e.description || '—')}</div>
+        <div class="oc-meta">
+          <span>📍 ${escapeHtml(e.section || '—')}</span>
+          <span>🧭 ${escapeHtml(e.location || '—')}</span>
+          ${e.reporter ? `<span>👤 ${escapeHtml(e.reporter)}</span>` : ''}
+        </div>
+      </div>`;
+  }).join('');
 }
 
 function renderNotes(){
