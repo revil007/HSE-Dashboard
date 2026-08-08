@@ -535,6 +535,25 @@
   }
   .legend .row .count b{color:var(--ink); font-weight:700;}
 
+  .training-matrix-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;
+  }
+  .training-matrix-col{display:flex; flex-direction:column;}
+  .tm-subhead{
+    font-size:11.5px; color:var(--muted); font-weight:600; text-transform:uppercase;
+    letter-spacing:0.04em; margin-bottom:10px;
+  }
+  .tm-legend{display:flex; flex-wrap:wrap; gap:14px; font-size:12.5px; color:var(--ink); margin-bottom:14px;}
+  .tm-legend span{display:flex; align-items:center; gap:6px;}
+  .tm-legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
+  .tm-legend b{font-family:'IBM Plex Mono',monospace; font-weight:700;}
+  .tm-donut-wrap{display:flex; justify-content:center; padding:6px 0 4px;}
+  .tm-donut-svg-wrap{position:relative; width:150px; height:150px; flex-shrink:0;}
+  .tm-donut-svg-wrap svg{width:100%; height:100%; display:block;}
+  @media (max-width:720px){
+    .training-matrix-grid{grid-template-columns:1fr; gap:22px;}
+  }
+
   .notes-list{display:flex; flex-direction:column; gap:10px; margin-bottom:12px;}
   .note-item{
     background:#FCF7E3;
@@ -741,16 +760,21 @@
         <div class="board-card">
           <div class="insp-chart-head">
             <div>
-              <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Safety Induction</h3>
-              <div class="caption" style="margin:0;">Total YTD: <b id="siTotal" style="color:var(--navy);">—</b></div>
+              <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Committee Inspection Score by Section</h3>
+              <div class="caption" style="margin:0;">Average score (%) from HSE Committee pre-meeting inspections · Target 80%</div>
             </div>
           </div>
-          <div class="trend-chart-wrap tall" style="margin-top:10px;">
-            <canvas id="siChart"></canvas>
-            <div class="insp-chart-empty" id="siEmpty" style="display:none;">
-              <div class="icon">🪪</div>
-              <div class="msg">No induction data yet</div>
-              <div class="sub">Data will appear once the sheet is populated</div>
+          <div class="insp-legend" style="margin-bottom:10px;">
+            <span><i style="background:var(--green);"></i> ≥80%</span>
+            <span><i style="background:var(--amber);"></i> 60–79%</span>
+            <span><i style="background:var(--red);"></i> &lt;60%</span>
+          </div>
+          <div class="insp-chart-wrap">
+            <canvas id="committeeChart"></canvas>
+            <div class="insp-chart-empty" id="committeeChartEmpty" style="display:none;">
+              <div class="icon">🔍</div>
+              <div class="msg">No committee inspection records yet</div>
+              <div class="sub">Complete a section under "HSE Committee Pre-Meeting Inspection" to see scores here</div>
             </div>
           </div>
         </div>
@@ -759,21 +783,49 @@
       <section class="board-card">
         <div class="insp-chart-head">
           <div>
-            <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Committee Inspection Score by Section</h3>
-            <div class="caption" style="margin:0;">Average score (%) from HSE Committee pre-meeting inspections · Target 80%</div>
-          </div>
-          <div class="insp-legend">
-            <span><i style="background:var(--green);"></i> ≥80%</span>
-            <span><i style="background:var(--amber);"></i> 60–79%</span>
-            <span><i style="background:var(--red);"></i> &lt;60%</span>
+            <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Safety Induction</h3>
+            <div class="caption" style="margin:0;">Total YTD: <b id="siTotal" style="color:var(--navy);">—</b></div>
           </div>
         </div>
-        <div class="insp-chart-wrap">
-          <canvas id="committeeChart"></canvas>
-          <div class="insp-chart-empty" id="committeeChartEmpty" style="display:none;">
-            <div class="icon">🔍</div>
-            <div class="msg">No committee inspection records yet</div>
-            <div class="sub">Complete a section under "HSE Committee Pre-Meeting Inspection" to see scores here</div>
+        <div class="trend-chart-wrap tall" style="margin-top:10px;">
+          <canvas id="siChart"></canvas>
+          <div class="insp-chart-empty" id="siEmpty" style="display:none;">
+            <div class="icon">🪪</div>
+            <div class="msg">No induction data yet</div>
+            <div class="sub">Data will appear once the sheet is populated</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="board-card">
+        <div class="insp-chart-head">
+          <div>
+            <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">HSE Training Matrix 2026</h3>
+            <div class="caption" style="margin:0;">Planned vs completed status, and completion rate by department</div>
+          </div>
+        </div>
+        <div class="training-matrix-grid">
+          <div class="training-matrix-col">
+            <div class="tm-subhead">Planned vs completed — overall</div>
+            <div class="tm-legend">
+              <span><i style="background:var(--green);"></i> Completed <b id="tmCompletedStat">—</b></span>
+              <span><i style="background:#3B82A6;"></i> Planned <b id="tmPlannedStat">—</b></span>
+            </div>
+            <div class="tm-donut-wrap">
+              <div class="tm-donut-svg-wrap">
+                <svg id="tmStatusDonut" viewBox="0 0 150 150"></svg>
+                <div class="donut-center" id="tmStatusCenter">
+                  <span class="n">—</span>
+                  <span class="l">Complete</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="training-matrix-col">
+            <div class="tm-subhead">Completion rate by department</div>
+            <div class="trend-chart-wrap" style="margin-top:6px;">
+              <canvas id="tmDeptChart"></canvas>
+            </div>
           </div>
         </div>
       </section>
@@ -1057,6 +1109,7 @@ function render(){
   renderHseStats();
   renderSafetyInduction();
   renderCommitteeChart();
+  renderTrainingMatrix();
   renderNotes();
 }
 
@@ -1714,6 +1767,116 @@ function renderCommitteeChart(){
       }
     },
     plugins:[targetLinePlugin, barValueLabelPlugin]
+  });
+}
+
+/* ---------------- HSE Training Matrix 2026 summary ---------------- */
+
+let tmDeptChartInstance = null;
+
+function renderTrainingMatrix(){
+  // Snapshot from "HSE Training Matrix 2026" sheet (Training Matrix tab).
+  // TODO: replace with STATE.trainingMatrix once Code.gs exposes this sheet.
+  const status = { completed: 6, planned: 12 };
+  const deptCompletion = [
+    { dept:'All',        pct:0   },
+    { dept:'Production',  pct:29  },
+    { dept:'HSE',         pct:100 },
+    { dept:'ERT',         pct:100 }
+  ];
+
+  const total = status.completed + status.planned;
+  document.getElementById('tmCompletedStat').textContent = status.completed + ' (' + Math.round(status.completed/total*100) + '%)';
+  document.getElementById('tmPlannedStat').textContent = status.planned + ' (' + Math.round(status.planned/total*100) + '%)';
+
+  const svg = document.getElementById('tmStatusDonut');
+  const centerN = document.querySelector('#tmStatusCenter .n');
+  const centerL = document.querySelector('#tmStatusCenter .l');
+  svg.innerHTML = '';
+
+  const r = 58, cx = 75, cy = 75, strokeW = 18;
+  const circumference = 2 * Math.PI * r;
+  const gapPx = 6;
+  let angleStart = -90;
+
+  const track = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  track.setAttribute('cx', cx); track.setAttribute('cy', cy); track.setAttribute('r', r);
+  track.setAttribute('fill', 'none'); track.setAttribute('stroke', '#EEEFEA');
+  track.setAttribute('stroke-width', strokeW);
+  svg.appendChild(track);
+
+  [
+    { key:'completed', value: status.completed, color:'#2F8F5B' },
+    { key:'planned',   value: status.planned,   color:'#3B82A6' }
+  ].forEach(seg => {
+    if (seg.value === 0) return;
+    const frac = seg.value / total;
+    const dash = Math.max(frac * circumference - gapPx, 0);
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', r);
+    circle.setAttribute('fill', 'none');
+    circle.setAttribute('stroke', seg.color);
+    circle.setAttribute('stroke-width', strokeW);
+    circle.setAttribute('stroke-linecap', 'round');
+    circle.setAttribute('stroke-dasharray', `${dash} ${circumference - dash}`);
+    circle.setAttribute('transform', `rotate(${angleStart} ${cx} ${cy})`);
+    svg.appendChild(circle);
+    angleStart += frac * 360;
+  });
+
+  if(centerN){
+    centerN.textContent = Math.round(status.completed/total*100) + '%';
+    centerL.textContent = 'Complete';
+  }
+
+  const deptCanvas = document.getElementById('tmDeptChart');
+  if(!deptCanvas) return;
+  if(tmDeptChartInstance){ tmDeptChartInstance.destroy(); tmDeptChartInstance = null; }
+
+  const barColors = deptCompletion.map(d => d.pct >= 80 ? '#2F8F5B' : (d.pct >= 40 ? '#E2993B' : '#D6484B'));
+
+  const ctx = deptCanvas.getContext('2d');
+  tmDeptChartInstance = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels: deptCompletion.map(d => d.dept),
+      datasets:[{
+        label:'Completion rate (%)',
+        data: deptCompletion.map(d => d.pct),
+        backgroundColor: barColors,
+        borderRadius: 5,
+        barPercentage: 0.6,
+        categoryPercentage: 0.7
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      maintainAspectRatio:false,
+      layout:{ padding:{ top:8, right:38 } },
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#171B22',
+          padding:10,
+          titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700},
+          bodyFont:{family:"'Inter', sans-serif", size:12.5},
+          callbacks:{label: ctx => 'Completion rate: ' + ctx.parsed.x + '%'}
+        }
+      },
+      scales:{
+        x:{
+          beginAtZero:true, max:100,
+          grid:{color:'#EDEEE9'},
+          ticks:{callback: v => v + '%', font:{family:"'IBM Plex Mono', monospace", size:11}, color:'#6B7280'}
+        },
+        y:{
+          grid:{display:false},
+          ticks:{font:{family:"'Inter', sans-serif", size:13, weight:600}, color:'#171B22'}
+        }
+      }
+    },
+    plugins:[barValueLabelPlugin]
   });
 }
 
