@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HSE Committee Pre-Meeting Inspection — SCI HSE</title>
+<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#151C27">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#151C27;
+    --navy-2:#1F2937;
+    --navy-3:#2A3648;
+    --surface:#F2F3EE;
+    --card:#FFFFFF;
+    --ink:#171B22;
+    --muted:#6B7280;
+    --border:#E5E7E0;
+    --yellow:#F2B705;
+    --yellow-deep:#D9A100;
+    --red:#D6484B;
+    --red-bg:#FBE7E7;
+    --green:#2F8F5B;
+    --green-bg:#E3F3EA;
+    --radius:12px;
+    --shadow-sm:0 1px 2px rgba(16,20,28,.05), 0 1px 3px rgba(16,20,28,.06);
+    --shadow-md:0 6px 18px rgba(16,20,28,.09), 0 2px 5px rgba(16,20,28,.06);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--surface);
+    color:var(--ink);
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .display{font-family:'Barlow Condensed',sans-serif; font-weight:800; letter-spacing:0.02em;}
+  .hazard-stripe{
+    height:6px;
+    background:repeating-linear-gradient(135deg, var(--yellow) 0 14px, var(--navy) 14px 28px);
+  }
+  header.topbar{
+    background:linear-gradient(155deg, var(--navy) 0%, var(--navy-3) 130%);
+    color:#fff; padding:18px 28px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  }
+  header.topbar .brand{display:flex; align-items:center; gap:12px;}
+  header.topbar .mark{
+    width:38px; height:38px; border-radius:8px;
+    background:linear-gradient(180deg,#FFCE47,var(--yellow-deep));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; color:var(--navy); font-size:18px;
+  }
+  header.topbar h1{font-size:20px; text-transform:uppercase;}
+  header.topbar .sub{font-size:11px; color:#9AA6B8; font-family:'IBM Plex Mono',monospace; letter-spacing:0.05em;}
+  header.topbar .actions{display:flex; gap:10px;}
+  .btn{
+    background:var(--yellow); color:var(--navy); border:none; border-radius:6px;
+    padding:10px 18px; font-size:13px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.02em;
+  }
+  .btn.secondary{background:transparent; color:#fff; border:1px solid #4A5468;}
+  .btn:hover{opacity:0.9;}
+  .btn:disabled{opacity:0.5; cursor:default;}
+
+  .sheet{
+    max-width:850px; margin:24px auto; background:var(--card);
+    border:1px solid var(--border); border-radius:var(--radius); padding:30px 34px 40px;
+    box-shadow:var(--shadow-sm);
+  }
+  .doc-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
+    border-bottom:3px solid var(--navy); padding-bottom:16px; margin-bottom:20px;
+  }
+  .doc-head h2{font-size:22px; text-transform:uppercase; color:var(--navy);}
+  .doc-head .co{font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-top:4px;}
+  .doc-head .doc-no{font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; text-align:right;}
+
+  .meta-row{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px;}
+  .field{display:flex; flex-direction:column; gap:4px;}
+  .field label{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted);}
+  .field input, .field select{
+    border:1px solid var(--border); border-radius:6px; padding:9px 10px; font-size:13.5px; font-family:'Inter',sans-serif;
+    background:#fff;
+  }
+  .field select{cursor:pointer;}
+
+  .section-picker-msg{
+    text-align:center; padding:50px 20px; color:var(--muted);
+  }
+  .section-picker-msg .icon{font-size:36px; margin-bottom:10px;}
+
+  .cat-block{
+    border:1px solid var(--border); border-radius:10px; margin-bottom:12px; overflow:hidden;
+  }
+  .cat-head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--navy); color:#fff; padding:12px 16px; cursor:pointer; user-select:none;
+  }
+  .cat-head .cat-title{display:flex; align-items:center; gap:10px;}
+  .cat-head .cat-no{
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:15px;
+    background:var(--yellow); color:var(--navy); border-radius:6px; padding:2px 9px; min-width:24px; text-align:center;
+  }
+  .cat-head .cat-name{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; text-transform:uppercase;}
+  .cat-head .cat-progress{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; background:rgba(255,255,255,0.12);
+    padding:3px 10px; border-radius:20px;
+  }
+  .cat-head .cat-progress.complete{background:var(--green); color:#fff;}
+  .cat-head .chevron{transition:transform .2s ease; font-size:13px;}
+  .cat-block.open .chevron{transform:rotate(180deg);}
+  .cat-body{display:none;}
+  .cat-block.open .cat-body{display:block;}
+
+  table.checklist{width:100%; border-collapse:collapse;}
+  table.checklist th{
+    background:var(--surface); font-size:11px; text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--muted); text-align:left; padding:8px 10px; border-bottom:1px solid var(--border);
+  }
+  table.checklist td{
+    padding:9px 10px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:top;
+  }
+  table.checklist tr:last-child td{border-bottom:none;}
+  table.checklist td.no{width:38px; color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12px;}
+  table.checklist td.yn{width:145px; text-align:center;}
+  table.checklist td.remarks input{
+    width:100%; border:none; border-bottom:1px dashed var(--border); font-size:12px; font-family:'Inter',sans-serif;
+    padding:3px 2px; background:transparent;
+  }
+  .yn-group{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .yn-group label{display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer;}
+  .yn-group input{cursor:pointer;}
+
+  .overall-box{
+    margin-top:8px; display:flex; justify-content:flex-end; align-items:center; gap:12px;
+  }
+  .overall-box .label{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em;}
+  .overall-box .score{font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:30px; color:var(--navy);}
+  .overall-box .score.pass{color:var(--green);}
+  .overall-box .score.fail{color:var(--red);}
+
+  .sign-block{margin-top:30px; padding-top:20px; border-top:2px solid var(--border); max-width:340px;}
+  .sign-block .sig-title{font-size:12px; font-weight:700; text-transform:uppercase; color:var(--navy); margin-bottom:10px;}
+  .sign-block .field{margin-bottom:10px;}
+  .sign-block .field input{
+    width:100%; border:1px solid var(--border); border-radius:6px; padding:9px 10px;
+    font-size:13.5px; font-family:'Inter',sans-serif; background:#fff;
+  }
+  .digital-signature{
+    min-height:46px; border-bottom:1px solid var(--ink); display:flex; align-items:flex-end;
+    padding:0 4px 5px; margin-bottom:4px;
+    font-family:'Brush Script MT','Segoe Script',cursive; font-size:24px; color:var(--navy);
+  }
+
+  .status-msg{max-width:850px; margin:0 auto 12px; padding:0 34px; font-size:13px; color:var(--muted);}
+  .status-msg.ok{color:var(--green); font-weight:600;}
+  .status-msg.err{color:var(--red); font-weight:600;}
+
+  .no-print{}
+
+  @media print{
+    body{background:#fff; padding-bottom:0;}
+    header.topbar, .status-msg, .no-print, .section-picker-wrap{display:none !important;}
+    .sheet{box-shadow:none; border:none; margin:0; padding:0; max-width:100%;}
+    .hazard-stripe{display:none;}
+    .cat-block{page-break-inside:avoid;}
+    .cat-body{display:block !important;}
+    .cat-head .chevron{display:none;}
+    @page{ size:portrait; margin:14mm; }
+  }
+  @media (max-width:700px){
+    .meta-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar no-print">
+  <div class="brand">
+    <div class="mark">HSE</div>
+    <div>
+      <h1 class="display">HSE Committee Pre-Meeting Inspection</h1>
+      <div class="sub">SEPANGAR CHEMICAL INDUSTRY · HEALTH SAFETY ENVIRONMENT</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn secondary" onclick="window.location.href='index.html'">← Dashboard</button>
+    <button class="btn secondary" id="printSaveBtn" onclick="printAndSaveInspection()">🖨 Print & Save Record</button>
+    <button class="btn" id="saveBtn" onclick="saveInspection()">💾 Save Record</button>
+  </div>
+</header>
+<div class="hazard-stripe no-print"></div>
+
+<div class="status-msg" id="statusMsg"></div>
+
+<div class="sheet" id="sheet">
+  <div class="doc-head">
+    <div>
+      <h2 class="display">Borang Pemeriksaan Pra-Mesyuarat</h2>
+      <div class="co">HSE COMMITTEE — SEPANGAR CHEMICAL INDUSTRY SDN BHD</div>
+    </div>
+    <div class="doc-no">SCI-HSE-FRM-006<br>Rev. 0</div>
+  </div>
+
+  <div class="meta-row">
+    <div class="field">
+      <label>Tarikh Pemeriksaan</label>
+      <input type="date" id="inspDate">
+    </div>
+    <div class="field">
+      <label>Nama Ahli Jawatankuasa (Committee Member)</label>
+      <input type="text" id="inspector" placeholder="Nama penuh...">
+    </div>
+  </div>
+
+  <div class="meta-row" style="grid-template-columns:1fr;">
+    <div class="field">
+      <label>Pilih Section Untuk Diperiksa</label>
+      <select id="sectionPicker" onchange="onSectionChange()">
+        <option value="">— Pilih Section —</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-picker-wrap">
+    <div class="section-picker-msg" id="pickerMsg">
+      <div class="icon">🏭</div>
+      <div>Sila pilih section di atas untuk memaparkan checklist pemeriksaan.</div>
+    </div>
+
+    <div id="categoriesContainer" style="display:none;"></div>
+
+    <div class="overall-box" id="overallBox" style="display:none;">
+      <span class="label">Skor Keseluruhan</span>
+      <span class="score" id="overallScore">—</span>
+    </div>
+
+    <div class="sign-block" id="signBlock" style="display:none;">
+      <div class="sig-title">Disediakan Oleh</div>
+      <div class="field">
+        <label>Nama Inspector (Tandatangan Digital)</label>
+        <input type="text" id="digitalSignature" placeholder="Taip nama penuh..." autocomplete="name">
+      </div>
+      <div class="digital-signature">
+        <span id="digitalSignatureDisplay">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+const CONFIG = {
+  API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
+};
+
+/* Categories 1-7, 9, 10 are shared across every section.
+   Category 8 is section-specific (equipment/area unique to that section). */
+const COMMON_CATEGORIES_TOP = [
+  {
+    no: '1', name: 'Susun Atur',
+    items: [
+      'Kawasan kerja, peralatan dan laluan adalah kemas, tersusun dan bebas daripada halangan.',
+      'Permukaan lantai berada dalam keadaan baik dan tidak mempunyai kerosakan yang boleh menyebabkan kecederaan.',
+      'Tangga dan handrail berada dalam keadaan baik dan selamat digunakan.',
+      'Tiada keadaan di kawasan kerja yang boleh menyebabkan risiko tersandung, tergelincir atau jatuh.'
+    ]
+  },
+  {
+    no: '2', name: 'Persekitaran',
+    items: [
+      'Pencahayaan di kawasan kerja adalah mencukupi.',
+      'Pengudaraan di kawasan kerja adalah mencukupi.',
+      'Tiada bau yang luar biasa atau menunjukkan kemungkinan kebocoran bahan.',
+      'Tahap bunyi bising di kawasan kerja tidak menunjukkan keadaan luar biasa.'
+    ]
+  },
+  {
+    no: '3', name: 'Prosedur Kecemasan',
+    items: [
+      'Papan tanda amaran dan keselamatan jelas serta mudah dilihat.',
+      'Alat pemadam api yang sesuai disediakan, mudah dicapai dan bebas daripada halangan.',
+      'Pelan dan laluan kecemasan disediakan, jelas dan mudah dikenal pasti.',
+      'Pintu keluar kecemasan ditanda dengan jelas dan tidak dihalang, jika berkenaan.'
+    ]
+  },
+  {
+    no: '4', name: 'Alat Pertolongan Cemas',
+    items: [
+      'Peti pertolongan cemas disediakan dan mudah dicapai.',
+      'Peti pertolongan cemas ditanda dengan jelas.',
+      'Senarai First Aider dipaparkan dan lokasi peti pertolongan cemas diketahui.'
+    ]
+  },
+  {
+    no: '5', name: 'Elektrikal',
+    items: [
+      'Wayar, plug, suis dan soket berada dalam keadaan baik dan tidak rosak.',
+      'Peralatan elektrik berada dalam keadaan baik dan selamat digunakan.',
+      'Pendawaian elektrik adalah kemas dan tidak menghalang laluan.'
+    ]
+  },
+  {
+    no: '6', name: 'Kemudahan Am',
+    items: [
+      'Tandas dan tempat mandi bersih serta berfungsi dengan baik.',
+      'Almari/tempat penyimpanan barang disediakan dan dalam keadaan baik.',
+      'Tempat makan/pantry bersih dan kemas.'
+    ]
+  },
+  {
+    no: '7', name: 'Peralatan Perlindungan Diri (PPE)',
+    items: [
+      'PPE yang bersesuaian disediakan mengikut keperluan kerja.',
+      'PPE berada dalam keadaan baik dan disimpan dengan cara yang betul.',
+      'Papan tanda mengenai keperluan PPE dipaparkan di tempat yang bersesuaian.',
+      'Pekerja menggunakan PPE yang ditetapkan dengan cara yang betul.'
+    ]
+  }
+];
+
+const COMMON_CATEGORIES_BOTTOM = [
+  {
+    no: '9', name: 'Bahan Kimia Berbahaya',
+    items: [
+      'Bekas bahan kimia sesuai dan berada dalam keadaan baik.',
+      'Bekas bahan kimia mempunyai label keselamatan yang jelas.',
+      'Bekas bahan kimia ditutup dengan sempurna apabila tidak digunakan.'
+    ]
+  },
+  {
+    no: '10', name: 'Tempat Penyimpanan Bahan Kimia',
+    items: [
+      'Bahan kimia disusun dengan kemas dan tidak menimbulkan risiko kepada pekerja.',
+      'Kawasan penyimpanan bebas daripada tumpahan bahan kimia.',
+      'SDS tersedia dan mudah diperolehi oleh pekerja.',
+      'Rak penyimpanan dan pallet berada dalam keadaan baik dan selamat digunakan.'
+    ]
+  }
+];
+
+const SECTION_CATEGORY_8 = {
+  'Maintenance': {
+    no: '8', name: 'Dandang Stim dan Bengkel',
+    items: [
+      'Kawasan Dandang Stim dan bengkel bersih, kemas dan selamat.',
+      'Laluan ke kawasan Dandang Stim dan bengkel bebas daripada halangan.',
+      'Dandang Stim dan peralatan berada dalam keadaan selamat dan diselenggara dengan baik.',
+      'Peralatan atau kawasan berbahaya mempunyai pengadang/barrier yang sesuai.',
+      'Peralatan bengkel disusun dengan baik dan tidak menimbulkan risiko kecederaan.'
+    ]
+  },
+  'Formalin': {
+    no: '8', name: 'Loji Formalin',
+    items: [
+      'Kawasan Loji Formalin bersih, kemas dan selamat.',
+      'Laluan di kawasan loji bebas daripada halangan.',
+      'Peralatan proses berada dalam keadaan selamat dan diselenggara dengan baik.',
+      'Kawasan/peralatan berbahaya mempunyai pengadang atau barrier yang sesuai.',
+      'Papan tanda keselamatan di kawasan loji jelas dan mudah dilihat.'
+    ]
+  },
+  'Glue Plant': {
+    no: '8', name: 'Peralatan Reactor dan Mesin Angkat',
+    items: [
+      'Ventilation Fan Reactor berfungsi dengan baik.',
+      'SOP pengendalian/pemprosesan resin disediakan dan mudah dirujuk.',
+      'Pressure Gauge dan alat keselamatan berkaitan berada dalam keadaan baik.',
+      'Peralatan mesin angkat berada dalam keadaan baik dan digunakan dengan cara yang betul.',
+      'Prosedur pengendalian mesin angkat disediakan dan mudah dirujuk.'
+    ]
+  },
+  'Kawasan Store': {
+    no: '8', name: 'Kawasan Loading Station, Pam dan Tangki Penyimpanan',
+    items: [
+      'Valve dan peralatan berkaitan berada dalam keadaan baik.',
+      'Basin/secondary containment untuk tumpahan disediakan dan berada dalam keadaan baik.',
+      'Kawasan pam bebas daripada tumpahan dan keadaan abnormal yang ketara.',
+      'Kawasan tangki bersih dan bebas daripada tumpahan bahan kimia.',
+      'Tangki penyimpanan bahan berada dalam keadaan baik secara visual.'
+    ]
+  },
+  'Hardener': {
+    no: '8', name: 'Kawasan Hardener Mixer, Mesin dan Jentera',
+    items: [
+      'Ventilation Fan dan Dust Collector berfungsi dengan baik.',
+      'Permukaan lantai di kawasan mixer tidak licin dan selamat.',
+      'Mesin berada dalam keadaan baik dan tidak menunjukkan keadaan abnormal.',
+      'Hoisting equipment berada dalam keadaan baik dan digunakan dengan cara yang betul.',
+      'Forklift berada dalam keadaan baik dan digunakan dengan cara yang betul.'
+    ]
+  },
+  'Quality Control': {
+    no: '8', name: 'Keselamatan Asas Makmal & Peralatan Fume Hood',
+    items: [
+      'Makanan dan minuman tidak disimpan atau dimakan di kawasan makmal.',
+      'Peti sejuk/peralatan penyimpanan dilabel untuk kegunaan makmal sahaja dan tidak digunakan menyimpan makanan.',
+      'Tanda amaran keselamatan disediakan dan mudah dilihat.',
+      'Panduan keselamatan makmal disediakan dan mudah dirujuk.',
+      'Fume Hood disediakan, berfungsi dengan baik dan tidak digunakan sebagai tempat penyimpanan.'
+    ]
+  },
+  'Admin': {
+    no: '8', name: 'Kemudahan Pejabat dan Peralatan',
+    items: [
+      'Peralatan pejabat berada dalam keadaan baik dan selamat digunakan.',
+      'Bilik server/peralatan IT mempunyai pengudaraan yang mencukupi.',
+      'Rak fail dan almari penyimpanan stabil serta tidak menghalang laluan.',
+      'Peralatan pantry bersih dan berada dalam keadaan baik.',
+      'Laluan pejalan kaki di kawasan parking jelas dan selamat.'
+    ]
+  }
+};
+
+const SECTION_NAMES = ['Kawasan Store','Maintenance','Glue Plant','Formalin','Quality Control','Hardener','Admin'];
+
+function getCategoriesForSection(sectionName){
+  const cat8 = SECTION_CATEGORY_8[sectionName];
+  return [...COMMON_CATEGORIES_TOP, cat8, ...COMMON_CATEGORIES_BOTTOM].filter(Boolean);
+}
+
+let activeCategories = [];
+let activeSection = '';
+
+function populateSectionPicker(){
+  const sel = document.getElementById('sectionPicker');
+  SECTION_NAMES.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
+  });
+}
+
+function onSectionChange(){
+  activeSection = document.getElementById('sectionPicker').value;
+  const pickerMsg = document.getElementById('pickerMsg');
+  const container = document.getElementById('categoriesContainer');
+  const overallBox = document.getElementById('overallBox');
+  const signBlock = document.getElementById('signBlock');
+
+  if (!activeSection){
+    pickerMsg.style.display = 'block';
+    container.style.display = 'none';
+    overallBox.style.display = 'none';
+    signBlock.style.display = 'none';
+    return;
+  }
+
+  pickerMsg.style.display = 'none';
+  container.style.display = 'block';
+  overallBox.style.display = 'flex';
+  signBlock.style.display = 'block';
+
+  activeCategories = getCategoriesForSection(activeSection);
+  buildCategories();
+}
+
+function buildCategories(){
+  const container = document.getElementById('categoriesContainer');
+  container.innerHTML = activeCategories.map((cat, ci) => `
+    <div class="cat-block" id="cat-${ci}">
+      <div class="cat-head" onclick="toggleCat(${ci})">
+        <div class="cat-title">
+          <span class="cat-no">${cat.no}</span>
+          <span class="cat-name">${cat.name}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="cat-progress" id="cat-progress-${ci}">0 / ${cat.items.length}</span>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="cat-body">
+        <table class="checklist">
+          <thead>
+            <tr><th class="no">No</th><th>Perkara Pemeriksaan</th><th style="width:145px;text-align:center;">Keputusan</th><th style="width:170px;">Catatan</th></tr>
+          </thead>
+          <tbody>
+            ${cat.items.map((item, ii) => `
+              <tr>
+                <td class="no">${cat.no}.${ii + 1}</td>
+                <td>${item}</td>
+                <td class="yn">
+                  <div class="yn-group">
+                    <label><input type="radio" name="item-${ci}-${ii}" value="yes" onchange="updateCatProgress(${ci})"> Ya</label>
+                    <label><input type="radio" name="item-${ci}-${ii}" value="no" onchange="updateCatProgress(${ci})"> Tidak</label>
+                    <label><input type="radio" name="item-${ci}-${ii}" value="na" onchange="updateCatProgress(${ci})"> N/A</label>
+                  </div>
+                </td>
+                <td class="remarks"><input type="text" placeholder="Catatan..." id="remark-${ci}-${ii}"></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `).join('');
+
+  // open the first category by default
+  const first = document.getElementById('cat-0');
+  if (first) first.classList.add('open');
+
+  const today = new Date().toISOString().slice(0,10);
+  if (!document.getElementById('inspDate').value){
+    document.getElementById('inspDate').value = today;
+  }
+  updateOverall();
+}
+
+function updateDigitalSignature(){
+  const input = document.getElementById('digitalSignature');
+  const display = document.getElementById('digitalSignatureDisplay');
+  if (input && display) {
+    display.textContent = input.value.trim() || '—';
+  }
+}
+
+function toggleCat(ci){
+  document.getElementById('cat-' + ci).classList.toggle('open');
+}
+
+function updateCatProgress(ci){
+  const cat = activeCategories[ci];
+  let answered = 0;
+  cat.items.forEach((item, ii) => {
+    if (document.querySelector(`input[name="item-${ci}-${ii}"]:checked`)) answered++;
+  });
+  const el = document.getElementById('cat-progress-' + ci);
+  el.textContent = answered + ' / ' + cat.items.length;
+  el.className = 'cat-progress' + (answered === cat.items.length ? ' complete' : '');
+  updateOverall();
+}
+
+function updateOverall(){
+  let totalYes = 0, totalNo = 0, totalNA = 0, answered = 0;
+  activeCategories.forEach((cat, ci) => {
+    cat.items.forEach((item, ii) => {
+      const checked = document.querySelector(`input[name="item-${ci}-${ii}"]:checked`);
+      if (checked) {
+        answered++;
+        if (checked.value === 'yes') totalYes++;
+        if (checked.value === 'no') totalNo++;
+        if (checked.value === 'na') totalNA++;
+      }
+    });
+  });
+
+  const applicable = totalYes + totalNo;
+  const pct = applicable ? Math.round((totalYes / applicable) * 100) : 0;
+  const el = document.getElementById('overallScore');
+
+  if (!activeCategories.length) {
+    el.textContent = '—';
+    el.className = 'score';
+    return;
+  }
+
+  if (!applicable) {
+    el.textContent = answered + '/' + activeCategories.reduce((sum, cat) => sum + cat.items.length, 0) + ' dijawab';
+    el.className = 'score';
+    return;
+  }
+
+  el.textContent = pct + '% (' + totalYes + '/' + applicable + ')';
+  el.className = 'score ' + (pct >= 80 ? 'pass' : 'fail');
+}
+
+function collectItemResults(){
+  const items = [];
+  let yes = 0, no = 0, na = 0;
+  activeCategories.forEach((cat, ci) => {
+    cat.items.forEach((item, ii) => {
+      const checked = document.querySelector(`input[name="item-${ci}-${ii}"]:checked`);
+      const answer = checked ? checked.value : '';
+      if (answer === 'yes') yes++;
+      if (answer === 'no') no++;
+      if (answer === 'na') na++;
+      const remark = document.getElementById(`remark-${ci}-${ii}`).value.trim();
+      items.push({
+        categoryNo: cat.no,
+        categoryName: cat.name,
+        itemNo: cat.no + '.' + (ii + 1),
+        text: item,
+        answer: answer,
+        remark: remark
+      });
+    });
+  });
+  return { items, yes, no, na };
+}
+
+async function printAndSaveInspection(){
+  const printBtn = document.getElementById('printSaveBtn');
+  const saveBtn = document.getElementById('saveBtn');
+
+  if (printBtn) {
+    printBtn.disabled = true;
+    printBtn.textContent = '⏳ Saving...';
+  }
+
+  // Save first. Printing only proceeds after a successful save.
+  const saved = await saveInspection();
+
+  if (saved) {
+    if (printBtn) printBtn.textContent = '🖨 Printing...';
+    setTimeout(() => {
+      window.print();
+      if (printBtn) {
+        printBtn.disabled = false;
+        printBtn.textContent = '🖨 Print & Save Record';
+      }
+    }, 300);
+  } else {
+    if (printBtn) {
+      printBtn.disabled = false;
+      printBtn.textContent = '🖨 Print & Save Record';
+    }
+  }
+}
+
+async function saveInspection(){
+  const statusEl = document.getElementById('statusMsg');
+
+  if (!activeSection){
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = '⚠ Sila pilih section terlebih dahulu.';
+    return false;
+  }
+
+  const digitalSignature = document.getElementById('digitalSignature').value.trim();
+  if (!digitalSignature){
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = '⚠ Sila masukkan nama inspector sebagai tandatangan digital.';
+    document.getElementById('digitalSignature').focus();
+    return false;
+  }
+
+  const { items, yes, no, na } = collectItemResults();
+  const unanswered = items.length - yes - no - na;
+  if (unanswered > 0){
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = `⚠ Masih ada ${unanswered} soalan belum dijawab. Sila lengkapkan semua item sebelum simpan.`;
+    return false;
+  }
+
+  const payload = {
+    action: 'submitCommitteeInspection',
+    inspectionId: 'CINSP-' + Date.now(),
+    date: document.getElementById('inspDate').value,
+    section: activeSection,
+    inspector: document.getElementById('inspector').value.trim(),
+    digitalSignature: document.getElementById('digitalSignature').value.trim(),
+    yesCount: yes,
+    noCount: no,
+    totalItems: items.length,
+    naCount: na,
+    applicableItems: yes + no,
+    scorePercent: (yes + no) ? Math.round((yes / (yes + no)) * 100) : 0,
+    items: items
+  };
+
+  statusEl.className = 'status-msg';
+  statusEl.textContent = 'Menyimpan rekod...';
+  const saveBtn = document.getElementById('saveBtn');
+  try{
+    const res = await fetch(CONFIG.API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data && data.success){
+      statusEl.className = 'status-msg ok';
+      statusEl.textContent = '✓ Rekod pemeriksaan "' + activeSection + '" berjaya disimpan.';
+      saveBtn.disabled = true;
+      saveBtn.textContent = '✓ Saved';
+      return true;
+    } else {
+      statusEl.className = 'status-msg err';
+      statusEl.textContent = '⚠ Gagal simpan: ' + (data && data.error ? data.error : 'unknown error');
+      return false;
+    }
+  }catch(err){
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = '⚠ Tidak dapat sambung ke server. Cuba lagi.';
+    return false;
+  }
+}
+
+populateSectionPicker();
+document.getElementById('digitalSignature')?.addEventListener('input', updateDigitalSignature);
+</script>
+</body>
+</html>

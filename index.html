@@ -757,6 +757,28 @@
       </section>
 
       <section class="board-card">
+        <div class="insp-chart-head">
+          <div>
+            <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Committee Inspection Score by Section</h3>
+            <div class="caption" style="margin:0;">Average score (%) from HSE Committee pre-meeting inspections · Target 80%</div>
+          </div>
+          <div class="insp-legend">
+            <span><i style="background:var(--green);"></i> ≥80%</span>
+            <span><i style="background:var(--amber);"></i> 60–79%</span>
+            <span><i style="background:var(--red);"></i> &lt;60%</span>
+          </div>
+        </div>
+        <div class="insp-chart-wrap">
+          <canvas id="committeeChart"></canvas>
+          <div class="insp-chart-empty" id="committeeChartEmpty" style="display:none;">
+            <div class="icon">🔍</div>
+            <div class="msg">No committee inspection records yet</div>
+            <div class="sub">Complete a section under "HSE Committee Pre-Meeting Inspection" to see scores here</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="board-card">
         <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">HSE Performance Statistics</h3>
         <div class="caption" style="margin:0 0 16px;">Year-to-date · Synced from HSE Performance Statistic sheet</div>
 
@@ -799,7 +821,7 @@ const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
 };
 
-let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null };
+let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null, committeeInspections: [], committeeInspectionNoItems: [] };
 let currentCategory = 'All Tasks';
 let editingTaskId = null;
 const QUARTERS = ['Q1','Q2','Q3','Q4'];
@@ -828,6 +850,12 @@ const OTHERS_LINKS = [
     desc: 'SOPs, SWPs, HIRARC & HSE reference site',
     icon: '📚',
     url: 'https://sites.google.com/view/sci-hse-dashboard/home'
+  },
+  {
+    name: 'HSE Committee Pre-Meeting Inspection',
+    desc: 'Section walkthrough checklist for HSE committee members before meetings',
+    icon: '🔍',
+    url: 'committee-inspection.html'
   }
 ];
 
@@ -860,6 +888,7 @@ function switchCategory(category, el){
     renderInspectionChart();
     renderHseStats();
     renderSafetyInduction();
+    renderCommitteeChart();
     return;
   }
 
@@ -1027,6 +1056,7 @@ function render(){
   renderInspectionChart();
   renderHseStats();
   renderSafetyInduction();
+  renderCommitteeChart();
   renderNotes();
 }
 
@@ -1446,7 +1476,7 @@ function renderHseStats(){
       sub: stats.lastLTIDate ? ('Last LTI: ' + stats.lastLTIDate) : '', highlight: true
     },
     { k: 'Manhours (To Date)', v: manhours && manhours.toDate !== null ? manhours.toDate.toLocaleString() : '—', sub: '' },
-    { k: 'Avg Employees', v: employees && employees.toDate !== null ? employees.toDate : '—', sub: 'Year-to-date average' }
+    { k: 'Avg Employees', v: employees && employees.toDate !== null ? Math.round(employees.toDate) : '—', sub: 'Year-to-date average' }
   ];
 
   row.innerHTML = cards.map(c => `
@@ -1609,6 +1639,81 @@ function renderSafetyInduction(){
         y:{beginAtZero:true, grid:{color:'#EDEEE9'}, ticks:{precision:0, font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}}
       }
     }
+  });
+}
+
+let committeeChartInstance=null;
+
+function renderCommitteeChart(){
+  const canvas = document.getElementById('committeeChart');
+  const emptyEl = document.getElementById('committeeChartEmpty');
+  if (!canvas) return;
+  const records = STATE.committeeInspections || [];
+
+  if (committeeChartInstance){
+    committeeChartInstance.destroy();
+    committeeChartInstance = null;
+  }
+
+  if (records.length === 0){
+    canvas.style.display='none';
+    if(emptyEl) emptyEl.style.display='flex';
+    return;
+  }
+  canvas.style.display='block';
+  if(emptyEl) emptyEl.style.display='none';
+
+  const avgScores = INSPECTION_SECTIONS.map(sec => {
+    const secRecords = records.filter(r => r.Section === sec);
+    if (secRecords.length === 0) return 0;
+    const sum = secRecords.reduce((acc, r) => acc + (Number(r.ScorePercent) || 0), 0);
+    return Math.round(sum / secRecords.length);
+  });
+
+  const barColors = avgScores.map(s => s >= 80 ? '#2F8F5B' : (s >= 60 ? '#E2993B' : '#D6484B'));
+
+  const ctx = canvas.getContext('2d');
+  committeeChartInstance = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels: INSPECTION_SECTIONS,
+      datasets:[{
+        label:'Average Score (%)',
+        data: avgScores,
+        backgroundColor: barColors,
+        borderRadius: 5,
+        barPercentage: 0.65,
+        categoryPercentage: 0.7
+      }]
+    },
+    options:{
+      indexAxis: 'y',
+      responsive:true,
+      maintainAspectRatio:false,
+      layout:{ padding:{ top:22, right:38 } },
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#171B22',
+          padding:10,
+          titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700},
+          bodyFont:{family:"'Inter', sans-serif", size:12.5},
+          callbacks:{label: ctx => 'Average score: ' + ctx.parsed.x + '%'}
+        }
+      },
+      scales:{
+        x:{
+          beginAtZero:true, max:100,
+          grid:{color:'#EDEEE9'},
+          ticks:{callback: v => v + '%', font:{family:"'IBM Plex Mono', monospace", size:11}, color:'#6B7280'}
+        },
+        y:{
+          grid:{display:false},
+          ticks:{font:{family:"'Inter', sans-serif", size:13, weight:600}, color:'#171B22'}
+        }
+      }
+    },
+    plugins:[targetLinePlugin, barValueLabelPlugin]
   });
 }
 
