@@ -1098,11 +1098,9 @@ function renderCommitteeNoItemsList(){
         <span class="ni-section">${escapeHtml(it.Section || '—')}</span>
         <span class="ni-date">${formatDate(it.Date)}</span>
       </div>
-      <div class="ni-cat">${escapeHtml(it.CategoryNo ? ('Cat ' + it.CategoryNo + ' · ') : '')}${escapeHtml(it.CategoryName || '')}${it.ItemNo ? (' · Item ' + escapeHtml(String(it.ItemNo))) : ''}</div>
-      <div class="ni-text">${escapeHtml(it.ItemText || '—')}</div>
-      ${it.Remark ? `<div class="ni-remark">${escapeHtml(it.Remark)}</div>` : ''}
-    </div>
-  `).join('');
+      <div class="ni-text">${escapeHtml(it.Remark || 'No comment provided')}</div>
+    </div>`
+  ).join('');
 }
 
 function tickClock(){
