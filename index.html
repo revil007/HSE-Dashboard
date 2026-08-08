@@ -191,7 +191,7 @@
   }
   .insp-card{
     background:var(--card); border:1px solid var(--border); border-radius:11px;
-    padding:17px; cursor:pointer; transition:box-shadow .15s ease, transform .15s ease;
+    padding:13px 15px; cursor:pointer; transition:box-shadow .15s ease, transform .15s ease;
     border-left:4px solid var(--red);
     box-shadow:var(--shadow-sm);
   }
@@ -199,8 +199,8 @@
   .insp-card.done{border-left-color:var(--green); cursor:default; opacity:0.85;}
   .insp-card.done:hover{box-shadow:none; transform:none;}
   .insp-card .i-name{
-    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:17px;
-    text-transform:uppercase; color:var(--navy); margin-bottom:8px;
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px;
+    text-transform:uppercase; color:var(--navy); margin-bottom:6px;
   }
   .insp-card .i-status{
     display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase;
@@ -209,9 +209,33 @@
   .insp-card .i-status.pending{background:var(--red-bg); color:var(--red);}
   .insp-card .i-status.done{background:var(--green-bg); color:var(--green);}
   .insp-card .i-meta{
-    font-size:11px; color:var(--muted); margin-top:10px; font-family:'IBM Plex Mono',monospace;
+    font-size:11px; color:var(--muted); margin-top:7px; font-family:'IBM Plex Mono',monospace;
   }
   .others-links{
+
+  .no-items-list{display:flex; flex-direction:column; gap:10px;}
+  .no-item-card{
+    background:var(--red-bg); border:1px solid #F2C6C7; border-radius:10px;
+    padding:12px 14px; border-left:4px solid var(--red);
+  }
+  .no-item-card .ni-top{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:6px;
+  }
+  .no-item-card .ni-section{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14.5px;
+    text-transform:uppercase; color:var(--navy);
+  }
+  .no-item-card .ni-date{
+    font-size:10.5px; color:var(--muted); font-family:'IBM Plex Mono',monospace; flex-shrink:0; white-space:nowrap;
+  }
+  .no-item-card .ni-cat{
+    font-size:10.5px; color:var(--red); font-weight:700; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;
+  }
+  .no-item-card .ni-text{font-size:13px; color:var(--ink); line-height:1.4;}
+  .no-item-card .ni-remark{
+    font-size:12px; color:var(--muted); margin-top:6px; font-style:italic; border-top:1px solid #F2C6C7; padding-top:6px;
+  }
+
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
     gap:14px;
@@ -648,7 +672,7 @@
     <nav class="sidebar">
       <div class="item" data-category="Dashboard" onclick="switchCategory('Dashboard', this)"><span class="icon">📊</span> Dashboard</div>
       <div class="item active" data-category="All Tasks" onclick="switchCategory('All Tasks', this)"><span class="icon">🗂️</span> All Tasks</div>
-      <div class="item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Monthly Inspection</div>
+      <div class="item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Workplace Inspection</div>
       <div class="item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
       <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
       <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon">👁</span> Safety Observations <span class="nav-badge" id="obsNavBadge" style="display:none;">0</span></div>
@@ -699,6 +723,16 @@
           <div class="cards"></div>
         </div>
       </div>
+    </section>
+
+    <section class="board-card" id="committeeNoItemsCard" style="display:none;">
+      <div class="insp-chart-head">
+        <div>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">HSE Committee Pre-Meeting Inspections</h3>
+          <div class="caption" style="margin:0;">Checklist items marked "No" from HSE Committee pre-meeting inspections</div>
+        </div>
+      </div>
+      <div class="no-items-list" id="committeeNoItemsList" style="margin-top:14px;"></div>
     </section>
 
     <div id="dashboardView" style="display:none; flex-direction:column; gap:24px;">
@@ -925,19 +959,24 @@ function getMeetingsData(){
   });
 }
 
+const CATEGORY_DISPLAY_NAMES = { 'Monthly Inspection': 'HSE Monthly Inspection' };
+
 function switchCategory(category, el){
   currentCategory = category;
   document.querySelectorAll('nav.sidebar .item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('boardTitle').textContent = category;
+  const displayName = CATEGORY_DISPLAY_NAMES[category] || category;
+  document.getElementById('boardTitle').textContent = displayName;
   document.getElementById('newTaskInput').placeholder =
-      category==='All Tasks' ? 'Select a category to add task...' : 'New ' + category.toLowerCase() + ' task...';
+      category==='All Tasks' ? 'Select a category to add task...' : 'New ' + displayName.toLowerCase() + ' task...';
 
   const isDashboard = category === 'Dashboard';
   const mainBoardCard = document.getElementById('mainBoardCard');
   const dashboardView = document.getElementById('dashboardView');
+  const noItemsCard = document.getElementById('committeeNoItemsCard');
   if(mainBoardCard) mainBoardCard.style.display = isDashboard ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
+  if(noItemsCard) noItemsCard.style.display = (!isDashboard && category === 'Monthly Inspection') ? 'block' : 'none';
 
   if(isDashboard){
     renderDonut();
@@ -973,7 +1012,7 @@ function switchCategory(category, el){
   if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
   if(obsNotifBanner && !isObsFeed) obsNotifBanner.style.display = 'none';
   if(boardCols) boardCols.style.display = (isInspection || isOthers || isObsFeed) ? 'none' : 'grid';
-  if(isInspection) renderInspectionSections();
+  if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); }
   if(isOthers) renderOthersLinks();
   if(isObsFeed) renderObsFeed(true);
   renderBoard();
@@ -1003,13 +1042,13 @@ const STATUS_LABEL = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
 const STATUS_COLORS = { todo: '#D6484B', progress: '#E2993B', done: '#2F8F5B' };
 
 const INSPECTION_SECTIONS_META = [
-  { name: 'Kawasan Store', scope: 'Store Office, Loading Bay, Tank Area & Warehouse' },
-  { name: 'Maintenance', scope: 'Boiler, Gen Set Room, Electrical Room & Workshop' },
-  { name: 'Glue Plant', scope: 'Reactor & Urea Storage Area' },
-  { name: 'Formalin', scope: 'Formalin Plant, Formalin Control Room & Tank Area' },
-  { name: 'Quality Control', scope: 'Office, Sample Rack & Cutting Machine Area' },
-  { name: 'Hardener', scope: 'Packing Area & Hardener Process Area' },
-  { name: 'Admin', scope: 'Admin Building & Car Park Area' }
+  { name: 'Kawasan Store' },
+  { name: 'Maintenance' },
+  { name: 'Glue Plant' },
+  { name: 'Formalin' },
+  { name: 'Quality Control' },
+  { name: 'Hardener' },
+  { name: 'Admin' }
 ];
 
 function currentMonthKey(){
@@ -1030,7 +1069,6 @@ function renderInspectionSections(){
       <div class="insp-card ${isDone ? 'done' : ''}" ${isDone ? '' : `onclick="openInspectionSection('${sec.name.replace(/'/g,"\\'")}')"`}>
         <div class="i-name">${sec.name}</div>
         <span class="i-status ${isDone ? 'done' : 'pending'}">${isDone ? '✓ Done' : 'Pending'}</span>
-        <div class="i-meta">${sec.scope}</div>
         ${isDone
           ? `<div class="i-meta">Score: ${rec.ScorePercent}% · ${rec.Date}</div>`
           : `<div class="i-meta">Klik untuk mula pemeriksaan →</div>`}
@@ -1041,6 +1079,30 @@ function renderInspectionSections(){
 function openInspectionSection(sectionName){
   const monthKey = currentMonthKey();
   window.open('inspection.html?section=' + encodeURIComponent(sectionName) + '&month=' + monthKey, '_blank');
+}
+
+function renderCommitteeNoItemsList(){
+  const list = document.getElementById('committeeNoItemsList');
+  if (!list) return;
+  const items = (STATE.committeeInspectionNoItems || []).slice()
+    .sort((a, b) => String(b.Date || '').localeCompare(String(a.Date || '')));
+
+  if (items.length === 0){
+    list.innerHTML = '<div class="empty">No outstanding "No" items — all committee checklist items are in order</div>';
+    return;
+  }
+
+  list.innerHTML = items.map(it => `
+    <div class="no-item-card">
+      <div class="ni-top">
+        <span class="ni-section">${escapeHtml(it.Section || '—')}</span>
+        <span class="ni-date">${formatDate(it.Date)}</span>
+      </div>
+      <div class="ni-cat">${escapeHtml(it.CategoryNo ? ('Cat ' + it.CategoryNo + ' · ') : '')}${escapeHtml(it.CategoryName || '')}${it.ItemNo ? (' · Item ' + escapeHtml(String(it.ItemNo))) : ''}</div>
+      <div class="ni-text">${escapeHtml(it.ItemText || '—')}</div>
+      ${it.Remark ? `<div class="ni-remark">${escapeHtml(it.Remark)}</div>` : ''}
+    </div>
+  `).join('');
 }
 
 function tickClock(){
@@ -1074,10 +1136,13 @@ async function loadData(){
 
 function render(){
   const isDashboard = currentCategory === 'Dashboard';
+  const isInspectionCategory = !isDashboard && currentCategory === 'Monthly Inspection';
   const mainBoardCard = document.getElementById('mainBoardCard');
   const dashboardView = document.getElementById('dashboardView');
+  const noItemsCardTop = document.getElementById('committeeNoItemsCard');
   if(mainBoardCard) mainBoardCard.style.display = isDashboard ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
+  if(noItemsCardTop) noItemsCardTop.style.display = isInspectionCategory ? 'block' : 'none';
 
   if(!isDashboard){
     const isInspection = currentCategory === 'Monthly Inspection';
@@ -1100,7 +1165,7 @@ function render(){
     if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
     if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
     if(boardCols) boardCols.style.display = (isInspection || isOthers || isObsFeed) ? 'none' : 'grid';
-    if(isInspection) renderInspectionSections();
+    if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); }
     if(isOthers) renderOthersLinks();
     if(isObsFeed) renderObsFeed(true);
     renderBoard();
@@ -1187,7 +1252,7 @@ function renderBoard(){
           </div>
         </div>
         ${currentCategory==='All Tasks'
-          ? `<div style="font-size:11px;color:#6B7480;margin-bottom:6px;">📁 ${escapeHtml(t.Category||'Monthly Inspection')}</div>`
+          ? `<div style="font-size:11px;color:#6B7480;margin-bottom:6px;">📁 ${escapeHtml(CATEGORY_DISPLAY_NAMES[t.Category] || t.Category || 'HSE Monthly Inspection')}</div>`
           : ''}
         ${(t.DueDate || t.AssignedTo) ? `
         <div class="meta">
