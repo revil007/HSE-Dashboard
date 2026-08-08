@@ -132,6 +132,9 @@
     width:100%; border:none; border-bottom:1px dashed var(--border); font-size:12px; font-family:'Inter',sans-serif;
     padding:3px 2px; background:transparent;
   }
+  table.checklist td.remarks input.required-mark{border-bottom:1px solid var(--red);}
+  table.checklist td.remarks input.required-mark::placeholder{color:var(--red);}
+  table.checklist td.remarks input.required-missing{background:var(--red-bg); border-bottom:1px solid var(--red);}
   .yn-group{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
   .yn-group label{display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer;}
   .yn-group input{cursor:pointer;}
@@ -165,12 +168,13 @@
 
   @media print{
     body{background:#fff; padding-bottom:0;}
-    header.topbar, .status-msg, .no-print, .section-picker-wrap{display:none !important;}
+    header.topbar, .status-msg, .no-print, .section-picker-msg{display:none !important;}
     .sheet{box-shadow:none; border:none; margin:0; padding:0; max-width:100%;}
     .hazard-stripe{display:none;}
     .cat-block{page-break-inside:avoid;}
     .cat-body{display:block !important;}
     .cat-head .chevron{display:none;}
+    #sectionPicker{border:none; padding:0; background:transparent; appearance:none; -webkit-appearance:none;}
     @page{ size:portrait; margin:14mm; }
   }
   @media (max-width:700px){
@@ -519,12 +523,12 @@ function buildCategories(){
                 <td>${item}</td>
                 <td class="yn">
                   <div class="yn-group">
-                    <label><input type="radio" name="item-${ci}-${ii}" value="yes" onchange="updateCatProgress(${ci})"> Ya</label>
-                    <label><input type="radio" name="item-${ci}-${ii}" value="no" onchange="updateCatProgress(${ci})"> Tidak</label>
-                    <label><input type="radio" name="item-${ci}-${ii}" value="na" onchange="updateCatProgress(${ci})"> N/A</label>
+                    <label><input type="radio" name="item-${ci}-${ii}" value="yes" onchange="updateCatProgress(${ci}); onAnswerChange(${ci}, ${ii})"> Ya</label>
+                    <label><input type="radio" name="item-${ci}-${ii}" value="no" onchange="updateCatProgress(${ci}); onAnswerChange(${ci}, ${ii})"> Tidak</label>
+                    <label><input type="radio" name="item-${ci}-${ii}" value="na" onchange="updateCatProgress(${ci}); onAnswerChange(${ci}, ${ii})"> N/A</label>
                   </div>
                 </td>
-                <td class="remarks"><input type="text" placeholder="Catatan..." id="remark-${ci}-${ii}"></td>
+                <td class="remarks"><input type="text" placeholder="Catatan..." id="remark-${ci}-${ii}" oninput="this.classList.remove('required-missing')"></td>
               </tr>
             `).join('')}
           </tbody>
@@ -566,6 +570,16 @@ function updateCatProgress(ci){
   el.textContent = answered + ' / ' + cat.items.length;
   el.className = 'cat-progress' + (answered === cat.items.length ? ' complete' : '');
   updateOverall();
+}
+
+function onAnswerChange(ci, ii){
+  const checked = document.querySelector(`input[name="item-${ci}-${ii}"]:checked`);
+  const remarkInput = document.getElementById(`remark-${ci}-${ii}`);
+  if (!remarkInput) return;
+  const isNo = !!checked && checked.value === 'no';
+  remarkInput.placeholder = isNo ? 'Catatan (wajib)...' : 'Catatan...';
+  remarkInput.classList.toggle('required-mark', isNo);
+  if (!isNo) remarkInput.classList.remove('required-missing');
 }
 
 function updateOverall(){
@@ -614,6 +628,8 @@ function collectItemResults(){
       if (answer === 'na') na++;
       const remark = document.getElementById(`remark-${ci}-${ii}`).value.trim();
       items.push({
+        ci: ci,
+        ii: ii,
         categoryNo: cat.no,
         categoryName: cat.name,
         itemNo: cat.no + '.' + (ii + 1),
@@ -628,7 +644,6 @@ function collectItemResults(){
 
 async function printAndSaveInspection(){
   const printBtn = document.getElementById('printSaveBtn');
-  const saveBtn = document.getElementById('saveBtn');
 
   if (printBtn) {
     printBtn.disabled = true;
@@ -677,6 +692,25 @@ async function saveInspection(){
   if (unanswered > 0){
     statusEl.className = 'status-msg err';
     statusEl.textContent = `⚠ Masih ada ${unanswered} soalan belum dijawab. Sila lengkapkan semua item sebelum simpan.`;
+    return false;
+  }
+
+  const missingRemarks = items.filter(it => it.answer === 'no' && !it.remark);
+  if (missingRemarks.length > 0){
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = `⚠ ${missingRemarks.length} item bertanda "Tidak" belum ada catatan. Sila lengkapkan catatan sebelum simpan.`;
+    missingRemarks.forEach(it => {
+      const input = document.getElementById(`remark-${it.ci}-${it.ii}`);
+      if (input) input.classList.add('required-missing');
+    });
+    const first = missingRemarks[0];
+    const catBlock = document.getElementById('cat-' + first.ci);
+    if (catBlock && !catBlock.classList.contains('open')) catBlock.classList.add('open');
+    const firstInput = document.getElementById(`remark-${first.ci}-${first.ii}`);
+    if (firstInput){
+      firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstInput.focus();
+    }
     return false;
   }
 
