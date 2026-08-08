@@ -804,7 +804,7 @@
             <div class="caption" style="margin:0;">Planned vs completed status, and completion rate by department</div>
           </div>
         </div>
-        <div class="training-matrix-grid">
+        <div class="training-matrix-grid" id="trainingMatrixGrid">
           <div class="training-matrix-col">
             <div class="tm-subhead">Planned vs completed — overall</div>
             <div class="tm-legend">
@@ -827,6 +827,11 @@
               <canvas id="tmDeptChart"></canvas>
             </div>
           </div>
+        </div>
+        <div class="insp-chart-empty" id="trainingMatrixEmpty" style="display:none;">
+          <div class="icon">🎓</div>
+          <div class="msg">No training matrix data yet</div>
+          <div class="sub">Data will appear once the Training Matrix sheet is populated</div>
         </div>
       </section>
 
@@ -873,7 +878,7 @@ const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
 };
 
-let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null, committeeInspections: [], committeeInspectionNoItems: [] };
+let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null, committeeInspections: [], committeeInspectionNoItems: [], trainingMatrix: null };
 let currentCategory = 'All Tasks';
 let editingTaskId = null;
 const QUARTERS = ['Q1','Q2','Q3','Q4'];
@@ -1775,17 +1780,26 @@ function renderCommitteeChart(){
 let tmDeptChartInstance = null;
 
 function renderTrainingMatrix(){
-  // Snapshot from "HSE Training Matrix 2026" sheet (Training Matrix tab).
-  // TODO: replace with STATE.trainingMatrix once Code.gs exposes this sheet.
-  const status = { completed: 6, planned: 12 };
-  const deptCompletion = [
-    { dept:'All',        pct:0   },
-    { dept:'Production',  pct:29  },
-    { dept:'HSE',         pct:100 },
-    { dept:'ERT',         pct:100 }
-  ];
+  // Live from the external "HSE Training Matrix 2026" sheet (Training Matrix tab),
+  // fetched and summarized server-side in Code.gs (getTrainingMatrix_).
+  const tm = STATE.trainingMatrix;
+  const grid = document.getElementById('trainingMatrixGrid');
+  const emptyEl = document.getElementById('trainingMatrixEmpty');
+
+  const status = { completed: tm ? tm.completed : 0, planned: tm ? tm.planned : 0 };
+  const deptCompletion = (tm && tm.departments ? tm.departments : [])
+    .map(function(d){ return { dept: d.department, pct: d.completionRate }; });
 
   const total = status.completed + status.planned;
+
+  if (!tm || total === 0){
+    if(grid) grid.style.display = 'none';
+    if(emptyEl) emptyEl.style.display = 'flex';
+    return;
+  }
+  if(grid) grid.style.display = 'grid';
+  if(emptyEl) emptyEl.style.display = 'none';
+
   document.getElementById('tmCompletedStat').textContent = status.completed + ' (' + Math.round(status.completed/total*100) + '%)';
   document.getElementById('tmPlannedStat').textContent = status.planned + ' (' + Math.round(status.planned/total*100) + '%)';
 
