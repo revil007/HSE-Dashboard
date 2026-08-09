@@ -597,6 +597,49 @@
   .empty{color:var(--muted); font-size:13px; font-style:italic;}
   .loading{padding:40px; text-align:center; color:var(--muted);}
 
+  /* ---------------- Mobile bottom navigation ---------------- */
+  .bottom-nav{
+    display:none; /* shown only under the phone breakpoint below */
+    position:fixed; left:0; right:0; bottom:0; z-index:40;
+    background:var(--navy); border-top:1px solid rgba(255,255,255,0.08);
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+    box-shadow:0 -4px 16px rgba(16,20,28,0.18);
+  }
+  .bn-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px; padding:6px 2px; border-radius:10px; cursor:pointer; position:relative;
+    color:#9AA6B8; transition:color .15s ease, background .15s ease;
+  }
+  .bn-item.active{color:var(--yellow); background:rgba(255,255,255,0.06);}
+  .bn-icon{font-size:19px; line-height:1;}
+  .bn-label{font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.02em;}
+  .bn-badge{
+    position:absolute; top:2px; right:calc(50% - 20px); min-width:16px; height:16px; padding:0 4px;
+    border-radius:9px; background:var(--red); color:#fff; font-size:10px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace;
+  }
+
+  .more-sheet-backdrop{
+    display:none; position:fixed; inset:0; background:rgba(16,20,28,0.45); z-index:45;
+  }
+  .more-sheet-backdrop.open{display:block;}
+  .more-sheet{
+    display:none; position:fixed; left:0; right:0; bottom:0; z-index:46;
+    background:var(--card); border-radius:16px 16px 0 0; padding:10px 8px calc(14px + env(safe-area-inset-bottom));
+    box-shadow:0 -8px 24px rgba(16,20,28,0.22);
+  }
+  .more-sheet.open{display:block;}
+  .more-sheet-handle{
+    width:40px; height:4px; border-radius:3px; background:var(--border); margin:0 auto 10px;
+  }
+  .more-sheet-item{
+    display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:10px;
+    font-size:15px; font-weight:600; color:var(--ink); cursor:pointer;
+  }
+  .more-sheet-item .icon{font-size:18px;}
+  .more-sheet-item.active{background:var(--surface); color:var(--navy);}
+  .more-sheet-item:active{background:var(--surface);}
+
   @media (max-width: 980px){
     .layout{
       grid-template-columns:1fr;
@@ -647,6 +690,12 @@
     .trend-total{text-align:left;}
     .insp-chart-head{flex-direction:column; align-items:flex-start;}
   }
+
+  @media (max-width: 700px){
+    .sidebar-col{display:none !important;}
+    .bottom-nav{display:flex;}
+    body{padding-bottom:70px;}
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -666,6 +715,33 @@
   </div>
 </header>
 <div class="hazard-stripe"></div>
+
+<nav class="bottom-nav" id="bottomNav">
+  <div class="bn-item active" data-category="Dashboard" onclick="switchCategory('Dashboard', this)">
+    <span class="bn-icon">📊</span><span class="bn-label">Dashboard</span>
+  </div>
+  <div class="bn-item" data-category="All Tasks" onclick="switchCategory('All Tasks', this)">
+    <span class="bn-icon">🗂️</span><span class="bn-label">Tasks</span>
+  </div>
+  <div class="bn-item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)">
+    <span class="bn-icon">📋</span><span class="bn-label">Inspect</span>
+  </div>
+  <div class="bn-item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)">
+    <span class="bn-icon">👁</span><span class="bn-label">Observe</span>
+    <span class="bn-badge" id="obsBottomNavBadge" style="display:none;">0</span>
+  </div>
+  <div class="bn-item" id="bnMoreBtn" onclick="toggleMoreSheet()">
+    <span class="bn-icon">⋯</span><span class="bn-label">More</span>
+  </div>
+</nav>
+
+<div class="more-sheet-backdrop" id="moreSheetBackdrop" onclick="closeMoreSheet()"></div>
+<div class="more-sheet" id="moreSheet">
+  <div class="more-sheet-handle"></div>
+  <div class="more-sheet-item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
+  <div class="more-sheet-item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
+  <div class="more-sheet-item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon">📁</span> Others</div>
+</div>
 
 <div class="layout">
   <div class="sidebar-col">
@@ -961,10 +1037,31 @@ function getMeetingsData(){
 
 const CATEGORY_DISPLAY_NAMES = { 'Monthly Inspection': 'HSE Monthly Inspection' };
 
+const MORE_SHEET_CATEGORIES = ['Training', 'Meetings', 'Others'];
+
+function toggleMoreSheet(){
+  const sheet = document.getElementById('moreSheet');
+  const backdrop = document.getElementById('moreSheetBackdrop');
+  if(!sheet || !backdrop) return;
+  const opening = !sheet.classList.contains('open');
+  sheet.classList.toggle('open', opening);
+  backdrop.classList.toggle('open', opening);
+}
+
+function closeMoreSheet(){
+  const sheet = document.getElementById('moreSheet');
+  const backdrop = document.getElementById('moreSheetBackdrop');
+  if(sheet) sheet.classList.remove('open');
+  if(backdrop) backdrop.classList.remove('open');
+}
+
 function switchCategory(category, el){
   currentCategory = category;
-  document.querySelectorAll('nav.sidebar .item').forEach(i => i.classList.remove('active'));
-  el.classList.add('active');
+  document.querySelectorAll('nav.sidebar .item, .bottom-nav .bn-item, .more-sheet .more-sheet-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll(`[data-category="${category}"]`).forEach(i => i.classList.add('active'));
+  const bnMoreBtn = document.getElementById('bnMoreBtn');
+  if(bnMoreBtn) bnMoreBtn.classList.toggle('active', MORE_SHEET_CATEGORIES.includes(category));
+  closeMoreSheet();
   const displayName = CATEGORY_DISPLAY_NAMES[category] || category;
   document.getElementById('boardTitle').textContent = displayName;
   document.getElementById('newTaskInput').placeholder =
@@ -1968,15 +2065,18 @@ function setObsLastSeenId(id){
 
 function updateObsNavBadge(){
   const badge = document.getElementById('obsNavBadge');
-  if(!badge) return;
+  const bnBadge = document.getElementById('obsBottomNavBadge');
   const entries = STATE.obsEntries || [];
   const lastSeen = getObsLastSeenId();
   const newCount = entries.filter(e => e.id > lastSeen).length;
-  if(newCount > 0){
-    badge.textContent = newCount > 99 ? '99+' : newCount;
-    badge.style.display = 'inline-block';
-  } else {
-    badge.style.display = 'none';
+  const label = newCount > 99 ? '99+' : String(newCount);
+  if(badge){
+    badge.textContent = label;
+    badge.style.display = newCount > 0 ? 'inline-block' : 'none';
+  }
+  if(bnBadge){
+    bnBadge.textContent = label;
+    bnBadge.style.display = newCount > 0 ? 'flex' : 'none';
   }
 }
 
