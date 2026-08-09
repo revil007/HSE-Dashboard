@@ -538,6 +538,10 @@
   .hse-stat-card.highlight .k{color:#AEB6C2;}
   .hse-stat-card .sub{font-size:11px; color:var(--muted); margin-top:3px;}
   .hse-stat-card.highlight .sub{color:#9AA6B8;}
+  .chart-note{
+    font-size:12px; color:var(--green); font-weight:600; margin-top:4px;
+    display:flex; align-items:center; gap:5px;
+  }
 
   .donut-wrap{display:flex; align-items:center; gap:22px;}
   .donut-svg-wrap{position:relative; width:150px; height:150px; flex-shrink:0;}
@@ -983,7 +987,7 @@
 
         <div class="panel" style="margin-top:20px; box-shadow:none; border-color:var(--surface); padding:16px 0 0;">
           <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Monthly Incident Counts</h3>
-          <div class="caption" style="margin:0;">Near Miss · First Aid · Minor / Major LTI · Fatality</div>
+          <div class="chart-note" id="hseIncidentNote" style="display:none;"></div>
           <div class="trend-chart-wrap" style="margin-top:10px;">
             <canvas id="hseIncidentChart"></canvas>
             <div class="insp-chart-empty" id="hseIncidentEmpty" style="display:none;">
@@ -996,7 +1000,6 @@
 
         <div class="panel" style="margin-top:8px; box-shadow:none; border-color:var(--surface); padding:16px 0 0;">
           <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Safety Rates</h3>
-          <div class="caption" style="margin:0;">Frequency Rate · Incident Rate · Severity Rate</div>
           <div class="trend-chart-wrap" style="margin-top:10px;">
             <canvas id="hseRatesChart"></canvas>
             <div class="insp-chart-empty" id="hseRatesEmpty" style="display:none;">
@@ -1747,6 +1750,7 @@ function renderHseStats(){
 function renderHseIncidentChart(stats){
   const canvas = document.getElementById('hseIncidentChart');
   const emptyEl = document.getElementById('hseIncidentEmpty');
+  const noteEl = document.getElementById('hseIncidentNote');
   if (!canvas) return;
 
   const series = [
@@ -1763,10 +1767,23 @@ function renderHseIncidentChart(stats){
   if (series.length === 0 || totalPoints === 0){
     canvas.style.display='none';
     if(emptyEl) emptyEl.style.display='flex';
+    if(noteEl) noteEl.style.display='none';
     return;
   }
   canvas.style.display='block';
   if(emptyEl) emptyEl.style.display='none';
+
+  // Data was found and synced (totalPoints > 0), but every value is literally 0 —
+  // meaning no incidents were reported, not that the sheet failed to sync.
+  const totalIncidents = series.reduce((sum,s) => sum + stats.metrics[s.key].months.reduce((a,v) => a + (v || 0), 0), 0);
+  if(noteEl){
+    if(totalIncidents === 0){
+      noteEl.textContent = '✅ No incidents reported so far.';
+      noteEl.style.display = 'flex';
+    } else {
+      noteEl.style.display = 'none';
+    }
+  }
 
   const ctx = canvas.getContext('2d');
   hseIncidentChartInstance = new Chart(ctx,{
@@ -1784,7 +1801,7 @@ function renderHseIncidentChart(stats){
     options:{
       responsive:true, maintainAspectRatio:false,
       plugins:{
-        legend:{position:'bottom', labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{family:"'Inter', sans-serif", size:11}, color:'#171B22'}},
+        legend:{position:'bottom', onClick:()=>{}, labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{family:"'Inter', sans-serif", size:11}, color:'#171B22'}},
         tooltip:{backgroundColor:'#171B22', padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
       },
       scales:{
@@ -1834,7 +1851,7 @@ function renderHseRatesChart(stats){
       responsive:true, maintainAspectRatio:false,
       interaction:{mode:'index', intersect:false},
       plugins:{
-        legend:{position:'bottom', labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{family:"'Inter', sans-serif", size:11}, color:'#171B22'}},
+        legend:{position:'bottom', onClick:()=>{}, labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{family:"'Inter', sans-serif", size:11}, color:'#171B22'}},
         tooltip:{mode:'index', intersect:false, backgroundColor:'#171B22', padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
       },
       scales:{
