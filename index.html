@@ -93,6 +93,9 @@
   header.topbar .sub{
     font-size:11.5px; color:#9AA6B8; font-family:'IBM Plex Mono',monospace; letter-spacing:0.08em; margin-top:2px;
   }
+  header.topbar .mobile-date, header.topbar .mobile-time{
+    display:none; font-size:11px; color:#9AA6B8; letter-spacing:0.04em;
+  }
   header.topbar .status-cluster{
     display:flex; align-items:center; gap:18px; font-size:14px;
   }
@@ -695,6 +698,14 @@
     .sidebar-col{display:none !important;}
     .bottom-nav{display:flex;}
     body{padding-bottom:70px;}
+    header.topbar .sub{display:none;}
+    header.topbar .mobile-date, header.topbar .mobile-time{display:block;}
+    header.topbar #clock{display:none;}
+    header.topbar .brand{align-items:center;}
+    header.topbar .status-cluster{
+      flex-direction:column; align-items:flex-end; gap:4px; font-size:12px;
+    }
+    .header-stripe{display:none;}
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -707,14 +718,16 @@
     <div>
       <h1 class="display">SCI HSE Dashboard</h1>
       <div class="sub">SEPANGAR CHEMICAL INDUSTRY · HEALTH SAFETY ENVIRONMENT</div>
+      <div class="mobile-date mono" id="mobileDate"></div>
     </div>
   </div>
   <div class="status-cluster">
     <div class="alert-pill">⚠ <span id="alertCount">0</span> Pending</div>
     <div id="clock" class="mono" style="color:#AEB6C2;font-size:13px;"></div>
+    <div class="mobile-time mono" id="mobileTime"></div>
   </div>
 </header>
-<div class="hazard-stripe"></div>
+<div class="hazard-stripe header-stripe"></div>
 
 <nav class="bottom-nav" id="bottomNav">
   <div class="bn-item active" data-category="Dashboard" onclick="switchCategory('Dashboard', this)">
@@ -1201,7 +1214,12 @@ function renderCommitteeNoItemsList(){
 }
 
 function tickClock(){
-  document.getElementById('clock').textContent = new Date().toLocaleString('en-MY', { hour12:false });
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleString('en-MY', { hour12:false });
+  const mobileDate = document.getElementById('mobileDate');
+  const mobileTime = document.getElementById('mobileTime');
+  if(mobileDate) mobileDate.textContent = now.toLocaleDateString('en-MY', { day:'2-digit', month:'short', year:'numeric' });
+  if(mobileTime) mobileTime.textContent = now.toLocaleTimeString('en-MY', { hour12:false });
 }
 tickClock(); setInterval(tickClock, 1000);
 
