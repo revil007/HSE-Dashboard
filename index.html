@@ -621,6 +621,10 @@
     border-radius:9px; background:var(--red); color:#fff; font-size:10px; font-weight:700;
     display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace;
   }
+  .bn-dot{
+    position:absolute; top:4px; right:calc(50% - 16px); width:9px; height:9px;
+    border-radius:50%; background:var(--red); border:2px solid var(--navy);
+  }
 
   .more-sheet-backdrop{
     display:none; position:fixed; inset:0; background:rgba(16,20,28,0.45); z-index:45;
@@ -705,6 +709,10 @@
     header.topbar .status-cluster{
       flex-direction:column; align-items:flex-end; gap:4px; font-size:12px;
     }
+    header.topbar .alert-pill{
+      background:none; box-shadow:none; padding:0; border-radius:0; color:#fff; gap:5px;
+    }
+    header.topbar .alert-pill .alert-icon{color:var(--red);}
     .header-stripe{display:none;}
   }
 </style>
@@ -722,7 +730,14 @@
     </div>
   </div>
   <div class="status-cluster">
-    <div class="alert-pill">⚠ <span id="alertCount">0</span> Pending</div>
+    <div class="alert-pill">
+      <svg class="alert-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+      <span id="alertCount">0</span> Pending
+    </div>
     <div id="clock" class="mono" style="color:#AEB6C2;font-size:13px;"></div>
     <div class="mobile-time mono" id="mobileTime"></div>
   </div>
@@ -741,7 +756,7 @@
   </div>
   <div class="bn-item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)">
     <span class="bn-icon">👁</span><span class="bn-label">Observe</span>
-    <span class="bn-badge" id="obsBottomNavBadge" style="display:none;">0</span>
+    <span class="bn-dot" id="obsBottomNavBadge" style="display:none;"></span>
   </div>
   <div class="bn-item" id="bnMoreBtn" onclick="toggleMoreSheet()">
     <span class="bn-icon">⋯</span><span class="bn-label">More</span>
@@ -2093,8 +2108,7 @@ function updateObsNavBadge(){
     badge.style.display = newCount > 0 ? 'inline-block' : 'none';
   }
   if(bnBadge){
-    bnBadge.textContent = label;
-    bnBadge.style.display = newCount > 0 ? 'flex' : 'none';
+    bnBadge.style.display = newCount > 0 ? 'block' : 'none';
   }
 }
 
