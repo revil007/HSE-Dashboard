@@ -1325,11 +1325,20 @@ function renderCommitteeNoItemsList(){
   const sortedGroups = Array.from(groups.values())
     .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
 
-  list.innerHTML = sortedGroups.map(g => `
+  const indexToLetter = (i) => {
+    let n = i, label = '';
+    do {
+      label = String.fromCharCode(65 + (n % 26)) + label;
+      n = Math.floor(n / 26) - 1;
+    } while (n >= 0);
+    return label;
+  };
+
+  list.innerHTML = sortedGroups.map((g, i) => `
     <div class="no-item-card">
       <div class="ni-top">
         <div class="ni-header-info">
-          <span class="ni-section">${escapeHtml(g.section || '—')}</span>
+          <span class="ni-section">${indexToLetter(i)}. ${escapeHtml(g.section || '—')}</span>
           <span class="ni-date">${formatDate(g.date)}</span>
         </div>
         ${g.inspectionId ? `<button class="ni-delete" onclick="deleteCommitteeInspectionGroup('${g.inspectionId.replace(/'/g,"\\'")}')" title="Delete this inspection record">
