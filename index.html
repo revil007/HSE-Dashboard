@@ -996,11 +996,12 @@
       <div class="board-header">
         <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">Dashboard</h2>
         <div class="meeting-date-box" id="meetingDateBox"></div>
+        <div id="othersLinkBox" style="display:none;">
+          <a class="card-link-btn" href="https://sites.google.com/view/sci-hse-dashboard/home" target="_blank" rel="noopener">📚 Safety Documentation ↗</a>
+        </div>
       </div>
       <div class="caption" id="inspectionCaption" style="display:none;">Klik section untuk mula pemeriksaan bulan ini — status auto reset setiap bulan baru</div>
       <div class="inspection-sections" id="inspectionSectionsGrid" style="display:none;"></div>
-      <div class="caption" id="othersCaption" style="display:none;">Klik untuk buka borang / laman berkaitan dalam tab baru</div>
-      <div class="others-links" id="othersLinksGrid" style="display:none;"></div>
       <div class="reporting-subcard" id="obsSubCard" style="display:none;">
         <div class="insp-chart-head" style="margin-bottom:10px; padding-bottom:10px;">
           <div>
@@ -1042,6 +1043,10 @@
           <div class="cards"></div>
         </div>
       </div>
+    </section>
+
+    <section class="board-card" id="personalCard" style="display:none;">
+      <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin:0;">Personal</h3>
     </section>
 
     <section class="board-card" id="committeeNoItemsCard" style="display:none;">
@@ -1236,15 +1241,6 @@ let currentCategory = 'Dashboard';
 let editingTaskId = null;
 const QUARTERS = ['Q1','Q2','Q3','Q4'];
 
-const OTHERS_LINKS = [
-  {
-    name: 'Safety Documentation',
-    desc: 'SOPs, SWPs, HIRARC & HSE reference site',
-    icon: '📚',
-    url: 'https://sites.google.com/view/sci-hse-dashboard/home'
-  }
-];
-
 function getMeetingsData(){
   // Ensure all 4 quarters always exist, merging with whatever backend returns
   const existing = STATE.meetings || [];
@@ -1327,14 +1323,14 @@ function switchCategory(category, el){
   const isOthers = category === 'Others';
   const isObsFeed = category === 'Safety Observations';
   const addRow=document.querySelector('.add-task-row');
-  if(addRow) addRow.style.display = (category==='All Tasks' || isInspection || isOthers || isObsFeed) ? 'none' : 'flex';
+  if(addRow) addRow.style.display = (category==='All Tasks' || isInspection || isObsFeed) ? 'none' : 'flex';
   const meetingBox=document.getElementById('meetingDateBox');
   if(meetingBox) meetingBox.style.display = category==='Meetings' ? 'flex' : 'none';
   if(category==='Meetings') renderMeetingQuarters();
   const inspGrid=document.getElementById('inspectionSectionsGrid');
   const inspCaption=document.getElementById('inspectionCaption');
-  const othersGrid=document.getElementById('othersLinksGrid');
-  const othersCaption=document.getElementById('othersCaption');
+  const othersLinkBox=document.getElementById('othersLinkBox');
+  const personalCard=document.getElementById('personalCard');
   const obsCaption=document.getElementById('obsCaption');
   const obsFeedGrid=document.getElementById('obsFeedGrid');
   const obsNotifBanner=document.getElementById('obsNotifBanner');
@@ -1343,37 +1339,17 @@ function switchCategory(category, el){
   const boardCols=document.getElementById('boardColumns');
   if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
   if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
-  if(othersGrid) othersGrid.style.display = isOthers ? 'grid' : 'none';
-  if(othersCaption) othersCaption.style.display = isOthers ? 'block' : 'none';
+  if(othersLinkBox) othersLinkBox.style.display = isOthers ? 'flex' : 'none';
+  if(personalCard) personalCard.style.display = isOthers ? 'block' : 'none';
   if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
   if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
   if(obsSubCard) obsSubCard.style.display = isObsFeed ? 'block' : 'none';
   if(incidentSubCard) incidentSubCard.style.display = isObsFeed ? 'block' : 'none';
   if(obsNotifBanner && !isObsFeed) obsNotifBanner.style.display = 'none';
-  if(boardCols) boardCols.style.display = (isInspection || isOthers || isObsFeed) ? 'none' : 'grid';
+  if(boardCols) boardCols.style.display = (isInspection || isObsFeed) ? 'none' : 'grid';
   if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
-  if(isOthers) renderOthersLinks();
   if(isObsFeed) renderObsFeed(true);
   renderBoard();
-}
-
-function renderOthersLinks(){
-  const grid = document.getElementById('othersLinksGrid');
-  if (!grid) return;
-  grid.innerHTML = OTHERS_LINKS.map(link => {
-    const hasUrl = !!link.url;
-    const tag = hasUrl ? 'a' : 'div';
-    const attrs = hasUrl ? `href="${link.url}" target="_blank" rel="noopener"` : '';
-    return `
-      <${tag} class="link-card ${hasUrl ? '' : 'disabled'}" ${attrs}>
-        <div class="lc-top">
-          <span class="lc-icon">${link.icon}</span>
-          <span class="lc-arrow">${hasUrl ? '↗' : '—'}</span>
-        </div>
-        <div class="lc-name">${link.name}</div>
-        <div class="lc-desc">${hasUrl ? link.desc : link.desc + ' (link belum ditetapkan)'}</div>
-      </${tag}>`;
-  }).join('');
 }
 
 const STATUS_MAP = { 'To Do': 'todo', 'In Progress': 'progress', 'Done': 'done' };
@@ -1524,13 +1500,13 @@ function render(){
     const isInspection = currentCategory === 'Monthly Inspection';
     const isOthers = currentCategory === 'Others';
     const isObsFeed = currentCategory === 'Safety Observations';
-    const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=(currentCategory==='All Tasks'||isInspection||isOthers||isObsFeed)?'none':'flex';}
+    const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=(currentCategory==='All Tasks'||isInspection||isObsFeed)?'none':'flex';}
     const meetingBox=document.getElementById('meetingDateBox');
     if(meetingBox) meetingBox.style.display = currentCategory==='Meetings' ? 'flex' : 'none';
     const inspGrid=document.getElementById('inspectionSectionsGrid');
     const inspCaption=document.getElementById('inspectionCaption');
-    const othersGrid=document.getElementById('othersLinksGrid');
-    const othersCaption=document.getElementById('othersCaption');
+    const othersLinkBox=document.getElementById('othersLinkBox');
+    const personalCard=document.getElementById('personalCard');
     const obsCaption=document.getElementById('obsCaption');
     const obsFeedGrid=document.getElementById('obsFeedGrid');
     const obsSubCard=document.getElementById('obsSubCard');
@@ -1538,15 +1514,14 @@ function render(){
     const boardCols=document.getElementById('boardColumns');
     if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
     if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
-    if(othersGrid) othersGrid.style.display = isOthers ? 'grid' : 'none';
-    if(othersCaption) othersCaption.style.display = isOthers ? 'block' : 'none';
+    if(othersLinkBox) othersLinkBox.style.display = isOthers ? 'flex' : 'none';
+    if(personalCard) personalCard.style.display = isOthers ? 'block' : 'none';
     if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
     if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
     if(obsSubCard) obsSubCard.style.display = isObsFeed ? 'block' : 'none';
     if(incidentSubCard) incidentSubCard.style.display = isObsFeed ? 'block' : 'none';
-    if(boardCols) boardCols.style.display = (isInspection || isOthers || isObsFeed) ? 'none' : 'grid';
+    if(boardCols) boardCols.style.display = (isInspection || isObsFeed) ? 'none' : 'grid';
     if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
-    if(isOthers) renderOthersLinks();
     if(isObsFeed) renderObsFeed(true);
     renderBoard();
   }
