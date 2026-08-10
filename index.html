@@ -815,10 +815,66 @@
     .hse-stat-card.highlight{grid-column:1 / -1;}
     .notes-fab{display:flex;}
   }
+  .login-gate{
+    position:fixed; inset:0; z-index:1000;
+    background:linear-gradient(155deg, var(--navy) 0%, var(--navy-3) 130%);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .login-gate.hidden{display:none;}
+  .login-box{
+    background:var(--card); border-radius:var(--radius); padding:32px 28px;
+    max-width:340px; width:100%; box-shadow:0 20px 50px rgba(0,0,0,0.35);
+    text-align:center;
+  }
+  .login-box .mark{
+    width:52px; height:52px; border-radius:12px; background:var(--navy); color:var(--yellow);
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px;
+    margin:0 auto 14px; font-family:'Barlow Condensed',sans-serif;
+  }
+  .login-box h2{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:22px;
+    text-transform:uppercase; color:var(--navy); margin:0 0 4px;
+  }
+  .login-box p{font-size:12.5px; color:var(--muted); margin:0 0 20px;}
+  .login-box input{
+    width:100%; border:1px solid var(--border); border-radius:8px; padding:11px 14px;
+    font-size:14px; box-sizing:border-box; margin-bottom:10px; text-align:center;
+    letter-spacing:0.05em;
+  }
+  .login-box input:focus{outline:none; border-color:var(--navy);}
+  .login-box button{
+    width:100%; background:var(--navy); color:#fff; border:none; border-radius:8px;
+    padding:11px 14px; font-size:14px; font-weight:700; cursor:pointer;
+    text-transform:uppercase; letter-spacing:0.03em;
+  }
+  .login-box button:hover{background:var(--navy-3);}
+  .login-box .error{
+    color:var(--red); font-size:12px; font-weight:600; margin-top:10px; display:none;
+  }
+  .login-box .error.show{display:block;}
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px);}
+    20%,80%{transform:translateX(3px);}
+    30%,50%,70%{transform:translateX(-5px);}
+    40%,60%{transform:translateX(5px);}
+  }
+  .login-box.shake{animation:shake 0.5s;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+
+<div class="login-gate" id="loginGate">
+  <div class="login-box" id="loginBox">
+    <div class="mark">HSE</div>
+    <h2>SCI HSE Dashboard</h2>
+    <p>Sila masukkan password untuk teruskan</p>
+    <input type="password" id="loginPasswordInput" placeholder="Password" autocomplete="current-password">
+    <button onclick="attemptLogin()">Masuk</button>
+    <div class="error" id="loginError">Password salah. Sila cuba lagi.</div>
+  </div>
+</div>
 
 <header class="topbar">
   <div class="brand">
@@ -2521,7 +2577,61 @@ function formatDate(d){
   return date.toLocaleDateString('en-MY', { day:'2-digit', month:'short' });
 }
 
-loadData();
+/* ---------------- Login gate ---------------- */
+
+const LOGIN_PASSWORD_HASH = '34d98d8d915925b6d52efeec850ee2b4a02f5c65ed5363d7be3ba98e95f70d9e';
+const LOGIN_STORAGE_KEY = 'sci_hse_authed_v1';
+
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function attemptLogin(){
+  const input = document.getElementById('loginPasswordInput');
+  const errorEl = document.getElementById('loginError');
+  const box = document.getElementById('loginBox');
+  const password = input.value;
+  if (!password){
+    input.focus();
+    return;
+  }
+  const hash = await sha256Hex(password);
+  if (hash === LOGIN_PASSWORD_HASH){
+    try { localStorage.setItem(LOGIN_STORAGE_KEY, '1'); } catch(e){}
+    unlockDashboard();
+  } else {
+    errorEl.classList.add('show');
+    box.classList.remove('shake');
+    void box.offsetWidth; // restart animation
+    box.classList.add('shake');
+    input.value = '';
+    input.focus();
+  }
+}
+
+function unlockDashboard(){
+  const gate = document.getElementById('loginGate');
+  if (gate) gate.classList.add('hidden');
+  loadData();
+}
+
+function initLoginGate(){
+  const input = document.getElementById('loginPasswordInput');
+  if (input){
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); });
+  }
+  let alreadyAuthed = false;
+  try { alreadyAuthed = localStorage.getItem(LOGIN_STORAGE_KEY) === '1'; } catch(e){}
+  if (alreadyAuthed){
+    unlockDashboard();
+  } else if (input){
+    input.focus();
+  }
+}
+
+initLoginGate();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
