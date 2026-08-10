@@ -217,38 +217,34 @@
   }
   .others-links{
 
-  .no-items-list{display:flex; flex-direction:column; gap:10px;}
+  .no-items-list{display:flex; flex-direction:column;}
   .no-item-card{
-    background:var(--red-bg); border:1px solid #F2C6C7; border-radius:10px;
-    padding:12px 14px; border-left:4px solid var(--red);
+    padding:16px 2px;
+    border-bottom:1px solid var(--border);
   }
+  .no-item-card:last-child{border-bottom:none;}
   .no-item-card .ni-top{
-    display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:6px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;
   }
   .no-item-card .ni-section{
-    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14.5px;
-    text-transform:uppercase; color:var(--navy);
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px;
+    color:var(--ink);
   }
   .no-item-card .ni-date{
-    font-size:10.5px; color:var(--muted); font-family:'IBM Plex Mono',monospace; flex-shrink:0; white-space:nowrap;
-  }
-  .no-item-card .ni-cat{
-    font-size:10.5px; color:var(--red); font-weight:700; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;
-  }
-  .no-item-card .ni-text{font-size:13px; color:var(--ink); line-height:1.4;}
-  .no-item-card .ni-remark{
-    font-size:12px; color:var(--muted); margin-top:6px; font-style:italic; border-top:1px solid #F2C6C7; padding-top:6px;
+    font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; flex-shrink:0; white-space:nowrap;
   }
   .no-item-card .ni-header-info{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
-  .no-item-card .ni-delete{background:#fff;}
+  .no-item-card .ni-delete{
+    background:none; border:none; color:var(--red); font-size:17px; font-weight:700;
+    line-height:1; cursor:pointer; width:26px; height:26px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .no-item-card .ni-delete:hover{background:var(--red-bg);}
   .no-item-card .ni-remark-list{
-    list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px;
+    list-style:disc; margin:0; padding-left:20px; display:flex; flex-direction:column; gap:5px;
   }
   .no-item-card .ni-remark-list li{
-    font-size:13px; color:var(--ink); line-height:1.4; padding-left:14px; position:relative;
-  }
-  .no-item-card .ni-remark-list li::before{
-    content:'•'; position:absolute; left:0; color:var(--red); font-weight:700;
+    font-size:13.5px; color:var(--ink); line-height:1.5;
   }
 
     display:grid;
@@ -535,7 +531,6 @@
   .hse-stat-card.highlight{
     background:linear-gradient(155deg, var(--navy) 0%, var(--navy-3) 130%);
     border-color:var(--navy);
-    grid-column:1 / -1;
   }
   .hse-stat-card .v{
     font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:27px;
@@ -731,6 +726,7 @@
     }
     header.topbar .alert-pill .alert-icon{color:var(--red);}
     .header-stripe{display:none;}
+    .hse-stat-card.highlight{grid-column:1 / -1;}
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1253,7 +1249,7 @@ function renderCommitteeNoItemsList(){
           <span class="ni-section">${escapeHtml(g.section || '—')}</span>
           <span class="ni-date">${formatDate(g.date)}</span>
         </div>
-        ${g.inspectionId ? `<button class="icon-btn-sm danger ni-delete" onclick="deleteCommitteeInspectionGroup('${g.inspectionId.replace(/'/g,"\\'")}')" title="Delete this inspection record">🗑️</button>` : ''}
+        ${g.inspectionId ? `<button class="ni-delete" onclick="deleteCommitteeInspectionGroup('${g.inspectionId.replace(/'/g,"\\'")}')" title="Delete this inspection record">✕</button>` : ''}
       </div>
       <ul class="ni-remark-list">
         ${g.remarks.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
