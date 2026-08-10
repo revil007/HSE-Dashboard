@@ -397,6 +397,8 @@
     font-family:'Inter',sans-serif;
   }
   .leave-add-row select{flex:1 1 130px;}
+  .leave-add-row select#leaveUnitInput{flex:0 1 90px;}
+  .leave-add-row select#leaveHoursInput{flex:1 1 150px;}
   .leave-add-row input[type="date"]{flex:1 1 140px;}
   .leave-add-row input[type="number"]{flex:0 1 80px;}
   .leave-add-row input[type="text"]{flex:2 1 160px;}
@@ -1101,13 +1103,14 @@
     </section>
 
     <section class="board-card" id="incidentSubCard" style="display:none;">
-      <div class="insp-chart-head" style="margin-bottom:0; padding-bottom:0; border-bottom:none;">
+      <div class="insp-chart-head" style="margin-bottom:10px; padding-bottom:10px;">
         <div>
           <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Incident Report</h3>
           <div class="caption" style="margin:0;">Report accidents, injuries or incidents at the workplace</div>
         </div>
         <a class="card-link-btn" href="https://docs.google.com/forms/d/15Vc7iWF1LceyYjJK7IjKkL9pO5jBXl2iHiW8duaOVnM/viewform" target="_blank" rel="noopener">🚨 Open Form ↗</a>
       </div>
+      <div class="obs-feed" id="incidentFeedGrid" style="display:flex;"></div>
     </section>
 
     <section class="board-card" id="personalCard" style="display:none;">
@@ -1124,7 +1127,12 @@
           <option>Compassionate Leave</option>
         </select>
         <input type="date" id="leaveDateInput" title="Tarikh">
+        <select id="leaveUnitInput" onchange="toggleLeaveUnitInput()" title="Unit tempoh">
+          <option value="days">Hari</option>
+          <option value="hours">Jam</option>
+        </select>
         <input type="number" id="leaveDaysInput" placeholder="Hari" min="0.5" step="0.5">
+        <select id="leaveHoursInput" style="display:none;"></select>
         <input type="text" id="leaveRemarkInput" placeholder="Catatan (pilihan)">
         <button class="btn" onclick="addLeaveRecord()">+ Rekod Cuti</button>
       </div>
@@ -1319,7 +1327,7 @@ const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
 };
 
-let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null, committeeInspections: [], committeeInspectionNoItems: [], trainingMatrix: null };
+let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null, committeeInspections: [], committeeInspectionNoItems: [], trainingMatrix: null, incidentEntries: [] };
 let currentCategory = 'Dashboard';
 let editingTaskId = null;
 const QUARTERS = ['Q1','Q2','Q3','Q4'];
@@ -1432,7 +1440,7 @@ function switchCategory(category, el){
   if(obsNotifBanner && !isObsFeed) obsNotifBanner.style.display = 'none';
   if(boardCols) boardCols.style.display = (isInspection || isObsFeed) ? 'none' : 'grid';
   if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
-  if(isObsFeed) renderObsFeed(true);
+  if(isObsFeed){ renderObsFeed(true); renderIncidentFeed(); }
   if(isOthers) renderLeaveTracker();
   renderBoard();
 }
@@ -1509,6 +1517,52 @@ function setLeaveRecords(arr){
   try { localStorage.setItem(LEAVE_RECORDS_KEY, JSON.stringify(arr)); } catch(e){}
 }
 
+const WORK_HOURS_PER_DAY = 8; // used only to convert hour-based leave into a day-equivalent for balance calculation
+
+function populateLeaveHoursInput(){
+  const sel = document.getElementById('leaveHoursInput');
+  if (!sel || sel.options.length > 0) return; // already populated
+  const opts = [];
+  for (let h = 1; h <= WORK_HOURS_PER_DAY; h += 0.5){
+    const whole = Math.floor(h);
+    const hasHalf = (h - whole) >= 0.5 - 1e-9;
+    const label = whole + ' jam' + (hasHalf ? ' 30 minit' : '');
+    opts.push(`<option value="${h}">${label}</option>`);
+  }
+  sel.innerHTML = opts.join('');
+}
+
+function toggleLeaveUnitInput(){
+  const unit = document.getElementById('leaveUnitInput').value;
+  const daysInput = document.getElementById('leaveDaysInput');
+  const hoursInput = document.getElementById('leaveHoursInput');
+  if (unit === 'hours'){
+    populateLeaveHoursInput();
+    if (daysInput) daysInput.style.display = 'none';
+    if (hoursInput) hoursInput.style.display = 'block';
+  } else {
+    if (daysInput) daysInput.style.display = 'block';
+    if (hoursInput) hoursInput.style.display = 'none';
+  }
+}
+
+function leaveRecordToDays(r){
+  if (r.unit === 'hours') return Number(r.amount || 0) / WORK_HOURS_PER_DAY;
+  if (r.unit === 'days') return Number(r.amount || 0);
+  return Number(r.days || 0); // backward-compat with records saved before the unit field existed
+}
+
+function leaveRecordLabel(r){
+  if (r.unit === 'hours'){
+    const h = Number(r.amount || 0);
+    const whole = Math.floor(h);
+    const hasHalf = (h - whole) >= 0.5 - 1e-9;
+    return whole + ' jam' + (hasHalf ? ' 30 minit' : '');
+  }
+  const d = r.unit === 'days' ? r.amount : r.days;
+  return d + ' hari';
+}
+
 function renderLeaveTracker(){
   const grid = document.getElementById('leaveStatsGrid');
   const list = document.getElementById('leaveList');
@@ -1519,7 +1573,12 @@ function renderLeaveTracker(){
 
   const usedByType = {};
   LEAVE_TYPES.forEach(t => { usedByType[t] = 0; });
-  records.forEach(r => { usedByType[r.type] = (usedByType[r.type] || 0) + Number(r.days || 0); });
+  records.forEach(r => { usedByType[r.type] = (usedByType[r.type] || 0) + leaveRecordToDays(r); });
+
+  const fmt = (n) => {
+    const rounded = Math.round(n * 100) / 100;
+    return rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(2).replace(/0$/,'');
+  };
 
   grid.innerHTML = LEAVE_TYPES.map(type => {
     const entitlement = entitlements[type] != null ? entitlements[type] : 0;
@@ -1528,9 +1587,9 @@ function renderLeaveTracker(){
     return `
       <div class="leave-stat-card">
         <div class="lsc-type">${type}</div>
-        <div class="lsc-balance ${balance < 0 ? 'negative' : ''}">${balance}</div>
+        <div class="lsc-balance ${balance < 0 ? 'negative' : ''}">${fmt(balance)}</div>
         <div class="lsc-sub">baki hari</div>
-        <div class="lsc-detail">${used} diambil /
+        <div class="lsc-detail">${fmt(used)} diambil /
           <input type="number" class="lsc-entitlement-input" value="${entitlement}" min="0" step="0.5"
             onchange="updateLeaveEntitlement('${type.replace(/'/g,"\\'")}', this.value)"> hari
         </div>
@@ -1548,7 +1607,7 @@ function renderLeaveTracker(){
         <div class="li-main">
           <span class="li-type">${escapeHtml(r.type)}</span>
           <span class="li-date">${formatDate(r.date)}</span>
-          <span class="li-days">${r.days} hari</span>
+          <span class="li-days">${leaveRecordLabel(r)}</span>
         </div>
         ${r.remark ? `<div class="li-remark">${escapeHtml(r.remark)}</div>` : ''}
       </div>
@@ -1567,25 +1626,29 @@ function updateLeaveEntitlement(type, value){
 function addLeaveRecord(){
   const typeInput = document.getElementById('leaveTypeInput');
   const dateInput = document.getElementById('leaveDateInput');
+  const unitInput = document.getElementById('leaveUnitInput');
   const daysInput = document.getElementById('leaveDaysInput');
+  const hoursInput = document.getElementById('leaveHoursInput');
   const remarkInput = document.getElementById('leaveRemarkInput');
 
   const type = typeInput.value;
   const date = dateInput.value;
-  const days = Number(daysInput.value);
+  const unit = unitInput.value; // 'days' | 'hours'
+  const amount = unit === 'hours' ? Number(hoursInput.value) : Number(daysInput.value);
   const remark = remarkInput.value.trim();
 
-  if (!date || !days || days <= 0){
-    alert('Sila isi tarikh dan bilangan hari cuti yang sah.');
+  if (!date || !amount || amount <= 0){
+    alert(unit === 'hours' ? 'Sila isi tarikh dan pilih tempoh jam.' : 'Sila isi tarikh dan bilangan hari cuti yang sah.');
     return;
   }
 
   const records = getLeaveRecords();
-  records.push({ id: 'L' + Date.now(), type, date, days, remark });
+  records.push({ id: 'L' + Date.now(), type, date, unit, amount, remark });
   setLeaveRecords(records);
 
   dateInput.value = '';
   daysInput.value = '';
+  hoursInput.selectedIndex = 0;
   remarkInput.value = '';
 
   renderLeaveTracker();
@@ -1724,7 +1787,7 @@ function render(){
     if(incidentSubCard) incidentSubCard.style.display = isObsFeed ? 'block' : 'none';
     if(boardCols) boardCols.style.display = (isInspection || isObsFeed) ? 'none' : 'grid';
     if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
-    if(isObsFeed) renderObsFeed(true);
+    if(isObsFeed){ renderObsFeed(true); renderIncidentFeed(); }
     if(isOthers) renderLeaveTracker();
     renderBoard();
   }
@@ -2662,6 +2725,49 @@ function renderObsFeed(){
 async function deleteObsEntry(id){
   if (!confirm('Padam rekod pemerhatian ini? Tindakan ini tidak boleh dibatalkan.')) return;
   await apiPost({ action: 'deleteObservation', timestamp: id });
+  loadData();
+}
+
+function renderIncidentFeed(){
+  const grid = document.getElementById('incidentFeedGrid');
+  if (!grid) return;
+
+  const entries = STATE.incidentEntries || [];
+  const now = new Date();
+  const curMonthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  const monthEntries = entries.filter(e => e.date && e.date.indexOf(curMonthKey) === 0);
+
+  if (monthEntries.length === 0){
+    grid.innerHTML = '<div class="empty">Tiada laporan insiden direkod bulan ini</div>';
+    return;
+  }
+
+  grid.innerHTML = monthEntries.map(e => `
+    <div class="obs-card">
+      <div class="oc-top">
+        <div class="oc-badges">
+          <span class="oc-type unsafeact">${escapeHtml(e.type || '—')}</span>
+          ${e.severity ? `<span class="oc-type unsafecondition">${escapeHtml(e.severity)}</span>` : ''}
+        </div>
+        <div class="oc-right">
+          <span class="oc-date">${formatDate(e.date)}</span>
+          <button class="oc-delete" onclick="deleteIncidentEntry(${e.id})" title="Delete this incident report"></button>
+        </div>
+      </div>
+      <div class="oc-desc">${escapeHtml(e.description || '—')}</div>
+      <div class="oc-meta">
+        <span>📍 ${escapeHtml(e.section || e.department || '—')}</span>
+        <span>🧭 ${escapeHtml(e.location || '—')}</span>
+        ${e.reporter ? `<span>👤 ${escapeHtml(e.reporter)}</span>` : ''}
+        ${e.daysAway ? `<span>🗓️ ${escapeHtml(e.daysAway)} hari tidak bekerja</span>` : ''}
+      </div>
+    </div>`
+  ).join('');
+}
+
+async function deleteIncidentEntry(id){
+  if (!confirm('Padam laporan insiden ini? Tindakan ini tidak boleh dibatalkan.')) return;
+  await apiPost({ action: 'deleteIncidentReport', timestamp: id });
   loadData();
 }
 
