@@ -239,6 +239,17 @@
   .no-item-card .ni-remark{
     font-size:12px; color:var(--muted); margin-top:6px; font-style:italic; border-top:1px solid #F2C6C7; padding-top:6px;
   }
+  .no-item-card .ni-header-info{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .no-item-card .ni-delete{background:#fff;}
+  .no-item-card .ni-remark-list{
+    list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px;
+  }
+  .no-item-card .ni-remark-list li{
+    font-size:13px; color:var(--ink); line-height:1.4; padding-left:14px; position:relative;
+  }
+  .no-item-card .ni-remark-list li::before{
+    content:'•'; position:absolute; left:0; color:var(--red); font-weight:700;
+  }
 
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
@@ -1214,23 +1225,48 @@ function openInspectionSection(sectionName){
 function renderCommitteeNoItemsList(){
   const list = document.getElementById('committeeNoItemsList');
   if (!list) return;
-  const items = (STATE.committeeInspectionNoItems || []).slice()
-    .sort((a, b) => String(b.Date || '').localeCompare(String(a.Date || '')));
+  const items = STATE.committeeInspectionNoItems || [];
 
   if (items.length === 0){
     list.innerHTML = '<div class="empty">No outstanding "No" items — all committee checklist items are in order</div>';
     return;
   }
 
-  list.innerHTML = items.map(it => `
+  // Group all "No" items belonging to the same form submission (one InspectionID)
+  // into a single card, so the section/date header shows once instead of repeating.
+  const groups = new Map();
+  items.forEach(it => {
+    const key = it.InspectionID || (it.Section + '|' + it.Date);
+    if (!groups.has(key)){
+      groups.set(key, { inspectionId: it.InspectionID || '', section: it.Section, date: it.Date, remarks: [] });
+    }
+    groups.get(key).remarks.push(it.Remark || 'No comment provided');
+  });
+
+  const sortedGroups = Array.from(groups.values())
+    .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+  list.innerHTML = sortedGroups.map(g => `
     <div class="no-item-card">
       <div class="ni-top">
-        <span class="ni-section">${escapeHtml(it.Section || '—')}</span>
-        <span class="ni-date">${formatDate(it.Date)}</span>
+        <div class="ni-header-info">
+          <span class="ni-section">${escapeHtml(g.section || '—')}</span>
+          <span class="ni-date">${formatDate(g.date)}</span>
+        </div>
+        ${g.inspectionId ? `<button class="icon-btn-sm danger ni-delete" onclick="deleteCommitteeInspectionGroup('${g.inspectionId.replace(/'/g,"\\'")}')" title="Delete this inspection record">🗑️</button>` : ''}
       </div>
-      <div class="ni-text">${escapeHtml(it.Remark || 'No comment provided')}</div>
+      <ul class="ni-remark-list">
+        ${g.remarks.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+      </ul>
     </div>`
   ).join('');
+}
+
+async function deleteCommitteeInspectionGroup(inspectionId){
+  if (!inspectionId) return;
+  if (!confirm('Padam rekod pemeriksaan ini beserta semua item "Tidak" berkaitan? Tindakan ini tidak boleh dibatalkan.')) return;
+  await apiPost({ action: 'deleteCommitteeInspection', inspectionId });
+  loadData();
 }
 
 function tickClock(){
