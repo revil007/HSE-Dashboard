@@ -110,6 +110,14 @@
     box-shadow:0 3px 8px rgba(214,72,75,.35);
     display:flex; align-items:center; gap:6px;
   }
+  .signout-btn{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    background:none; border:1px solid rgba(255,255,255,0.28); color:#AEB6C2;
+    font-size:11px; font-family:'Inter',sans-serif; font-weight:600;
+    padding:5px 12px; border-radius:20px; cursor:pointer; box-sizing:border-box;
+    white-space:nowrap;
+  }
+  .signout-btn:hover{background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.5);}
 
   .layout{
     display:grid;
@@ -342,6 +350,18 @@
     display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;
     margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid var(--surface);
   }
+  .card-link-btn{
+    display:inline-flex; align-items:center; gap:6px; flex-shrink:0;
+    background:var(--navy); color:#fff; text-decoration:none;
+    font-size:12.5px; font-weight:600; padding:8px 14px; border-radius:20px;
+    white-space:nowrap;
+  }
+  .card-link-btn:hover{background:var(--navy-3);}
+  .reporting-subcard{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 20px; margin-bottom:16px;
+  }
+  .reporting-subcard:last-child{margin-bottom:0;}
   .insp-legend{display:flex; gap:16px; font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
   .insp-legend span{display:flex; align-items:center; gap:6px;}
   .insp-legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
@@ -896,6 +916,7 @@
     </div>
     <div id="clock" class="mono" style="color:#AEB6C2;font-size:13px;"></div>
     <div class="mobile-time mono" id="mobileTime"></div>
+    <button class="signout-btn" onclick="signOut()" title="Log keluar">Log Keluar</button>
   </div>
 </header>
 <div class="hazard-stripe header-stripe"></div>
@@ -912,7 +933,7 @@
     <span class="bn-dot" id="committeeBottomNavDot" style="display:none;"></span>
   </div>
   <div class="bn-item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)">
-    <span class="bn-icon">👁</span><span class="bn-label">Observe</span>
+    <span class="bn-icon">👁</span><span class="bn-label">Reporting</span>
     <span class="bn-dot" id="obsBottomNavBadge" style="display:none;"></span>
   </div>
   <div class="bn-item" id="bnMoreBtn" onclick="toggleMoreSheet()">
@@ -955,7 +976,7 @@
       <div class="item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Workplace Inspection <span class="side-dot" id="committeeSideNavDot" style="display:none;"></span></div>
       <div class="item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
       <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
-      <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon">👁</span> Safety Observations <span class="nav-badge" id="obsNavBadge" style="display:none;">0</span></div>
+      <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon">👁</span> Reporting <span class="nav-badge" id="obsNavBadge" style="display:none;">0</span></div>
       <div class="item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon">📁</span> Others</div>
     </nav>
 
@@ -980,9 +1001,27 @@
       <div class="inspection-sections" id="inspectionSectionsGrid" style="display:none;"></div>
       <div class="caption" id="othersCaption" style="display:none;">Klik untuk buka borang / laman berkaitan dalam tab baru</div>
       <div class="others-links" id="othersLinksGrid" style="display:none;"></div>
-      <div class="caption" id="obsCaption" style="display:none;">Pemerhatian keselamatan bulan semasa (disync dari borang)</div>
-      <div class="obs-notif-banner" id="obsNotifBanner" style="display:none;"></div>
-      <div class="obs-feed" id="obsFeedGrid" style="display:none;"></div>
+      <div class="reporting-subcard" id="obsSubCard" style="display:none;">
+        <div class="insp-chart-head" style="margin-bottom:10px; padding-bottom:10px;">
+          <div>
+            <h3 class="display" style="font-size:17px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Safety Observation</h3>
+            <div class="caption" id="obsCaption" style="margin:0;">Pemerhatian keselamatan bulan semasa (disync dari borang)</div>
+          </div>
+          <a class="card-link-btn" href="https://docs.google.com/forms/d/1DblIKDzVsOKHYpwBh5Ha1LmkLC9sucRV3a5bq1qESCc/viewform" target="_blank" rel="noopener">👁 Open Form ↗</a>
+        </div>
+        <div class="obs-notif-banner" id="obsNotifBanner" style="display:none;"></div>
+        <div class="obs-feed" id="obsFeedGrid" style="display:flex;"></div>
+      </div>
+
+      <div class="reporting-subcard" id="incidentSubCard" style="display:none;">
+        <div class="insp-chart-head" style="margin-bottom:0; padding-bottom:0; border-bottom:none;">
+          <div>
+            <h3 class="display" style="font-size:17px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Incident Report</h3>
+            <div class="caption" style="margin:0;">Report accidents, injuries or incidents at the workplace</div>
+          </div>
+          <a class="card-link-btn" href="https://docs.google.com/forms/d/15Vc7iWF1LceyYjJK7IjKkL9pO5jBXl2iHiW8duaOVnM/viewform" target="_blank" rel="noopener">🚨 Open Form ↗</a>
+        </div>
+      </div>
       <div class="board-columns" id="boardColumns">
         <div class="column" id="col-todo">
           <h2>To Do <span class="count mono" id="count-todo">0</span></h2>
@@ -1011,6 +1050,7 @@
           <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">HSE Committee Pre-Meeting Inspections</h3>
           <div class="caption" style="margin:0;">Checklist items marked "No" from HSE Committee pre-meeting inspections</div>
         </div>
+        <a class="card-link-btn" href="committee-inspection.html" target="_blank" rel="noopener">🔍 Open Checklist ↗</a>
       </div>
       <div class="no-items-list" id="committeeNoItemsList" style="margin-top:14px;"></div>
     </section>
@@ -1198,28 +1238,10 @@ const QUARTERS = ['Q1','Q2','Q3','Q4'];
 
 const OTHERS_LINKS = [
   {
-    name: 'Safety Observation Form',
-    desc: 'Report unsafe acts, unsafe conditions, suggestions & good practices',
-    icon: '👁',
-    url: 'https://docs.google.com/forms/d/1DblIKDzVsOKHYpwBh5Ha1LmkLC9sucRV3a5bq1qESCc/viewform'
-  },
-  {
-    name: 'Incident Report Form',
-    desc: 'Report accidents, injuries or incidents at the workplace',
-    icon: '🚨',
-    url: 'https://docs.google.com/forms/d/15Vc7iWF1LceyYjJK7IjKkL9pO5jBXl2iHiW8duaOVnM/viewform'
-  },
-  {
     name: 'Safety Documentation',
     desc: 'SOPs, SWPs, HIRARC & HSE reference site',
     icon: '📚',
     url: 'https://sites.google.com/view/sci-hse-dashboard/home'
-  },
-  {
-    name: 'HSE Committee Pre-Meeting Inspection',
-    desc: 'Section walkthrough checklist for HSE committee members before meetings',
-    icon: '🔍',
-    url: 'committee-inspection.html'
   }
 ];
 
@@ -1232,7 +1254,7 @@ function getMeetingsData(){
   });
 }
 
-const CATEGORY_DISPLAY_NAMES = { 'Monthly Inspection': 'HSE Monthly Inspection' };
+const CATEGORY_DISPLAY_NAMES = { 'Monthly Inspection': 'HSE Monthly Inspection', 'Safety Observations': 'Reporting' };
 
 const MORE_SHEET_CATEGORIES = ['Training', 'Meetings', 'Others'];
 
@@ -1316,6 +1338,8 @@ function switchCategory(category, el){
   const obsCaption=document.getElementById('obsCaption');
   const obsFeedGrid=document.getElementById('obsFeedGrid');
   const obsNotifBanner=document.getElementById('obsNotifBanner');
+  const obsSubCard=document.getElementById('obsSubCard');
+  const incidentSubCard=document.getElementById('incidentSubCard');
   const boardCols=document.getElementById('boardColumns');
   if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
   if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
@@ -1323,6 +1347,8 @@ function switchCategory(category, el){
   if(othersCaption) othersCaption.style.display = isOthers ? 'block' : 'none';
   if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
   if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
+  if(obsSubCard) obsSubCard.style.display = isObsFeed ? 'block' : 'none';
+  if(incidentSubCard) incidentSubCard.style.display = isObsFeed ? 'block' : 'none';
   if(obsNotifBanner && !isObsFeed) obsNotifBanner.style.display = 'none';
   if(boardCols) boardCols.style.display = (isInspection || isOthers || isObsFeed) ? 'none' : 'grid';
   if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
@@ -1507,6 +1533,8 @@ function render(){
     const othersCaption=document.getElementById('othersCaption');
     const obsCaption=document.getElementById('obsCaption');
     const obsFeedGrid=document.getElementById('obsFeedGrid');
+    const obsSubCard=document.getElementById('obsSubCard');
+    const incidentSubCard=document.getElementById('incidentSubCard');
     const boardCols=document.getElementById('boardColumns');
     if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
     if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
@@ -1514,6 +1542,8 @@ function render(){
     if(othersCaption) othersCaption.style.display = isOthers ? 'block' : 'none';
     if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
     if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
+    if(obsSubCard) obsSubCard.style.display = isObsFeed ? 'block' : 'none';
+    if(incidentSubCard) incidentSubCard.style.display = isObsFeed ? 'block' : 'none';
     if(boardCols) boardCols.style.display = (isInspection || isOthers || isObsFeed) ? 'none' : 'grid';
     if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
     if(isOthers) renderOthersLinks();
@@ -2615,6 +2645,16 @@ function unlockDashboard(){
   const gate = document.getElementById('loginGate');
   if (gate) gate.classList.add('hidden');
   loadData();
+}
+
+function signOut(){
+  try { localStorage.removeItem(LOGIN_STORAGE_KEY); } catch(e){}
+  const gate = document.getElementById('loginGate');
+  const input = document.getElementById('loginPasswordInput');
+  const errorEl = document.getElementById('loginError');
+  if (gate) gate.classList.remove('hidden');
+  if (input){ input.value = ''; input.focus(); }
+  if (errorEl) errorEl.classList.remove('show');
 }
 
 function initLoginGate(){
