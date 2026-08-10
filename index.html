@@ -894,8 +894,8 @@
 <div class="layout">
   <div class="sidebar-col">
     <nav class="sidebar">
-      <div class="item" data-category="Dashboard" onclick="switchCategory('Dashboard', this)"><span class="icon">📊</span> Dashboard</div>
-      <div class="item active" data-category="All Tasks" onclick="switchCategory('All Tasks', this)"><span class="icon">🗂️</span> All Tasks</div>
+      <div class="item active" data-category="Dashboard" onclick="switchCategory('Dashboard', this)"><span class="icon">📊</span> Dashboard</div>
+      <div class="item" data-category="All Tasks" onclick="switchCategory('All Tasks', this)"><span class="icon">🗂️</span> All Tasks</div>
       <div class="item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Workplace Inspection <span class="side-dot" id="committeeSideNavDot" style="display:none;"></span></div>
       <div class="item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
       <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
@@ -914,10 +914,10 @@
   </div>
 
   <main>
-    <section class="board-card" id="mainBoardCard">
+    <section class="board-card" id="mainBoardCard" style="display:none;">
       <div class="hazard-stripe"></div>
       <div class="board-header">
-        <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">All Tasks</h2>
+        <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">Dashboard</h2>
         <div class="meeting-date-box" id="meetingDateBox"></div>
       </div>
       <div class="caption" id="inspectionCaption" style="display:none;">Klik section untuk mula pemeriksaan bulan ini — status auto reset setiap bulan baru</div>
@@ -959,7 +959,7 @@
       <div class="no-items-list" id="committeeNoItemsList" style="margin-top:14px;"></div>
     </section>
 
-    <div id="dashboardView" style="display:none; flex-direction:column; gap:24px;">
+    <div id="dashboardView" style="display:flex; flex-direction:column; gap:24px;">
       <section class="panels">
         <div class="panel">
           <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Task Status</h3>
@@ -1136,7 +1136,7 @@ const CONFIG = {
 };
 
 let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null, committeeInspections: [], committeeInspectionNoItems: [], trainingMatrix: null };
-let currentCategory = 'All Tasks';
+let currentCategory = 'Dashboard';
 let editingTaskId = null;
 const QUARTERS = ['Q1','Q2','Q3','Q4'];
 
