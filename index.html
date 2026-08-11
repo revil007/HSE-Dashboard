@@ -375,8 +375,8 @@
     letter-spacing:0.02em; margin-bottom:6px;
   }
   .leave-stat-card .lsc-balance{
-    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:26px;
-    color:var(--navy); line-height:1;
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px;
+    color:var(--navy); line-height:1.15; word-break:break-word;
   }
   .leave-stat-card .lsc-balance.negative{color:var(--red);}
   .leave-stat-card .lsc-sub{font-size:10.5px; color:var(--muted); margin-top:2px; margin-bottom:8px;}
@@ -880,6 +880,28 @@
     .trend-panel-head{flex-direction:column; align-items:flex-start; gap:6px;}
     .trend-total{text-align:left;}
     .insp-chart-head{flex-direction:column; align-items:flex-start;}
+
+    #obsSubCard .insp-chart-head,
+    #incidentSubCard .insp-chart-head{
+      flex-direction:row; flex-wrap:nowrap; align-items:center; gap:8px;
+    }
+    #obsSubCard .insp-chart-head > div:first-child,
+    #incidentSubCard .insp-chart-head > div:first-child{
+      min-width:0; flex:1 1 auto;
+    }
+    #obsSubCard .insp-chart-head h3,
+    #incidentSubCard .insp-chart-head h3{
+      font-size:14px !important; margin-bottom:1px !important;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    #obsSubCard .insp-chart-head .caption,
+    #incidentSubCard .insp-chart-head .caption{
+      font-size:10.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    #obsSubCard .card-link-btn,
+    #incidentSubCard .card-link-btn{
+      flex:0 0 auto; padding:6px 10px; font-size:11px; gap:4px; border-radius:16px;
+    }
   }
 
   @media (max-width: 700px){
@@ -1563,6 +1585,31 @@ function leaveRecordLabel(r){
   return d + ' hari';
 }
 
+// Converts a (possibly fractional) day count into a readable "X hari Y jam 30 minit"
+// label, so mixing whole-day leave with hourly leave (e.g. 2.5 hours) never shows
+// as a confusing decimal like "22.31" — it shows as "22 hari 2 jam 30 minit" instead.
+function formatLeaveDuration(days){
+  const isNegative = days < -1e-9;
+  let absDays = Math.abs(days);
+
+  let wholeDays = Math.floor(absDays + 1e-9);
+  let remainderHours = Math.round((absDays - wholeDays) * WORK_HOURS_PER_DAY * 2) / 2; // nearest 30 min
+  if (remainderHours >= WORK_HOURS_PER_DAY - 1e-9){
+    wholeDays += 1;
+    remainderHours = 0;
+  }
+  const wholeHours = Math.floor(remainderHours + 1e-9);
+  const hasHalfHour = (remainderHours - wholeHours) >= 0.5 - 1e-9;
+
+  const parts = [];
+  if (wholeDays > 0) parts.push(wholeDays + ' hari');
+  if (wholeHours > 0) parts.push(wholeHours + ' jam');
+  if (hasHalfHour) parts.push('30 minit');
+  if (parts.length === 0) parts.push('0 hari');
+
+  return (isNegative ? '-' : '') + parts.join(' ');
+}
+
 function renderLeaveTracker(){
   const grid = document.getElementById('leaveStatsGrid');
   const list = document.getElementById('leaveList');
@@ -1575,11 +1622,6 @@ function renderLeaveTracker(){
   LEAVE_TYPES.forEach(t => { usedByType[t] = 0; });
   records.forEach(r => { usedByType[r.type] = (usedByType[r.type] || 0) + leaveRecordToDays(r); });
 
-  const fmt = (n) => {
-    const rounded = Math.round(n * 100) / 100;
-    return rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(2).replace(/0$/,'');
-  };
-
   grid.innerHTML = LEAVE_TYPES.map(type => {
     const entitlement = entitlements[type] != null ? entitlements[type] : 0;
     const used = usedByType[type] || 0;
@@ -1587,9 +1629,9 @@ function renderLeaveTracker(){
     return `
       <div class="leave-stat-card">
         <div class="lsc-type">${type}</div>
-        <div class="lsc-balance ${balance < 0 ? 'negative' : ''}">${fmt(balance)}</div>
-        <div class="lsc-sub">baki hari</div>
-        <div class="lsc-detail">${fmt(used)} diambil /
+        <div class="lsc-balance ${balance < 0 ? 'negative' : ''}">${formatLeaveDuration(balance)}</div>
+        <div class="lsc-sub">baki</div>
+        <div class="lsc-detail">${formatLeaveDuration(used)} diambil /
           <input type="number" class="lsc-entitlement-input" value="${entitlement}" min="0" step="0.5"
             onchange="updateLeaveEntitlement('${type.replace(/'/g,"\\'")}', this.value)"> hari
         </div>
