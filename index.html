@@ -56,12 +56,6 @@
     letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
   }
 
-  /* Hazard stripe signature element */
-  .hazard-stripe{
-    height:6px;
-    background:repeating-linear-gradient(135deg, var(--yellow) 0 14px, var(--navy) 14px 28px);
-  }
-
   header.topbar{
     background:
       repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 30px),
@@ -194,7 +188,6 @@
     padding:22px 24px 26px;
     box-shadow:var(--shadow-sm);
   }
-  .board-card > .hazard-stripe{margin:-22px -24px 20px; border-radius:var(--radius) var(--radius) 0 0;}
 
   .board-columns{
     display:grid;
@@ -365,62 +358,77 @@
     letter-spacing:0.04em; margin-bottom:10px;
   }
   .leave-stats-grid{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;
-    margin-bottom:20px;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px;
+    margin-bottom:24px;
   }
   .leave-stat-card{
-    background:var(--surface); border:1px solid var(--border); border-radius:10px;
-    padding:14px 16px;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:16px;
   }
   .leave-stat-card .lsc-type{
-    font-size:11.5px; color:var(--muted); font-weight:600; text-transform:uppercase;
-    letter-spacing:0.02em; margin-bottom:6px;
+    font-size:12px; color:var(--muted); font-weight:700; text-transform:uppercase;
+    letter-spacing:0.02em; margin-bottom:8px;
   }
   .leave-stat-card .lsc-balance{
-    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px;
-    color:var(--navy); line-height:1.15; word-break:break-word;
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:22px;
+    color:var(--navy); line-height:1.2; word-break:break-word;
   }
   .leave-stat-card .lsc-balance.negative{color:var(--red);}
-  .leave-stat-card .lsc-sub{font-size:10.5px; color:var(--muted); margin-top:2px; margin-bottom:8px;}
-  .leave-stat-card .lsc-detail{
-    font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace;
-    display:flex; align-items:center; gap:5px; border-top:1px solid var(--border); padding-top:8px;
+  .leave-stat-card .lsc-sub{font-size:11px; color:var(--muted); margin-top:2px;}
+  .leave-stat-card .lsc-used{
+    font-size:12px; color:var(--ink); font-weight:600; margin-top:10px;
+    padding-top:10px; border-top:1px solid var(--border);
   }
-  .leave-stat-card .lsc-entitlement-input{
-    width:42px; border:1px solid var(--border); border-radius:5px; padding:2px 4px;
-    font-size:11px; font-family:'IBM Plex Mono',monospace; text-align:center;
+  .leave-stat-card .lsc-entitlement-row{margin-top:10px;}
+  .leave-stat-card .lsc-ent-label{
+    display:block; font-size:10px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:0.03em; margin-bottom:5px;
   }
-  .leave-add-row{
-    display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; padding-bottom:16px;
-    border-bottom:1px solid var(--border);
+  .leave-stat-card .lsc-ent-fields{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  .leave-stat-card .lsc-ent-days{
+    width:52px; border:1px solid var(--border); border-radius:6px; padding:6px 6px;
+    font-size:13px; font-family:'IBM Plex Mono',monospace; text-align:center; flex:0 0 auto;
   }
-  .leave-add-row select, .leave-add-row input{
-    border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px;
-    font-family:'Inter',sans-serif;
+  .leave-stat-card .lsc-ent-word{font-size:12px; color:var(--muted); flex:0 0 auto;}
+  .leave-stat-card .lsc-ent-hours{
+    flex:1 1 100px; min-width:0; border:1px solid var(--border); border-radius:6px;
+    padding:6px 8px; font-size:12px; font-family:'Inter',sans-serif; background:#fff;
   }
-  .leave-add-row select{flex:1 1 130px;}
-  .leave-add-row select#leaveUnitInput{flex:0 1 90px;}
-  .leave-add-row select#leaveHoursInput{flex:1 1 150px;}
-  .leave-add-row input[type="date"]{flex:1 1 140px;}
-  .leave-add-row input[type="number"]{flex:0 1 80px;}
-  .leave-add-row input[type="text"]{flex:2 1 160px;}
+
+  .leave-add-form{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;
+    margin-bottom:16px; padding-bottom:20px; border-bottom:1px solid var(--border);
+    align-items:end;
+  }
+  .leave-field{display:flex; flex-direction:column; gap:5px; min-width:0;}
+  .leave-field-narrow{grid-column:span 1; max-width:150px;}
+  .leave-field-wide{grid-column:1 / -1;}
+  .leave-field label{
+    font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:0.02em;
+  }
+  .leave-field select, .leave-field input{
+    border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:14px;
+    font-family:'Inter',sans-serif; width:100%; box-sizing:border-box; background:#fff;
+  }
+  .leave-submit-btn{grid-column:1 / -1; width:100%;}
+
   .leave-list{display:flex; flex-direction:column; gap:8px;}
   .leave-item{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
-    background:var(--surface); border:1px solid var(--border); border-radius:8px;
-    padding:10px 12px;
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:12px 14px;
   }
-  .leave-item .li-main{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px;}
+  .leave-item .li-main{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13.5px;}
   .leave-item .li-type{font-weight:700; color:var(--ink);}
-  .leave-item .li-date{color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
-  .leave-item .li-days{color:var(--navy); font-weight:600; font-size:12px;}
-  .leave-item .li-remark{font-size:12px; color:var(--muted); font-style:italic; margin-top:3px; flex-basis:100%;}
+  .leave-item .li-date{color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12px;}
+  .leave-item .li-days{color:var(--navy); font-weight:600; font-size:12.5px;}
+  .leave-item .li-remark{font-size:12.5px; color:var(--muted); font-style:italic; margin-top:4px; flex-basis:100%;}
   .leave-item .li-delete{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     background:none; border:none; outline:none; box-shadow:none; color:var(--muted);
     position:relative; cursor:pointer; padding:0; margin:0;
-    width:24px; height:24px; min-width:0; max-width:24px; border-radius:6px;
-    flex:0 0 24px; box-sizing:border-box;
+    width:26px; height:26px; min-width:0; max-width:26px; border-radius:6px;
+    flex:0 0 26px; box-sizing:border-box;
   }
   .leave-item .li-delete::before,
   .leave-item .li-delete::after{
@@ -430,6 +438,11 @@
   .leave-item .li-delete::before{transform:translate(-50%,-50%) rotate(45deg);}
   .leave-item .li-delete::after{transform:translate(-50%,-50%) rotate(-45deg);}
   .leave-item .li-delete:hover{background:var(--red-bg); color:var(--red);}
+
+  @media (max-width: 480px){
+    .leave-add-form{grid-template-columns:1fr 1fr;}
+    .leave-field-narrow{max-width:none;}
+  }
   .insp-legend{display:flex; gap:16px; font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
   .insp-legend span{display:flex; align-items:center; gap:6px;}
   .insp-legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
@@ -862,7 +875,6 @@
     nav.sidebar .item{padding:10px 12px; font-size:12.5px; white-space:nowrap;}
 
     .board-card, .panel{padding:16px 14px;}
-    .board-card > .hazard-stripe{margin:-16px -14px 16px;}
 
     .board-header{gap:10px;}
     #boardTitle{font-size:17px !important;}
@@ -894,12 +906,7 @@
     }
     #obsSubCard .insp-chart-head h3,
     #incidentSubCard .insp-chart-head h3{
-      font-size:14px !important; margin-bottom:1px !important;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
-    }
-    #obsSubCard .insp-chart-head .caption,
-    #incidentSubCard .insp-chart-head .caption{
-      display:none; /* long descriptive text — hidden on mobile to avoid crowding the compact header row */
     }
     #obsSubCard .card-link-btn,
     #incidentSubCard .card-link-btn{
@@ -923,7 +930,6 @@
       background:none; box-shadow:none; padding:0; border-radius:0; color:#fff; gap:5px;
     }
     header.topbar .alert-pill .alert-icon{color:var(--red);}
-    .header-stripe{display:none;}
     .hse-stat-card.highlight{grid-column:1 / -1;}
     .notes-fab{display:flex;}
   }
@@ -1011,7 +1017,6 @@
     <button class="signout-btn" onclick="signOut()" title="Log keluar">Log Keluar</button>
   </div>
 </header>
-<div class="hazard-stripe header-stripe"></div>
 
 <nav class="bottom-nav" id="bottomNav">
   <div class="bn-item active" data-category="Dashboard" onclick="switchCategory('Dashboard', this)">
@@ -1084,7 +1089,6 @@
 
   <main>
     <section class="board-card" id="mainBoardCard" style="display:none;">
-      <div class="hazard-stripe"></div>
       <div class="board-header">
         <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">Dashboard</h2>
         <div class="meeting-date-box" id="meetingDateBox"></div>
@@ -1144,22 +1148,41 @@
       <div class="leave-subhead">Rekod Cuti — Baki Tahun Ini</div>
       <div class="leave-stats-grid" id="leaveStatsGrid"></div>
 
-      <div class="leave-add-row">
-        <select id="leaveTypeInput">
-          <option>Annual Leave</option>
-          <option>Medical Leave</option>
-          <option>Hospitalization</option>
-          <option>Compassionate Leave</option>
-        </select>
-        <input type="date" id="leaveDateInput" title="Tarikh">
-        <select id="leaveUnitInput" onchange="toggleLeaveUnitInput()" title="Unit tempoh">
-          <option value="days">Hari</option>
-          <option value="hours">Jam</option>
-        </select>
-        <input type="number" id="leaveDaysInput" placeholder="Hari" min="0.5" step="0.5">
-        <select id="leaveHoursInput" style="display:none;"></select>
-        <input type="text" id="leaveRemarkInput" placeholder="Catatan (pilihan)">
-        <button class="btn" onclick="addLeaveRecord()">+ Rekod Cuti</button>
+      <div class="leave-subhead" style="margin-top:4px;">Tambah Rekod Cuti Baharu</div>
+      <div class="leave-add-form">
+        <div class="leave-field">
+          <label for="leaveTypeInput">Jenis Cuti</label>
+          <select id="leaveTypeInput">
+            <option>Annual Leave</option>
+            <option>Medical Leave</option>
+            <option>Hospitalization</option>
+            <option>Compassionate Leave</option>
+          </select>
+        </div>
+        <div class="leave-field">
+          <label for="leaveDateInput">Tarikh</label>
+          <input type="date" id="leaveDateInput">
+        </div>
+        <div class="leave-field leave-field-narrow">
+          <label for="leaveUnitInput">Unit</label>
+          <select id="leaveUnitInput" onchange="toggleLeaveUnitInput()">
+            <option value="days">Hari</option>
+            <option value="hours">Jam</option>
+          </select>
+        </div>
+        <div class="leave-field leave-field-narrow" id="leaveDaysField">
+          <label for="leaveDaysInput">Bilangan Hari</label>
+          <input type="number" id="leaveDaysInput" placeholder="Contoh: 1" min="0.5" step="0.5">
+        </div>
+        <div class="leave-field leave-field-narrow" id="leaveHoursField" style="display:none;">
+          <label for="leaveHoursInput">Tempoh</label>
+          <select id="leaveHoursInput"></select>
+        </div>
+        <div class="leave-field leave-field-wide">
+          <label for="leaveRemarkInput">Catatan (pilihan)</label>
+          <input type="text" id="leaveRemarkInput" placeholder="Contoh: Cuti bersalin adik">
+        </div>
+        <button class="btn leave-submit-btn" onclick="addLeaveRecord()">+ Rekod Cuti</button>
       </div>
 
       <div class="leave-list" id="leaveList"></div>
@@ -1517,16 +1540,36 @@ function openInspectionSection(sectionName){
 /* ---------------- Personal leave tracker (localStorage only) ---------------- */
 
 const LEAVE_TYPES = ['Annual Leave', 'Medical Leave', 'Hospitalization', 'Compassionate Leave'];
-const LEAVE_DEFAULT_ENTITLEMENT = { 'Annual Leave': 14, 'Medical Leave': 14, 'Hospitalization': 60, 'Compassionate Leave': 3 };
+const LEAVE_DEFAULT_ENTITLEMENT = {
+  'Annual Leave': { days: 14, hours: 0 },
+  'Medical Leave': { days: 14, hours: 0 },
+  'Hospitalization': { days: 60, hours: 0 },
+  'Compassionate Leave': { days: 3, hours: 0 }
+};
 const LEAVE_ENTITLEMENT_KEY = 'sci_hse_leave_entitlements_v1';
 const LEAVE_RECORDS_KEY = 'sci_hse_leave_records_v1';
 
 function getLeaveEntitlements(){
+  let stored = {};
   try {
     const raw = localStorage.getItem(LEAVE_ENTITLEMENT_KEY);
-    if (raw) return Object.assign({}, LEAVE_DEFAULT_ENTITLEMENT, JSON.parse(raw));
+    if (raw) stored = JSON.parse(raw);
   } catch(e){}
-  return Object.assign({}, LEAVE_DEFAULT_ENTITLEMENT);
+
+  const result = {};
+  LEAVE_TYPES.forEach(type => {
+    const def = LEAVE_DEFAULT_ENTITLEMENT[type];
+    const val = stored[type];
+    if (val && typeof val === 'object'){
+      result[type] = { days: Number(val.days) || 0, hours: Number(val.hours) || 0 };
+    } else if (typeof val === 'number'){
+      // backward-compat: entitlements saved before hours support existed (a plain number of days)
+      result[type] = { days: val, hours: 0 };
+    } else {
+      result[type] = Object.assign({}, def);
+    }
+  });
+  return result;
 }
 function setLeaveEntitlements(obj){
   try { localStorage.setItem(LEAVE_ENTITLEMENT_KEY, JSON.stringify(obj)); } catch(e){}
@@ -1547,27 +1590,20 @@ const WORK_HOURS_PER_DAY = 8; // used only to convert hour-based leave into a da
 function populateLeaveHoursInput(){
   const sel = document.getElementById('leaveHoursInput');
   if (!sel || sel.options.length > 0) return; // already populated
-  const opts = [];
-  for (let h = 1; h <= WORK_HOURS_PER_DAY; h += 0.5){
-    const whole = Math.floor(h);
-    const hasHalf = (h - whole) >= 0.5 - 1e-9;
-    const label = whole + ' jam' + (hasHalf ? ' 30 minit' : '');
-    opts.push(`<option value="${h}">${label}</option>`);
-  }
-  sel.innerHTML = opts.join('');
+  sel.innerHTML = buildHourOptions(1, WORK_HOURS_PER_DAY, null);
 }
 
 function toggleLeaveUnitInput(){
   const unit = document.getElementById('leaveUnitInput').value;
-  const daysInput = document.getElementById('leaveDaysInput');
-  const hoursInput = document.getElementById('leaveHoursInput');
+  const daysField = document.getElementById('leaveDaysField');
+  const hoursField = document.getElementById('leaveHoursField');
   if (unit === 'hours'){
     populateLeaveHoursInput();
-    if (daysInput) daysInput.style.display = 'none';
-    if (hoursInput) hoursInput.style.display = 'block';
+    if (daysField) daysField.style.display = 'none';
+    if (hoursField) hoursField.style.display = 'flex';
   } else {
-    if (daysInput) daysInput.style.display = 'block';
-    if (hoursInput) hoursInput.style.display = 'none';
+    if (daysField) daysField.style.display = 'flex';
+    if (hoursField) hoursField.style.display = 'none';
   }
 }
 
@@ -1613,6 +1649,22 @@ function formatLeaveDuration(days){
   return (isNegative ? '-' : '') + parts.join(' ');
 }
 
+function hourAmountLabel(h){
+  const whole = Math.floor(h + 1e-9);
+  const hasHalf = (h - whole) >= 0.5 - 1e-9;
+  if (whole === 0 && hasHalf) return '30 minit';
+  return whole + ' jam' + (hasHalf ? ' 30 minit' : '');
+}
+
+function buildHourOptions(start, end, selected){
+  const opts = [];
+  for (let h = start; h <= end + 1e-9; h += 0.5){
+    const sel = (selected != null && Math.abs(h - selected) < 1e-9) ? ' selected' : '';
+    opts.push(`<option value="${h}"${sel}>${hourAmountLabel(h)}</option>`);
+  }
+  return opts.join('');
+}
+
 function renderLeaveTracker(){
   const grid = document.getElementById('leaveStatsGrid');
   const list = document.getElementById('leaveList');
@@ -1626,17 +1678,27 @@ function renderLeaveTracker(){
   records.forEach(r => { usedByType[r.type] = (usedByType[r.type] || 0) + leaveRecordToDays(r); });
 
   grid.innerHTML = LEAVE_TYPES.map(type => {
-    const entitlement = entitlements[type] != null ? entitlements[type] : 0;
+    const ent = entitlements[type] || { days: 0, hours: 0 };
+    const entitlementDays = ent.days + (ent.hours || 0) / WORK_HOURS_PER_DAY;
     const used = usedByType[type] || 0;
-    const balance = entitlement - used;
+    const balance = entitlementDays - used;
+    const safeType = type.replace(/'/g,"\\'");
     return `
       <div class="leave-stat-card">
         <div class="lsc-type">${type}</div>
         <div class="lsc-balance ${balance < 0 ? 'negative' : ''}">${formatLeaveDuration(balance)}</div>
-        <div class="lsc-sub">baki</div>
-        <div class="lsc-detail">${formatLeaveDuration(used)} diambil /
-          <input type="number" class="lsc-entitlement-input" value="${entitlement}" min="0" step="0.5"
-            onchange="updateLeaveEntitlement('${type.replace(/'/g,"\\'")}', this.value)"> hari
+        <div class="lsc-sub">baki cuti</div>
+        <div class="lsc-used">${formatLeaveDuration(used)} diambil</div>
+        <div class="lsc-entitlement-row">
+          <span class="lsc-ent-label">Tetapkan entitlement</span>
+          <div class="lsc-ent-fields">
+            <input type="number" class="lsc-ent-days" value="${ent.days}" min="0" step="1"
+              onchange="updateLeaveEntitlement('${safeType}', 'days', this.value)">
+            <span class="lsc-ent-word">hari</span>
+            <select class="lsc-ent-hours" onchange="updateLeaveEntitlement('${safeType}', 'hours', this.value)">
+              ${buildHourOptions(0, 7.5, ent.hours)}
+            </select>
+          </div>
         </div>
       </div>`;
   }).join('');
@@ -1661,9 +1723,10 @@ function renderLeaveTracker(){
   `).join('');
 }
 
-function updateLeaveEntitlement(type, value){
+function updateLeaveEntitlement(type, field, value){
   const entitlements = getLeaveEntitlements();
-  entitlements[type] = Number(value) || 0;
+  if (!entitlements[type]) entitlements[type] = { days: 0, hours: 0 };
+  entitlements[type][field] = Number(value) || 0;
   setLeaveEntitlements(entitlements);
   renderLeaveTracker();
 }
