@@ -40,12 +40,14 @@
     --shadow-lg:0 14px 34px rgba(16,20,28,.14), 0 4px 10px rgba(16,20,28,.08);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
+  html{overflow-x:hidden; max-width:100%;}
   body{
     font-family:'Inter',sans-serif;
     background:var(--surface);
     color:var(--ink);
     min-height:100vh;
     -webkit-font-smoothing:antialiased;
+    max-width:100%;
   }
   .mono{font-family:'IBM Plex Mono',monospace;}
   .display{font-family:'Barlow Condensed',sans-serif; font-weight:800; letter-spacing:0.02em;}
@@ -884,23 +886,25 @@
     #obsSubCard .insp-chart-head,
     #incidentSubCard .insp-chart-head{
       flex-direction:row; flex-wrap:nowrap; align-items:center; gap:8px;
+      max-width:100%;
     }
     #obsSubCard .insp-chart-head > div:first-child,
     #incidentSubCard .insp-chart-head > div:first-child{
-      min-width:0; flex:1 1 auto;
+      min-width:0; flex:1 1 auto; max-width:100%; overflow:hidden;
     }
     #obsSubCard .insp-chart-head h3,
     #incidentSubCard .insp-chart-head h3{
       font-size:14px !important; margin-bottom:1px !important;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
     }
     #obsSubCard .insp-chart-head .caption,
     #incidentSubCard .insp-chart-head .caption{
-      font-size:10.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      display:none; /* long descriptive text — hidden on mobile to avoid crowding the compact header row */
     }
     #obsSubCard .card-link-btn,
     #incidentSubCard .card-link-btn{
       flex:0 0 auto; padding:6px 10px; font-size:11px; gap:4px; border-radius:16px;
+      white-space:nowrap;
     }
   }
 
