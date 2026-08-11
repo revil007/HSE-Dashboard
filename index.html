@@ -353,96 +353,183 @@
   }
   .card-link-btn:hover{background:var(--navy-3);}
 
-  .leave-subhead{
-    font-size:11.5px; color:var(--muted); font-weight:700; text-transform:uppercase;
-    letter-spacing:0.04em; margin-bottom:10px;
+  /* ---------------- Personal leave tracker (v2) ---------------- */
+  .pl-settings-btn{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    width:38px; height:38px; flex-shrink:0;
+    border:1px solid var(--border); border-radius:10px; background:#fff; color:#475569;
+    font-size:18px; cursor:pointer; box-shadow:0 2px 7px rgba(15,23,42,.05);
+    transition:.15s ease;
   }
-  .leave-stats-grid{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px;
-    margin-bottom:24px;
-  }
-  .leave-stat-card{
-    background:var(--surface); border:1px solid var(--border); border-radius:12px;
-    padding:16px;
-  }
-  .leave-stat-card .lsc-type{
-    font-size:12px; color:var(--muted); font-weight:700; text-transform:uppercase;
-    letter-spacing:0.02em; margin-bottom:8px;
-  }
-  .leave-stat-card .lsc-balance{
-    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:22px;
-    color:var(--navy); line-height:1.2; word-break:break-word;
-  }
-  .leave-stat-card .lsc-balance.negative{color:var(--red);}
-  .leave-stat-card .lsc-sub{font-size:11px; color:var(--muted); margin-top:2px;}
-  .leave-stat-card .lsc-used{
-    font-size:12px; color:var(--ink); font-weight:600; margin-top:10px;
-    padding-top:10px; border-top:1px solid var(--border);
-  }
-  .leave-stat-card .lsc-entitlement-row{margin-top:10px;}
-  .leave-stat-card .lsc-ent-label{
-    display:block; font-size:10px; color:var(--muted); text-transform:uppercase;
-    letter-spacing:0.03em; margin-bottom:5px;
-  }
-  .leave-stat-card .lsc-ent-fields{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
-  .leave-stat-card .lsc-ent-days{
-    width:52px; border:1px solid var(--border); border-radius:6px; padding:6px 6px;
-    font-size:13px; font-family:'IBM Plex Mono',monospace; text-align:center; flex:0 0 auto;
-  }
-  .leave-stat-card .lsc-ent-word{font-size:12px; color:var(--muted); flex:0 0 auto;}
-  .leave-stat-card .lsc-ent-hours{
-    flex:1 1 100px; min-width:0; border:1px solid var(--border); border-radius:6px;
-    padding:6px 8px; font-size:12px; font-family:'Inter',sans-serif; background:#fff;
-  }
+  .pl-settings-btn:hover{transform:translateY(-1px); background:var(--surface); border-color:#cbd5e1;}
 
-  .leave-add-form{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;
-    margin-bottom:16px; padding-bottom:20px; border-bottom:1px solid var(--border);
-    align-items:end;
+  .pl-leave-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px;
   }
-  .leave-field{display:flex; flex-direction:column; gap:5px; min-width:0;}
-  .leave-field-narrow{grid-column:span 1; max-width:150px;}
-  .leave-field-wide{grid-column:1 / -1;}
-  .leave-field label{
-    font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:0.02em;
+  .pl-card{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    position:relative; min-height:164px; border:1px solid var(--border); border-radius:18px;
+    background:#fff; padding:18px; text-align:left; cursor:pointer; overflow:hidden;
+    transition:.18s ease; font-family:'Inter',sans-serif;
+    display:flex; flex-direction:column; align-items:flex-start;
   }
-  .leave-field select, .leave-field input{
-    border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:14px;
-    font-family:'Inter',sans-serif; width:100%; box-sizing:border-box; background:#fff;
+  .pl-card:hover{transform:translateY(-3px); box-shadow:0 12px 28px rgba(15,23,42,.07); border-color:#d5dce6;}
+  .pl-card::after{
+    content:''; position:absolute; width:105px; height:105px; border-radius:50%;
+    right:-28px; bottom:-38px; background:var(--pl-icon-bg);
   }
-  .leave-submit-btn{grid-column:1 / -1; width:100%;}
+  .pl-icon{
+    width:39px; height:39px; border-radius:11px; background:var(--pl-icon-bg); color:var(--pl-accent);
+    display:flex; align-items:center; justify-content:center; margin-bottom:22px;
+    position:relative; z-index:1;
+  }
+  .pl-icon svg{width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .pl-balance{
+    font-family:'Inter',sans-serif; font-weight:800; font-size:24px;
+    letter-spacing:-0.6px; color:var(--pl-accent); line-height:1.2; word-break:break-word;
+    position:relative; z-index:1;
+  }
+  .pl-balance.negative{color:var(--red) !important;}
+  .pl-available{
+    font-size:9px; color:var(--muted); font-weight:800; letter-spacing:0.12em;
+    margin-top:7px; position:relative; z-index:1;
+  }
+  .pl-arrow{position:absolute; right:16px; bottom:14px; color:#a2aabb; z-index:2; font-size:14px;}
 
-  .leave-list{display:flex; flex-direction:column; gap:8px;}
-  .leave-item{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    background:var(--surface); border:1px solid var(--border); border-radius:10px;
-    padding:12px 14px;
+  .pl-add-section{
+    padding-top:18px; border-top:1px solid var(--border);
   }
-  .leave-item .li-main{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13.5px;}
-  .leave-item .li-type{font-weight:700; color:var(--ink);}
-  .leave-item .li-date{color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12px;}
-  .leave-item .li-days{color:var(--navy); font-weight:600; font-size:12.5px;}
-  .leave-item .li-remark{font-size:12.5px; color:var(--muted); font-style:italic; margin-top:4px; flex-basis:100%;}
-  .leave-item .li-delete{
+  .pl-add-title{font-weight:800; font-size:14px; margin-bottom:14px; color:var(--ink);}
+  .pl-form{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:9px; align-items:end;
+  }
+  .pl-field{display:flex; flex-direction:column; gap:5px; min-width:0;}
+  .pl-field-narrow{max-width:150px;}
+  .pl-field-wide{grid-column:1 / -1;}
+  .pl-field label{
+    font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.03em;
+  }
+  .pl-field select, .pl-field input{
+    width:100%; padding:10px; border:1px solid var(--border); border-radius:9px;
+    background:#fff; font-size:14px; font-family:'Inter',sans-serif; box-sizing:border-box;
+  }
+  .pl-add-btn{
+    border:0; border-radius:9px; padding:10px 14px; background:var(--navy); color:#fff;
+    font-weight:700; cursor:pointer; font-size:13px; white-space:nowrap;
+    grid-column:1 / -1;
+  }
+  .pl-add-btn:hover{background:var(--navy-3);}
+
+  .pl-records{margin-top:18px; background:#fff; border:1px solid var(--border); border-radius:18px; padding:18px;}
+  .pl-records-head{display:flex; justify-content:space-between; align-items:center;}
+  .pl-records-head strong{font-size:14px; color:var(--ink);}
+  .pl-line{
+    display:flex; justify-content:space-between; align-items:center;
+    border-top:1px solid #f0f2f5; padding:11px 0; margin-top:12px; font-size:12px; gap:10px;
+  }
+  .pl-line:first-child{border-top:none; margin-top:0; padding-top:0;}
+  .pl-line-left b{font-size:13px; color:var(--ink);}
+  .pl-line-muted{color:var(--muted); font-size:10px; margin-top:3px;}
+  .pl-line-right{display:flex; align-items:center; gap:8px; flex-shrink:0;}
+  .pl-line-right b{font-size:13px; color:var(--navy);}
+  .pl-delete{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     background:none; border:none; outline:none; box-shadow:none; color:var(--muted);
     position:relative; cursor:pointer; padding:0; margin:0;
-    width:26px; height:26px; min-width:0; max-width:26px; border-radius:6px;
-    flex:0 0 26px; box-sizing:border-box;
+    width:22px; height:22px; min-width:0; max-width:22px; border-radius:6px;
+    flex:0 0 22px; box-sizing:border-box;
   }
-  .leave-item .li-delete::before,
-  .leave-item .li-delete::after{
+  .pl-delete::before, .pl-delete::after{
     content:''; position:absolute; top:50%; left:50%;
-    width:12px; height:2.2px; border-radius:2px; background:currentColor;
+    width:11px; height:2px; border-radius:2px; background:currentColor;
   }
-  .leave-item .li-delete::before{transform:translate(-50%,-50%) rotate(45deg);}
-  .leave-item .li-delete::after{transform:translate(-50%,-50%) rotate(-45deg);}
-  .leave-item .li-delete:hover{background:var(--red-bg); color:var(--red);}
+  .pl-delete::before{transform:translate(-50%,-50%) rotate(45deg);}
+  .pl-delete::after{transform:translate(-50%,-50%) rotate(-45deg);}
+  .pl-delete:hover{background:var(--red-bg); color:var(--red);}
 
-  @media (max-width: 480px){
-    .leave-add-form{grid-template-columns:1fr 1fr;}
-    .leave-field-narrow{max-width:none;}
+  /* Modals (details + settings) */
+  .pl-overlay{
+    position:fixed; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; padding:18px; z-index:200;
   }
+  .pl-modal{
+    width:min(460px,100%); max-height:88vh; overflow-y:auto;
+    background:#fff; border-radius:20px; padding:22px; position:relative;
+    box-shadow:0 25px 70px rgba(15,23,42,.2); font-family:'Inter',sans-serif;
+  }
+  .pl-settings-modal{width:min(500px,100%);}
+  .pl-close{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    position:absolute; right:14px; top:14px; width:32px; height:32px;
+    border:1px solid var(--border); border-radius:9px; background:#fff; cursor:pointer;
+  }
+  .pl-close::before, .pl-close::after{
+    content:''; position:absolute; top:50%; left:50%;
+    width:13px; height:2.2px; border-radius:2px; background:var(--ink);
+  }
+  .pl-close::before{transform:translate(-50%,-50%) rotate(45deg);}
+  .pl-close::after{transform:translate(-50%,-50%) rotate(-45deg);}
+  .pl-close:hover{background:var(--surface);}
+  .pl-modal-head{display:flex; gap:12px; align-items:center;}
+  .pl-modal-icon{
+    width:46px; height:46px; border-radius:13px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--pl-icon-bg, var(--surface)); color:var(--pl-accent, var(--navy));
+  }
+  .pl-modal-icon svg{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .pl-modal-title{font-size:19px; font-weight:800; color:var(--navy);}
+  .pl-modal-sub{font-size:11px; color:var(--muted); margin-top:2px;}
+  .pl-available-box{
+    margin-top:17px; padding:15px; border-radius:13px; background:#f8fafc; border:1px solid var(--border);
+  }
+  .pl-available-box span{display:block; font-size:9px; color:var(--muted); font-weight:800; letter-spacing:0.05em;}
+  .pl-available-box strong{font-size:29px; display:block; margin-top:4px; color:var(--ink);}
+  .pl-detail-grid{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:12px;}
+  .pl-detail{border:1px solid var(--border); border-radius:10px; padding:11px;}
+  .pl-detail span{display:block; font-size:9px; color:var(--muted); text-transform:uppercase; font-weight:800; letter-spacing:0.04em;}
+  .pl-detail strong{display:block; margin-top:4px; font-size:14px; color:var(--ink);}
+  .pl-note{
+    margin-top:12px; padding:10px 12px; border-radius:8px; background:var(--surface); color:var(--muted);
+    border:1px solid var(--border);
+    font-size:11px; line-height:1.5;
+  }
+
+  .pl-settings-section-title{
+    margin-top:18px; margin-bottom:8px; font-size:11px; color:var(--muted); font-weight:800;
+    text-transform:uppercase; letter-spacing:0.06em;
+  }
+  .pl-settings-list{display:flex; flex-direction:column; gap:10px;}
+  .pl-setting-row{
+    display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;
+    padding:12px; border:1px solid var(--border); border-radius:11px;
+  }
+  .pl-setting-name{font-weight:700; font-size:13px; color:var(--ink);}
+  .pl-setting-desc{font-size:10px; color:var(--muted); margin-top:3px;}
+  .pl-setting-inputs{display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end;}
+  .pl-setting-inputs input{width:64px; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:'IBM Plex Mono',monospace;}
+  .pl-setting-inputs select{width:88px; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:12px;}
+  .pl-setting-inputs span{font-size:11px; color:var(--muted);}
+  .pl-settings-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px;}
+  .pl-settings-cancel{
+    -webkit-appearance:none; border:1px solid var(--border); background:#fff; color:var(--navy);
+    border-radius:9px; padding:10px 14px; cursor:pointer; font-size:13px;
+  }
+  .pl-settings-save{
+    -webkit-appearance:none; border:0; background:var(--navy); color:#fff; border-radius:9px;
+    padding:10px 16px; cursor:pointer; font-weight:700; font-size:13px;
+  }
+  .pl-settings-save:hover{background:var(--navy-3);}
+
+  @media (max-width: 640px){
+    .pl-leave-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width: 430px){
+    .pl-card{min-height:145px; padding:14px;}
+    .pl-balance{font-size:21px;}
+    .pl-setting-row{grid-template-columns:1fr;}
+    .pl-setting-inputs{justify-content:flex-start;}
+  }
+
   .insp-legend{display:flex; gap:16px; font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
   .insp-legend span{display:flex; align-items:center; gap:6px;}
   .insp-legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
@@ -1044,6 +1131,7 @@
   <div class="more-sheet-item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
   <div class="more-sheet-item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
   <div class="more-sheet-item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon">📁</span> Others</div>
+  <div class="more-sheet-item" data-category="Personal" onclick="switchCategory('Personal', this)"><span class="icon">🧑</span> Personal</div>
 </div>
 
 <button class="notes-fab" id="notesFab" onclick="toggleNotesSheet()" title="Personal Notes">
@@ -1075,6 +1163,7 @@
       <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
       <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon">👁</span> Reporting <span class="nav-badge" id="obsNavBadge" style="display:none;">0</span></div>
       <div class="item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon">📁</span> Others</div>
+      <div class="item" data-category="Personal" onclick="switchCategory('Personal', this)"><span class="icon">🧑</span> Personal</div>
     </nav>
 
     <aside class="notes-widget">
@@ -1143,49 +1232,59 @@
     </section>
 
     <section class="board-card" id="personalCard" style="display:none;">
-      <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:18px;">Personal</h3>
-
-      <div class="leave-subhead">Rekod Cuti — Baki Tahun Ini</div>
-      <div class="leave-stats-grid" id="leaveStatsGrid"></div>
-
-      <div class="leave-subhead" style="margin-top:4px;">Tambah Rekod Cuti Baharu</div>
-      <div class="leave-add-form">
-        <div class="leave-field">
-          <label for="leaveTypeInput">Jenis Cuti</label>
-          <select id="leaveTypeInput">
-            <option>Annual Leave</option>
-            <option>Medical Leave</option>
-            <option>Hospitalization</option>
-            <option>Compassionate Leave</option>
-          </select>
+      <div class="insp-chart-head" style="margin-bottom:18px; padding-bottom:14px;">
+        <div>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Personal</h3>
+          <div class="caption" style="margin:0;">Rekod Cuti — leave balance overview</div>
         </div>
-        <div class="leave-field">
-          <label for="leaveDateInput">Tarikh</label>
-          <input type="date" id="leaveDateInput">
-        </div>
-        <div class="leave-field leave-field-narrow">
-          <label for="leaveUnitInput">Unit</label>
-          <select id="leaveUnitInput" onchange="toggleLeaveUnitInput()">
-            <option value="days">Hari</option>
-            <option value="hours">Jam</option>
-          </select>
-        </div>
-        <div class="leave-field leave-field-narrow" id="leaveDaysField">
-          <label for="leaveDaysInput">Bilangan Hari</label>
-          <input type="number" id="leaveDaysInput" placeholder="Contoh: 1" min="0.5" step="0.5">
-        </div>
-        <div class="leave-field leave-field-narrow" id="leaveHoursField" style="display:none;">
-          <label for="leaveHoursInput">Tempoh</label>
-          <select id="leaveHoursInput"></select>
-        </div>
-        <div class="leave-field leave-field-wide">
-          <label for="leaveRemarkInput">Catatan (pilihan)</label>
-          <input type="text" id="leaveRemarkInput" placeholder="Contoh: Cuti bersalin adik">
-        </div>
-        <button class="btn leave-submit-btn" onclick="addLeaveRecord()">+ Rekod Cuti</button>
+        <button class="pl-settings-btn" onclick="plShowSettings()" title="Tetapan Cuti" aria-label="Tetapan Cuti">⚙</button>
       </div>
 
-      <div class="leave-list" id="leaveList"></div>
+      <div class="pl-leave-grid" id="plLeaveGrid"></div>
+
+      <div class="pl-add-section">
+        <div class="pl-add-title">Tambah Rekod Cuti Baharu</div>
+        <div class="pl-form">
+          <div class="pl-field">
+            <label for="plType">Jenis Cuti</label>
+            <select id="plType">
+              <option>Annual Leave</option>
+              <option>Medical Leave</option>
+              <option>Hospitalization</option>
+              <option>Compassionate Leave</option>
+            </select>
+          </div>
+          <div class="pl-field">
+            <label for="plDate">Tarikh</label>
+            <input type="date" id="plDate">
+          </div>
+          <div class="pl-field pl-field-narrow">
+            <label for="plUnit">Unit</label>
+            <select id="plUnit" onchange="togglePlUnit()">
+              <option value="days">Hari</option>
+              <option value="hours">Jam</option>
+            </select>
+          </div>
+          <div class="pl-field pl-field-narrow" id="plDaysField">
+            <label for="plDays">Hari</label>
+            <input type="number" id="plDays" min="0.5" step="0.5" placeholder="1">
+          </div>
+          <div class="pl-field pl-field-narrow" id="plHoursField" style="display:none;">
+            <label for="plHours">Tempoh</label>
+            <select id="plHours"></select>
+          </div>
+          <div class="pl-field pl-field-wide">
+            <label for="plRemark">Catatan</label>
+            <input type="text" id="plRemark" placeholder="Pilihan">
+          </div>
+          <button class="pl-add-btn" onclick="addPlRecord()">+ Rekod</button>
+        </div>
+      </div>
+
+      <div class="pl-records">
+        <div class="pl-records-head"><strong>Rekod Cuti Terkini</strong></div>
+        <div id="plRecords"></div>
+      </div>
     </section>
 
     <section class="board-card" id="committeeNoItemsCard" style="display:none;">
@@ -1391,7 +1490,7 @@ function getMeetingsData(){
 
 const CATEGORY_DISPLAY_NAMES = { 'Monthly Inspection': 'HSE Monthly Inspection', 'Safety Observations': 'Reporting' };
 
-const MORE_SHEET_CATEGORIES = ['Training', 'Meetings', 'Others'];
+const MORE_SHEET_CATEGORIES = ['Training', 'Meetings', 'Others', 'Personal'];
 
 function toggleMoreSheet(){
   const sheet = document.getElementById('moreSheet');
@@ -1442,10 +1541,11 @@ function switchCategory(category, el){
 
   const isDashboard = category === 'Dashboard';
   const isReporting = category === 'Safety Observations';
+  const isPersonal = category === 'Personal';
   const mainBoardCard = document.getElementById('mainBoardCard');
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCard = document.getElementById('committeeNoItemsCard');
-  if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting) ? 'none' : 'block';
+  if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonal) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCard) noItemsCard.style.display = (!isDashboard && category === 'Monthly Inspection') ? 'block' : 'none';
 
@@ -1461,9 +1561,10 @@ function switchCategory(category, el){
 
   const isInspection = category === 'Monthly Inspection';
   const isOthers = category === 'Others';
+  const isPersonalItem = category === 'Personal';
   const isObsFeed = category === 'Safety Observations';
   const addRow=document.querySelector('.add-task-row');
-  if(addRow) addRow.style.display = (category==='All Tasks' || isInspection || isObsFeed) ? 'none' : 'flex';
+  if(addRow) addRow.style.display = (category==='All Tasks' || isInspection || isObsFeed || isPersonalItem) ? 'none' : 'flex';
   const meetingBox=document.getElementById('meetingDateBox');
   if(meetingBox) meetingBox.style.display = category==='Meetings' ? 'flex' : 'none';
   if(category==='Meetings') renderMeetingQuarters();
@@ -1480,16 +1581,16 @@ function switchCategory(category, el){
   if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
   if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
   if(othersLinkBox) othersLinkBox.style.display = isOthers ? 'flex' : 'none';
-  if(personalCard) personalCard.style.display = isOthers ? 'block' : 'none';
+  if(personalCard) personalCard.style.display = isPersonalItem ? 'block' : 'none';
   if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
   if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
   if(obsSubCard) obsSubCard.style.display = isObsFeed ? 'block' : 'none';
   if(incidentSubCard) incidentSubCard.style.display = isObsFeed ? 'block' : 'none';
   if(obsNotifBanner && !isObsFeed) obsNotifBanner.style.display = 'none';
-  if(boardCols) boardCols.style.display = (isInspection || isObsFeed) ? 'none' : 'grid';
+  if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonalItem) ? 'none' : 'grid';
   if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
   if(isObsFeed){ renderObsFeed(true); renderIncidentFeed(); }
-  if(isOthers) renderLeaveTracker();
+  if(isPersonalItem) renderPersonalLeave();
   renderBoard();
 }
 
@@ -1537,68 +1638,291 @@ function openInspectionSection(sectionName){
   window.open('inspection.html?section=' + encodeURIComponent(sectionName) + '&month=' + monthKey, '_blank');
 }
 
-/* ---------------- Personal leave tracker (localStorage only) ---------------- */
+/* ---------------- Personal leave tracker v2 (localStorage only) ---------------- */
 
-const LEAVE_TYPES = ['Annual Leave', 'Medical Leave', 'Hospitalization', 'Compassionate Leave'];
-const LEAVE_DEFAULT_ENTITLEMENT = {
-  'Annual Leave': { days: 14, hours: 0 },
-  'Medical Leave': { days: 14, hours: 0 },
-  'Hospitalization': { days: 60, hours: 0 },
-  'Compassionate Leave': { days: 3, hours: 0 }
+const PL_WORK_HOURS = 8;
+const PL_TYPES = ['Annual Leave', 'Medical Leave', 'Hospitalization', 'Compassionate Leave'];
+const PL_ICONS = {
+  'Annual Leave': '<svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M7.5 2.8v3.4M16.5 2.8v3.4M3.5 9h17M8 13l2 2 5-5"/></svg>',
+  'Medical Leave': '<svg viewBox="0 0 24 24"><path d="M9 3h6v5h5v6h-5v5H9v-5H4V8h5z"/></svg>',
+  'Hospitalization': '<svg viewBox="0 0 24 24"><path d="M5 20V5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V20M3 20h18M9 20v-4h6v4M10 8h4M12 6v4"/></svg>',
+  'Compassionate Leave': '<svg viewBox="0 0 24 24"><path d="M20.8 8.8c0 5.2-8.8 10.2-8.8 10.2S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.1a4.8 4.8 0 0 1 8.8 2.7z"/></svg>'
 };
-const LEAVE_ENTITLEMENT_KEY = 'sci_hse_leave_entitlements_v1';
-const LEAVE_RECORDS_KEY = 'sci_hse_leave_records_v1';
+const PL_ACCENTS = {
+  'Annual Leave': ['#2563eb', '#eff6ff'],
+  'Medical Leave': ['#16a34a', '#f0fdf4'],
+  'Hospitalization': ['#dc2626', '#fef2f2'],
+  'Compassionate Leave': ['#7c3aed', '#f5f3ff']
+};
+const PL_DEFAULT_SETTINGS = { annual: 14, medical: 14, hospitalization: 60, compassionate: 3, carryDays: 0, carryHours: 0, openingUsed: 0 };
+const PL_SETTINGS_KEY = 'sci_hse_leave_settings_v2';
+const PL_RECORDS_KEY = 'sci_hse_leave_records_v2';
 
-function getLeaveEntitlements(){
-  let stored = {};
+function getPlSettings(){
   try {
-    const raw = localStorage.getItem(LEAVE_ENTITLEMENT_KEY);
-    if (raw) stored = JSON.parse(raw);
+    const raw = localStorage.getItem(PL_SETTINGS_KEY);
+    if (raw) return Object.assign({}, PL_DEFAULT_SETTINGS, JSON.parse(raw));
   } catch(e){}
+  return Object.assign({}, PL_DEFAULT_SETTINGS);
+}
+function setPlSettings(s){ try { localStorage.setItem(PL_SETTINGS_KEY, JSON.stringify(s)); } catch(e){} }
 
-  const result = {};
-  LEAVE_TYPES.forEach(type => {
-    const def = LEAVE_DEFAULT_ENTITLEMENT[type];
-    const val = stored[type];
-    if (val && typeof val === 'object'){
-      result[type] = { days: Number(val.days) || 0, hours: Number(val.hours) || 0 };
-    } else if (typeof val === 'number'){
-      // backward-compat: entitlements saved before hours support existed (a plain number of days)
-      result[type] = { days: val, hours: 0 };
-    } else {
-      result[type] = Object.assign({}, def);
-    }
-  });
-  return result;
-}
-function setLeaveEntitlements(obj){
-  try { localStorage.setItem(LEAVE_ENTITLEMENT_KEY, JSON.stringify(obj)); } catch(e){}
-}
-function getLeaveRecords(){
+function getPlRecords(){
   try {
-    const raw = localStorage.getItem(LEAVE_RECORDS_KEY);
+    const raw = localStorage.getItem(PL_RECORDS_KEY);
     if (raw) return JSON.parse(raw);
   } catch(e){}
   return [];
 }
-function setLeaveRecords(arr){
-  try { localStorage.setItem(LEAVE_RECORDS_KEY, JSON.stringify(arr)); } catch(e){}
+function setPlRecords(r){ try { localStorage.setItem(PL_RECORDS_KEY, JSON.stringify(r)); } catch(e){} }
+
+// Converts a (possibly fractional) day count into a readable "X hari Y jam 30 minit" label.
+function plFormatDuration(days){
+  const isNegative = days < -1e-9;
+  let absDays = Math.abs(days);
+  let wholeDays = Math.floor(absDays + 1e-9);
+  let remainderHours = Math.round((absDays - wholeDays) * PL_WORK_HOURS * 2) / 2;
+  if (remainderHours >= PL_WORK_HOURS - 1e-9){ wholeDays += 1; remainderHours = 0; }
+  const wholeHours = Math.floor(remainderHours + 1e-9);
+  const hasHalfHour = (remainderHours - wholeHours) >= 0.5 - 1e-9;
+  const parts = [];
+  if (wholeDays > 0) parts.push(wholeDays + ' hari');
+  if (wholeHours > 0) parts.push(wholeHours + ' jam');
+  if (hasHalfHour) parts.push('30 minit');
+  if (parts.length === 0) parts.push('0 hari');
+  return (isNegative ? '-' : '') + parts.join(' ');
 }
 
-const WORK_HOURS_PER_DAY = 8; // used only to convert hour-based leave into a day-equivalent for balance calculation
-
-function populateLeaveHoursInput(){
-  const sel = document.getElementById('leaveHoursInput');
-  if (!sel || sel.options.length > 0) return; // already populated
-  sel.innerHTML = buildHourOptions(1, WORK_HOURS_PER_DAY, null);
+function plRecordToDays(r){
+  if (r.unit === 'hours') return Number(r.amount || 0) / PL_WORK_HOURS;
+  return Number(r.amount || 0);
+}
+function plRecordLabel(r){
+  if (r.unit === 'hours'){
+    const h = Number(r.amount || 0);
+    const whole = Math.floor(h);
+    const hasHalf = (h - whole) >= 0.5 - 1e-9;
+    return whole + ' jam' + (hasHalf ? ' 30 minit' : '');
+  }
+  return plFormatDuration(Number(r.amount || 0));
 }
 
-function toggleLeaveUnitInput(){
-  const unit = document.getElementById('leaveUnitInput').value;
-  const daysField = document.getElementById('leaveDaysField');
-  const hoursField = document.getElementById('leaveHoursField');
+function plGetEntitlement(type){
+  const s = getPlSettings();
+  if (type === 'Annual Leave') return Number(s.annual) || 0;
+  if (type === 'Medical Leave') return Number(s.medical) || 0;
+  if (type === 'Hospitalization') return Number(s.hospitalization) || 0;
+  if (type === 'Compassionate Leave') return Number(s.compassionate) || 0;
+  return 0;
+}
+function plGetCarryForward(){
+  const s = getPlSettings();
+  return (Number(s.carryDays) || 0) + (Number(s.carryHours) || 0) / PL_WORK_HOURS;
+}
+function plGetOpeningUsed(){
+  return Number(getPlSettings().openingUsed) || 0;
+}
+// Annual Leave accrues monthly; leave earned in the current month isn't usable until next month.
+function plAnnualAccrued(){
+  const now = new Date();
+  const usableMonths = Math.max(0, Math.min(12, now.getMonth()));
+  return plGetEntitlement('Annual Leave') / 12 * usableMonths;
+}
+function plGetUsed(type){
+  return getPlRecords().filter(r => r.type === type).reduce((sum, r) => sum + plRecordToDays(r), 0);
+}
+function plGetBalance(type){
+  if (type === 'Annual Leave'){
+    return plGetCarryForward() + plAnnualAccrued() - plGetOpeningUsed() - plGetUsed(type);
+  }
+  return plGetEntitlement(type) - plGetUsed(type);
+}
+
+function renderPersonalLeave(){
+  const grid = document.getElementById('plLeaveGrid');
+  if (!grid) return;
+
+  grid.innerHTML = PL_TYPES.map(type => {
+    const [accent, bg] = PL_ACCENTS[type];
+    const balance = plGetBalance(type);
+    return `
+      <button type="button" class="pl-card" style="--pl-accent:${accent}; --pl-icon-bg:${bg};" onclick="plShowDetails('${type}')">
+        <div class="pl-icon">${PL_ICONS[type]}</div>
+        <div class="pl-balance ${balance < 0 ? 'negative' : ''}">${plFormatDuration(balance)}</div>
+        <div class="pl-available">BAKI TERSEDIA</div>
+        <div class="pl-arrow">↗</div>
+      </button>`;
+  }).join('');
+
+  renderPlRecords();
+}
+
+function renderPlRecords(){
+  const box = document.getElementById('plRecords');
+  if (!box) return;
+  const records = getPlRecords();
+  if (records.length === 0){
+    box.innerHTML = '<div class="empty" style="text-align:center; padding:14px 0;">Tiada rekod cuti lagi</div>';
+    return;
+  }
+  const indexed = records.map((r, i) => ({ r, i }));
+  indexed.sort((a, b) => String(b.r.date || '').localeCompare(String(a.r.date || '')));
+
+  box.innerHTML = indexed.map(({ r, i }) => `
+    <div class="pl-line">
+      <div class="pl-line-left">
+        <b>${escapeHtml(r.type)}</b>
+        <div class="pl-line-muted">${formatDate(r.date)}${r.remark ? ' · ' + escapeHtml(r.remark) : ''}</div>
+      </div>
+      <div class="pl-line-right">
+        <b>${plRecordLabel(r)}</b>
+        <button class="pl-delete" onclick="plDeleteRecord(${i})" title="Padam rekod"></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function plShowDetails(type){
+  const used = plGetUsed(type);
+  let entitlement = plGetEntitlement(type);
+  let accrued = entitlement;
+  let carried = 0;
+  const available = plGetBalance(type);
+  const [accent, bg] = PL_ACCENTS[type];
+
+  if (type === 'Annual Leave'){
+    accrued = plAnnualAccrued();
+    carried = plGetCarryForward();
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'pl-overlay';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+  overlay.innerHTML = `
+    <div class="pl-modal" style="--pl-accent:${accent}; --pl-icon-bg:${bg};">
+      <button class="pl-close" onclick="this.closest('.pl-overlay').remove()" title="Tutup"></button>
+      <div class="pl-modal-head">
+        <div class="pl-modal-icon">${PL_ICONS[type]}</div>
+        <div>
+          <div class="pl-modal-title">${type}</div>
+          <div class="pl-modal-sub">Butiran cuti</div>
+        </div>
+      </div>
+      <div class="pl-available-box">
+        <span>BAKI TERSEDIA SEKARANG</span>
+        <strong>${plFormatDuration(available)}</strong>
+      </div>
+      <div class="pl-detail-grid">
+        <div class="pl-detail"><span>Entitlement</span><strong>${plFormatDuration(entitlement)}</strong></div>
+        <div class="pl-detail"><span>Terkumpul</span><strong>${plFormatDuration(accrued)}</strong></div>
+        <div class="pl-detail"><span>Diambil</span><strong>${plFormatDuration(type === 'Annual Leave' ? plGetOpeningUsed() + used : used)}</strong></div>
+        <div class="pl-detail"><span>Dibawa Ke Hadapan</span><strong>${plFormatDuration(carried)}</strong></div>
+      </div>
+      ${type === 'Annual Leave' ? `<div class="pl-note">Pengumpulan bulanan dikemaskini automatik. Cuti yang terkumpul pada bulan semasa hanya boleh digunakan pada bulan berikutnya.</div>` : ''}
+    </div>`;
+
+  document.body.appendChild(overlay);
+}
+
+function plShowSettings(){
+  const s = getPlSettings();
+  const modal = document.createElement('div');
+  modal.className = 'pl-overlay';
+  modal.id = 'plSettingsOverlay';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+  const hourOpts = [0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5]
+    .map(h => `<option value="${h}" ${Number(s.carryHours) === h ? 'selected' : ''}>${h} jam</option>`).join('');
+
+  modal.innerHTML = `
+    <div class="pl-modal pl-settings-modal">
+      <button class="pl-close" onclick="this.closest('.pl-overlay').remove()" title="Tutup"></button>
+      <div class="pl-modal-head">
+        <div class="pl-modal-icon">⚙️</div>
+        <div>
+          <div class="pl-modal-title">Tetapan Cuti</div>
+          <div class="pl-modal-sub">Urus entitlement dan baki Annual Leave</div>
+        </div>
+      </div>
+
+      <div class="pl-settings-section-title">Entitlement Cuti</div>
+      <div class="pl-settings-list">
+        <div class="pl-setting-row">
+          <div><div class="pl-setting-name">Annual Leave</div><div class="pl-setting-desc">Entitlement tahunan</div></div>
+          <div class="pl-setting-inputs"><input id="plSetAnnual" type="number" min="0" step="0.5" value="${s.annual}"><span>hari</span></div>
+        </div>
+        <div class="pl-setting-row">
+          <div><div class="pl-setting-name">Medical Leave</div></div>
+          <div class="pl-setting-inputs"><input id="plSetMedical" type="number" min="0" step="0.5" value="${s.medical}"><span>hari</span></div>
+        </div>
+        <div class="pl-setting-row">
+          <div><div class="pl-setting-name">Hospitalization</div></div>
+          <div class="pl-setting-inputs"><input id="plSetHosp" type="number" min="0" step="0.5" value="${s.hospitalization}"><span>hari</span></div>
+        </div>
+        <div class="pl-setting-row">
+          <div><div class="pl-setting-name">Compassionate Leave</div></div>
+          <div class="pl-setting-inputs"><input id="plSetComp" type="number" min="0" step="0.5" value="${s.compassionate}"><span>hari</span></div>
+        </div>
+      </div>
+
+      <div class="pl-settings-section-title">Annual Leave</div>
+      <div class="pl-settings-list">
+        <div class="pl-setting-row">
+          <div><div class="pl-setting-name">Dibawa Ke Hadapan</div><div class="pl-setting-desc">Baki dibawa dari tahun sebelumnya</div></div>
+          <div class="pl-setting-inputs">
+            <input id="plSetCarryDays" type="number" min="0" step="0.5" value="${s.carryDays}"><span>hari</span>
+            <select id="plSetCarryHours">${hourOpts}</select>
+          </div>
+        </div>
+        <div class="pl-setting-row">
+          <div><div class="pl-setting-name">Sudah Diambil</div><div class="pl-setting-desc">Annual Leave diambil sebelum tracker ini bermula</div></div>
+          <div class="pl-setting-inputs"><input id="plSetOpeningUsed" type="number" min="0" step="0.5" value="${s.openingUsed}"><span>hari</span></div>
+        </div>
+      </div>
+
+      <div class="pl-settings-actions">
+        <button class="pl-settings-cancel" onclick="this.closest('.pl-overlay').remove()">Batal</button>
+        <button class="pl-settings-save" onclick="plSaveSettings()">Simpan</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+}
+
+function plSaveSettings(){
+  const s = getPlSettings();
+  s.annual = Number(document.getElementById('plSetAnnual').value) || 0;
+  s.medical = Number(document.getElementById('plSetMedical').value) || 0;
+  s.hospitalization = Number(document.getElementById('plSetHosp').value) || 0;
+  s.compassionate = Number(document.getElementById('plSetComp').value) || 0;
+  s.carryDays = Number(document.getElementById('plSetCarryDays').value) || 0;
+  s.carryHours = Number(document.getElementById('plSetCarryHours').value) || 0;
+  s.openingUsed = Number(document.getElementById('plSetOpeningUsed').value) || 0;
+  setPlSettings(s);
+  const overlay = document.getElementById('plSettingsOverlay');
+  if (overlay) overlay.remove();
+  renderPersonalLeave();
+}
+
+function plPopulateHoursInput(){
+  const sel = document.getElementById('plHours');
+  if (!sel || sel.options.length > 0) return;
+  const opts = [];
+  for (let h = 1; h <= PL_WORK_HOURS; h += 0.5){
+    const whole = Math.floor(h);
+    const hasHalf = (h - whole) >= 0.5 - 1e-9;
+    opts.push(`<option value="${h}">${whole} jam${hasHalf ? ' 30 minit' : ''}</option>`);
+  }
+  sel.innerHTML = opts.join('');
+}
+
+function togglePlUnit(){
+  const unit = document.getElementById('plUnit').value;
+  const daysField = document.getElementById('plDaysField');
+  const hoursField = document.getElementById('plHoursField');
   if (unit === 'hours'){
-    populateLeaveHoursInput();
+    plPopulateHoursInput();
     if (daysField) daysField.style.display = 'none';
     if (hoursField) hoursField.style.display = 'flex';
   } else {
@@ -1607,165 +1931,39 @@ function toggleLeaveUnitInput(){
   }
 }
 
-function leaveRecordToDays(r){
-  if (r.unit === 'hours') return Number(r.amount || 0) / WORK_HOURS_PER_DAY;
-  if (r.unit === 'days') return Number(r.amount || 0);
-  return Number(r.days || 0); // backward-compat with records saved before the unit field existed
-}
-
-function leaveRecordLabel(r){
-  if (r.unit === 'hours'){
-    const h = Number(r.amount || 0);
-    const whole = Math.floor(h);
-    const hasHalf = (h - whole) >= 0.5 - 1e-9;
-    return whole + ' jam' + (hasHalf ? ' 30 minit' : '');
-  }
-  const d = r.unit === 'days' ? r.amount : r.days;
-  return d + ' hari';
-}
-
-// Converts a (possibly fractional) day count into a readable "X hari Y jam 30 minit"
-// label, so mixing whole-day leave with hourly leave (e.g. 2.5 hours) never shows
-// as a confusing decimal like "22.31" — it shows as "22 hari 2 jam 30 minit" instead.
-function formatLeaveDuration(days){
-  const isNegative = days < -1e-9;
-  let absDays = Math.abs(days);
-
-  let wholeDays = Math.floor(absDays + 1e-9);
-  let remainderHours = Math.round((absDays - wholeDays) * WORK_HOURS_PER_DAY * 2) / 2; // nearest 30 min
-  if (remainderHours >= WORK_HOURS_PER_DAY - 1e-9){
-    wholeDays += 1;
-    remainderHours = 0;
-  }
-  const wholeHours = Math.floor(remainderHours + 1e-9);
-  const hasHalfHour = (remainderHours - wholeHours) >= 0.5 - 1e-9;
-
-  const parts = [];
-  if (wholeDays > 0) parts.push(wholeDays + ' hari');
-  if (wholeHours > 0) parts.push(wholeHours + ' jam');
-  if (hasHalfHour) parts.push('30 minit');
-  if (parts.length === 0) parts.push('0 hari');
-
-  return (isNegative ? '-' : '') + parts.join(' ');
-}
-
-function hourAmountLabel(h){
-  const whole = Math.floor(h + 1e-9);
-  const hasHalf = (h - whole) >= 0.5 - 1e-9;
-  if (whole === 0 && hasHalf) return '30 minit';
-  return whole + ' jam' + (hasHalf ? ' 30 minit' : '');
-}
-
-function buildHourOptions(start, end, selected){
-  const opts = [];
-  for (let h = start; h <= end + 1e-9; h += 0.5){
-    const sel = (selected != null && Math.abs(h - selected) < 1e-9) ? ' selected' : '';
-    opts.push(`<option value="${h}"${sel}>${hourAmountLabel(h)}</option>`);
-  }
-  return opts.join('');
-}
-
-function renderLeaveTracker(){
-  const grid = document.getElementById('leaveStatsGrid');
-  const list = document.getElementById('leaveList');
-  if (!grid || !list) return;
-
-  const entitlements = getLeaveEntitlements();
-  const records = getLeaveRecords();
-
-  const usedByType = {};
-  LEAVE_TYPES.forEach(t => { usedByType[t] = 0; });
-  records.forEach(r => { usedByType[r.type] = (usedByType[r.type] || 0) + leaveRecordToDays(r); });
-
-  grid.innerHTML = LEAVE_TYPES.map(type => {
-    const ent = entitlements[type] || { days: 0, hours: 0 };
-    const entitlementDays = ent.days + (ent.hours || 0) / WORK_HOURS_PER_DAY;
-    const used = usedByType[type] || 0;
-    const balance = entitlementDays - used;
-    const safeType = type.replace(/'/g,"\\'");
-    return `
-      <div class="leave-stat-card">
-        <div class="lsc-type">${type}</div>
-        <div class="lsc-balance ${balance < 0 ? 'negative' : ''}">${formatLeaveDuration(balance)}</div>
-        <div class="lsc-sub">baki cuti</div>
-        <div class="lsc-used">${formatLeaveDuration(used)} diambil</div>
-        <div class="lsc-entitlement-row">
-          <span class="lsc-ent-label">Tetapkan entitlement</span>
-          <div class="lsc-ent-fields">
-            <input type="number" class="lsc-ent-days" value="${ent.days}" min="0" step="1"
-              onchange="updateLeaveEntitlement('${safeType}', 'days', this.value)">
-            <span class="lsc-ent-word">hari</span>
-            <select class="lsc-ent-hours" onchange="updateLeaveEntitlement('${safeType}', 'hours', this.value)">
-              ${buildHourOptions(0, 7.5, ent.hours)}
-            </select>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-
-  const sorted = records.slice().sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
-  if (sorted.length === 0){
-    list.innerHTML = '<div class="empty">Tiada rekod cuti lagi</div>';
-    return;
-  }
-  list.innerHTML = sorted.map(r => `
-    <div class="leave-item">
-      <div>
-        <div class="li-main">
-          <span class="li-type">${escapeHtml(r.type)}</span>
-          <span class="li-date">${formatDate(r.date)}</span>
-          <span class="li-days">${leaveRecordLabel(r)}</span>
-        </div>
-        ${r.remark ? `<div class="li-remark">${escapeHtml(r.remark)}</div>` : ''}
-      </div>
-      <button class="li-delete" onclick="deleteLeaveRecord('${r.id}')" title="Padam rekod"></button>
-    </div>
-  `).join('');
-}
-
-function updateLeaveEntitlement(type, field, value){
-  const entitlements = getLeaveEntitlements();
-  if (!entitlements[type]) entitlements[type] = { days: 0, hours: 0 };
-  entitlements[type][field] = Number(value) || 0;
-  setLeaveEntitlements(entitlements);
-  renderLeaveTracker();
-}
-
-function addLeaveRecord(){
-  const typeInput = document.getElementById('leaveTypeInput');
-  const dateInput = document.getElementById('leaveDateInput');
-  const unitInput = document.getElementById('leaveUnitInput');
-  const daysInput = document.getElementById('leaveDaysInput');
-  const hoursInput = document.getElementById('leaveHoursInput');
-  const remarkInput = document.getElementById('leaveRemarkInput');
-
-  const type = typeInput.value;
-  const date = dateInput.value;
-  const unit = unitInput.value; // 'days' | 'hours'
+function addPlRecord(){
+  const type = document.getElementById('plType').value;
+  const date = document.getElementById('plDate').value;
+  const unit = document.getElementById('plUnit').value;
+  const daysInput = document.getElementById('plDays');
+  const hoursInput = document.getElementById('plHours');
+  const remarkInput = document.getElementById('plRemark');
   const amount = unit === 'hours' ? Number(hoursInput.value) : Number(daysInput.value);
   const remark = remarkInput.value.trim();
 
   if (!date || !amount || amount <= 0){
-    alert(unit === 'hours' ? 'Sila isi tarikh dan pilih tempoh jam.' : 'Sila isi tarikh dan bilangan hari cuti yang sah.');
+    alert(unit === 'hours' ? 'Sila isi tarikh dan pilih tempoh jam.' : 'Sila isi tarikh dan jumlah hari cuti.');
     return;
   }
 
-  const records = getLeaveRecords();
-  records.push({ id: 'L' + Date.now(), type, date, unit, amount, remark });
-  setLeaveRecords(records);
+  const records = getPlRecords();
+  records.push({ type, date, unit, amount, remark });
+  setPlRecords(records);
 
-  dateInput.value = '';
+  document.getElementById('plDate').value = '';
   daysInput.value = '';
-  hoursInput.selectedIndex = 0;
+  if (hoursInput.options.length) hoursInput.selectedIndex = 0;
   remarkInput.value = '';
 
-  renderLeaveTracker();
+  renderPersonalLeave();
 }
 
-function deleteLeaveRecord(id){
+function plDeleteRecord(index){
   if (!confirm('Padam rekod cuti ini?')) return;
-  setLeaveRecords(getLeaveRecords().filter(r => r.id !== id));
-  renderLeaveTracker();
+  const records = getPlRecords();
+  records.splice(index, 1);
+  setPlRecords(records);
+  renderPersonalLeave();
 }
 
 function renderCommitteeNoItemsList(){
@@ -1861,19 +2059,21 @@ async function loadData(){
 function render(){
   const isDashboard = currentCategory === 'Dashboard';
   const isReporting = currentCategory === 'Safety Observations';
+  const isPersonalCategory = currentCategory === 'Personal';
   const isInspectionCategory = !isDashboard && currentCategory === 'Monthly Inspection';
   const mainBoardCard = document.getElementById('mainBoardCard');
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCardTop = document.getElementById('committeeNoItemsCard');
-  if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting) ? 'none' : 'block';
+  if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonalCategory) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCardTop) noItemsCardTop.style.display = isInspectionCategory ? 'block' : 'none';
 
   if(!isDashboard){
     const isInspection = currentCategory === 'Monthly Inspection';
     const isOthers = currentCategory === 'Others';
+    const isPersonal = currentCategory === 'Personal';
     const isObsFeed = currentCategory === 'Safety Observations';
-    const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=(currentCategory==='All Tasks'||isInspection||isObsFeed)?'none':'flex';}
+    const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=(currentCategory==='All Tasks'||isInspection||isObsFeed||isPersonal)?'none':'flex';}
     const meetingBox=document.getElementById('meetingDateBox');
     if(meetingBox) meetingBox.style.display = currentCategory==='Meetings' ? 'flex' : 'none';
     const inspGrid=document.getElementById('inspectionSectionsGrid');
@@ -1888,15 +2088,15 @@ function render(){
     if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
     if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
     if(othersLinkBox) othersLinkBox.style.display = isOthers ? 'flex' : 'none';
-    if(personalCard) personalCard.style.display = isOthers ? 'block' : 'none';
+    if(personalCard) personalCard.style.display = isPersonal ? 'block' : 'none';
     if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
     if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
     if(obsSubCard) obsSubCard.style.display = isObsFeed ? 'block' : 'none';
     if(incidentSubCard) incidentSubCard.style.display = isObsFeed ? 'block' : 'none';
-    if(boardCols) boardCols.style.display = (isInspection || isObsFeed) ? 'none' : 'grid';
+    if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonal) ? 'none' : 'grid';
     if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
     if(isObsFeed){ renderObsFeed(true); renderIncidentFeed(); }
-    if(isOthers) renderLeaveTracker();
+    if(isPersonal) renderPersonalLeave();
     renderBoard();
   }
 
