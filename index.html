@@ -982,24 +982,30 @@
     .trend-total{text-align:left;}
     .insp-chart-head{flex-direction:column; align-items:flex-start;}
 
-    #obsSubCard .insp-chart-head,
-    #incidentSubCard .insp-chart-head{
+    #obsSubCard .insp-chart-head{
       flex-direction:row; flex-wrap:nowrap; align-items:center; gap:8px;
       max-width:100%;
     }
-    #obsSubCard .insp-chart-head > div:first-child,
-    #incidentSubCard .insp-chart-head > div:first-child{
+    #obsSubCard .insp-chart-head > div:first-child{
       min-width:0; flex:1 1 auto; max-width:100%; overflow:hidden;
     }
-    #obsSubCard .insp-chart-head h3,
-    #incidentSubCard .insp-chart-head h3{
+    #obsSubCard .insp-chart-head h3{
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
     }
-    #obsSubCard .card-link-btn,
-    #incidentSubCard .card-link-btn{
+    #incidentSubCard .card-link-btn,
+    #obsSubCard .card-link-btn{
       flex:0 0 auto; padding:5px 9px; font-size:11px; gap:3px; border-radius:14px;
       white-space:nowrap;
     }
+
+    #personalCard .insp-chart-head{
+      flex-direction:row; flex-wrap:nowrap; align-items:flex-start; gap:8px;
+      max-width:100%;
+    }
+    #personalCard .insp-chart-head > div:first-child{
+      min-width:0; flex:1 1 auto; max-width:100%;
+    }
+    #personalCard .pl-settings-btn{flex:0 0 auto;}
   }
 
   @media (max-width: 700px){
