@@ -90,9 +90,10 @@
   header.topbar .sub{
     font-size:11.5px; color:#9AA6B8; font-family:'IBM Plex Mono',monospace; letter-spacing:0.08em; margin-top:2px;
   }
-  header.topbar .mobile-date, header.topbar .mobile-time{
-    display:none; font-size:11px; color:#9AA6B8; letter-spacing:0.04em;
+  header.topbar .mobile-datetime{
+    display:none; align-items:center; gap:6px; font-size:11px; color:#9AA6B8; letter-spacing:0.04em;
   }
+  header.topbar .mobile-datetime .sep{color:#5A6478;}
   header.topbar .status-cluster{
     display:flex; align-items:center; gap:18px; font-size:14px;
   }
@@ -109,10 +110,10 @@
   .signout-btn{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     background:none; border:1px solid rgba(255,255,255,0.28); color:#AEB6C2;
-    font-size:11px; font-family:'Inter',sans-serif; font-weight:600;
-    padding:5px 12px; border-radius:20px; cursor:pointer; box-sizing:border-box;
-    white-space:nowrap;
+    width:32px; height:32px; border-radius:50%; cursor:pointer; box-sizing:border-box;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0;
   }
+  .signout-btn svg{width:15px; height:15px;}
   .signout-btn:hover{background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.5);}
 
   .layout{
@@ -352,6 +353,11 @@
     white-space:nowrap;
   }
   .card-link-btn:hover{background:var(--navy-3);}
+  .chead-top{
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:nowrap;
+  }
+  .chead-top h3{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .chead-top .card-link-btn{flex:0 0 auto;}
 
   /* ---------------- Personal leave tracker (v2) ---------------- */
   .pl-settings-btn{
@@ -1013,11 +1019,11 @@
     .bottom-nav{display:flex;}
     body{padding-bottom:70px;}
     header.topbar .sub{display:none;}
-    header.topbar .mobile-date, header.topbar .mobile-time{display:block;}
+    header.topbar .mobile-datetime{display:flex;}
     header.topbar #clock{display:none;}
     header.topbar .brand{align-items:center;}
     header.topbar .status-cluster{
-      flex-direction:column; align-items:flex-end; gap:4px; font-size:12px;
+      flex-direction:row; align-items:center; gap:10px; font-size:12px;
     }
     header.topbar .alert-pill{
       background:none; box-shadow:none; padding:0; border-radius:0; color:#fff; gap:5px;
@@ -1093,7 +1099,11 @@
     <div>
       <h1 class="display">SCI HSE Dashboard</h1>
       <div class="sub">SEPANGAR CHEMICAL INDUSTRY · HEALTH SAFETY ENVIRONMENT</div>
-      <div class="mobile-date mono" id="mobileDate"></div>
+      <div class="mobile-datetime">
+        <span class="mono" id="mobileDate"></span>
+        <span class="sep">·</span>
+        <span class="mono" id="mobileTime"></span>
+      </div>
     </div>
   </div>
   <div class="status-cluster">
@@ -1106,8 +1116,13 @@
       <span id="alertCount">0</span> Pending
     </div>
     <div id="clock" class="mono" style="color:#AEB6C2;font-size:13px;"></div>
-    <div class="mobile-time mono" id="mobileTime"></div>
-    <button class="signout-btn" onclick="signOut()" title="Log keluar">Log Keluar</button>
+    <button class="signout-btn" onclick="signOut()" title="Log keluar" aria-label="Log keluar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+    </button>
   </div>
 </header>
 
@@ -1227,12 +1242,12 @@
     </section>
 
     <section class="board-card" id="incidentSubCard" style="display:none;">
-      <div class="insp-chart-head" style="margin-bottom:10px; padding-bottom:10px;">
-        <div>
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Incident Report</h3>
-          <div class="caption" style="margin:0;">Report accidents, injuries or incidents at the workplace</div>
+      <div style="margin-bottom:10px; padding-bottom:10px;">
+        <div class="chead-top">
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin:0;">Incident Report</h3>
+          <a class="card-link-btn" href="https://docs.google.com/forms/d/15Vc7iWF1LceyYjJK7IjKkL9pO5jBXl2iHiW8duaOVnM/viewform" target="_blank" rel="noopener">Form ↗</a>
         </div>
-        <a class="card-link-btn" href="https://docs.google.com/forms/d/15Vc7iWF1LceyYjJK7IjKkL9pO5jBXl2iHiW8duaOVnM/viewform" target="_blank" rel="noopener">Form ↗</a>
+        <div class="caption" style="margin:4px 0 0;">Report accidents, injuries or incidents at the workplace</div>
       </div>
       <div class="obs-feed" id="incidentFeedGrid" style="display:flex;"></div>
     </section>
@@ -1294,12 +1309,12 @@
     </section>
 
     <section class="board-card" id="committeeNoItemsCard" style="display:none;">
-      <div class="insp-chart-head">
-        <div>
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">HSE Committee Pre-Meeting Inspections</h3>
-          <div class="caption" style="margin:0;">Checklist items marked "No" from HSE Committee pre-meeting inspections</div>
+      <div style="margin-bottom:10px; padding-bottom:10px; border-bottom:2px solid var(--surface);">
+        <div class="chead-top">
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin:0;">HSE-CPI</h3>
+          <a class="card-link-btn" href="committee-inspection.html" target="_blank" rel="noopener">🔍 Open Checklist ↗</a>
         </div>
-        <a class="card-link-btn" href="committee-inspection.html" target="_blank" rel="noopener">🔍 Open Checklist ↗</a>
+        <div class="caption" style="margin:4px 0 0;">HSE Committee pre-meeting inspection</div>
       </div>
       <div class="no-items-list" id="committeeNoItemsList" style="margin-top:14px;"></div>
     </section>
