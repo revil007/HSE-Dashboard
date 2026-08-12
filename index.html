@@ -2060,12 +2060,18 @@ async function apiPost(payload){
 }
 
 async function loadData(){
+  const _clientStart = performance.now();
   try{
     STATE = await apiGet();
   }catch(err){
     console.error('Failed to load data', err);
     document.querySelectorAll('.cards').forEach(c => c.innerHTML = '<div class="empty">Could not connect. Check CONFIG.API_URL.</div>');
     return;
+  }
+  const roundTripMs = Math.round(performance.now() - _clientStart);
+  if (STATE._timings) {
+    console.log('%c[HSE Dashboard] Server timing breakdown (ms):', 'font-weight:bold;color:#2a78d6;', STATE._timings);
+    console.log('%c[HSE Dashboard] Total round-trip (client, incl. network):', 'font-weight:bold;color:#2a78d6;', roundTripMs + 'ms');
   }
   render();
 }
