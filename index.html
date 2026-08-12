@@ -1575,9 +1575,15 @@ function switchCategory(category, el){
   const mainBoardCard = document.getElementById('mainBoardCard');
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCard = document.getElementById('committeeNoItemsCard');
+  const personalCard = document.getElementById('personalCard');
+
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonal) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCard) noItemsCard.style.display = (!isDashboard && category === 'Monthly Inspection') ? 'block' : 'none';
+
+  // Personal is a standalone card outside mainBoardCard, so it must
+  // always be explicitly hidden when leaving the Personal menu.
+  if(personalCard) personalCard.style.display = isPersonal ? 'block' : 'none';
 
   if(isDashboard){
     renderDonut();
@@ -1601,7 +1607,6 @@ function switchCategory(category, el){
   const inspGrid=document.getElementById('inspectionSectionsGrid');
   const inspCaption=document.getElementById('inspectionCaption');
   const othersLinkBox=document.getElementById('othersLinkBox');
-  const personalCard=document.getElementById('personalCard');
   const obsCaption=document.getElementById('obsCaption');
   const obsFeedGrid=document.getElementById('obsFeedGrid');
   const obsNotifBanner=document.getElementById('obsNotifBanner');
@@ -2110,9 +2115,14 @@ function render(){
   const mainBoardCard = document.getElementById('mainBoardCard');
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCardTop = document.getElementById('committeeNoItemsCard');
+  const personalCard = document.getElementById('personalCard');
+
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonalCategory) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCardTop) noItemsCardTop.style.display = isInspectionCategory ? 'block' : 'none';
+
+  // Personal is outside mainBoardCard; always reset its visibility on every render.
+  if(personalCard) personalCard.style.display = isPersonalCategory ? 'block' : 'none';
 
   if(!isDashboard){
     const isInspection = currentCategory === 'Monthly Inspection';
@@ -2125,7 +2135,6 @@ function render(){
     const inspGrid=document.getElementById('inspectionSectionsGrid');
     const inspCaption=document.getElementById('inspectionCaption');
     const othersLinkBox=document.getElementById('othersLinkBox');
-    const personalCard=document.getElementById('personalCard');
     const obsCaption=document.getElementById('obsCaption');
     const obsFeedGrid=document.getElementById('obsFeedGrid');
     const obsSubCard=document.getElementById('obsSubCard');
