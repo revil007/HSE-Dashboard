@@ -405,7 +405,15 @@
   .pl-add-section{
     padding-top:18px; border-top:1px solid var(--border);
   }
-  .pl-add-title{font-weight:800; font-size:14px; margin-bottom:14px; color:var(--ink);}
+  .pl-add-toggle{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    display:block; width:100%; text-align:left; background:var(--surface);
+    border:1px dashed var(--border); border-radius:9px; padding:12px 14px;
+    font-weight:700; font-size:13px; color:var(--navy); cursor:pointer;
+    margin-bottom:14px;
+  }
+  .pl-add-toggle:hover{background:#eef1f5; border-color:#c9d0da;}
+  .pl-add-toggle.open{background:var(--navy); color:#fff; border-style:solid; border-color:var(--navy);}
   .pl-form{
     display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:9px; align-items:end;
   }
@@ -1086,10 +1094,10 @@
   <div class="login-box" id="loginBox">
     <div class="mark">HSE</div>
     <h2>SCI HSE Dashboard</h2>
-    <p>Sila masukkan password untuk teruskan</p>
+    <p>Please enter password to continue</p>
     <input type="password" id="loginPasswordInput" placeholder="Password" autocomplete="current-password">
-    <button onclick="attemptLogin()">Masuk</button>
-    <div class="error" id="loginError">Password salah. Sila cuba lagi.</div>
+    <button onclick="attemptLogin()">Login</button>
+    <div class="error" id="loginError">Incorrect password. Please try again.</div>
   </div>
 </div>
 
@@ -1116,7 +1124,7 @@
       <span id="alertCount">0</span> Pending
     </div>
     <div id="clock" class="mono" style="color:#AEB6C2;font-size:13px;"></div>
-    <button class="signout-btn" onclick="signOut()" title="Log keluar" aria-label="Log keluar">
+    <button class="signout-btn" onclick="signOut()" title="Sign out" aria-label="Sign out">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
         <polyline points="16 17 21 12 16 7"></polyline>
@@ -1206,7 +1214,7 @@
           <a class="card-link-btn" href="https://sites.google.com/view/sci-hse-dashboard/home" target="_blank" rel="noopener">📚 Safety Documentation ↗</a>
         </div>
       </div>
-      <div class="caption" id="inspectionCaption" style="display:none;">Klik section untuk mula pemeriksaan bulan ini — status auto reset setiap bulan baru</div>
+      <div class="caption" id="inspectionCaption" style="display:none;">Click a section to start this month's inspection — status auto-resets every new month</div>
       <div class="inspection-sections" id="inspectionSectionsGrid" style="display:none;"></div>
       <div class="board-columns" id="boardColumns">
         <div class="column" id="col-todo">
@@ -1256,18 +1264,18 @@
       <div class="insp-chart-head" style="margin-bottom:18px; padding-bottom:14px;">
         <div>
           <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Personal</h3>
-          <div class="caption" style="margin:0;">Rekod Cuti — leave balance overview</div>
+          <div class="caption" style="margin:0;">Leave records — leave balance overview</div>
         </div>
-        <button class="pl-settings-btn" onclick="plShowSettings()" title="Tetapan Cuti" aria-label="Tetapan Cuti">⚙</button>
+        <button class="pl-settings-btn" onclick="plShowSettings()" title="Leave Settings" aria-label="Leave Settings">⚙</button>
       </div>
 
       <div class="pl-leave-grid" id="plLeaveGrid"></div>
 
       <div class="pl-add-section">
-        <div class="pl-add-title">Tambah Rekod Cuti Baharu</div>
-        <div class="pl-form">
+        <button class="pl-add-toggle" onclick="togglePlAddForm()" id="plAddToggle">+ Add Leave Record</button>
+        <div class="pl-form" id="plAddForm" style="display:none;">
           <div class="pl-field">
-            <label for="plType">Jenis Cuti</label>
+            <label for="plType">Leave Type</label>
             <select id="plType">
               <option>Annual Leave</option>
               <option>Medical Leave</option>
@@ -1276,34 +1284,34 @@
             </select>
           </div>
           <div class="pl-field">
-            <label for="plDate">Tarikh</label>
+            <label for="plDate">Date</label>
             <input type="date" id="plDate">
           </div>
           <div class="pl-field pl-field-narrow">
             <label for="plUnit">Unit</label>
             <select id="plUnit" onchange="togglePlUnit()">
-              <option value="days">Hari</option>
-              <option value="hours">Jam</option>
+              <option value="days">Days</option>
+              <option value="hours">Hours</option>
             </select>
           </div>
           <div class="pl-field pl-field-narrow" id="plDaysField">
-            <label for="plDays">Hari</label>
+            <label for="plDays">Days</label>
             <input type="number" id="plDays" min="0.5" step="0.5" placeholder="1">
           </div>
           <div class="pl-field pl-field-narrow" id="plHoursField" style="display:none;">
-            <label for="plHours">Tempoh</label>
+            <label for="plHours">Duration</label>
             <select id="plHours"></select>
           </div>
           <div class="pl-field pl-field-wide">
-            <label for="plRemark">Catatan</label>
-            <input type="text" id="plRemark" placeholder="Pilihan">
+            <label for="plRemark">Remarks</label>
+            <input type="text" id="plRemark" placeholder="Optional">
           </div>
-          <button class="pl-add-btn" onclick="addPlRecord()">+ Rekod</button>
+          <button class="pl-add-btn" onclick="addPlRecord()">+ Add Record</button>
         </div>
       </div>
 
       <div class="pl-records">
-        <div class="pl-records-head"><strong>Rekod Cuti Terkini</strong></div>
+        <div class="pl-records-head"><strong>Recent Leave Records</strong></div>
         <div id="plRecords"></div>
       </div>
     </section>
@@ -1549,6 +1557,7 @@ function closeNotesSheet(){
 
 function switchCategory(category, el){
   currentCategory = category;
+  document.querySelectorAll('.pl-overlay').forEach(o => o.remove());
   document.querySelectorAll('nav.sidebar .item, .bottom-nav .bn-item, .more-sheet .more-sheet-item').forEach(i => i.classList.remove('active'));
   document.querySelectorAll(`[data-category="${category}"]`).forEach(i => i.classList.add('active'));
   const bnMoreBtn = document.getElementById('bnMoreBtn');
@@ -1649,7 +1658,7 @@ function renderInspectionSections(){
         <span class="i-status ${isDone ? 'done' : 'pending'}">${isDone ? '✓ Done' : 'Pending'}</span>
         ${isDone
           ? `<div class="i-meta">Score: ${rec.ScorePercent}% · ${rec.Date}</div>`
-          : `<div class="i-meta">Klik untuk mula pemeriksaan →</div>`}
+          : `<div class="i-meta">Click to start inspection →</div>`}
       </div>`;
   }).join('');
 }
@@ -1692,7 +1701,7 @@ function getPlRecords(){
   }));
 }
 
-// Converts a (possibly fractional) day count into a readable "X hari Y jam 30 minit" label.
+// Converts a (possibly fractional) day count into a readable "X days Y hours 30 minutes" label.
 function plFormatDuration(days){
   const isNegative = days < -1e-9;
   let absDays = Math.abs(days);
@@ -1702,10 +1711,10 @@ function plFormatDuration(days){
   const wholeHours = Math.floor(remainderHours + 1e-9);
   const hasHalfHour = (remainderHours - wholeHours) >= 0.5 - 1e-9;
   const parts = [];
-  if (wholeDays > 0) parts.push(wholeDays + ' hari');
-  if (wholeHours > 0) parts.push(wholeHours + ' jam');
-  if (hasHalfHour) parts.push('30 minit');
-  if (parts.length === 0) parts.push('0 hari');
+  if (wholeDays > 0) parts.push(wholeDays + (wholeDays === 1 ? ' day' : ' days'));
+  if (wholeHours > 0) parts.push(wholeHours + (wholeHours === 1 ? ' hour' : ' hours'));
+  if (hasHalfHour) parts.push('30 min');
+  if (parts.length === 0) parts.push('0 days');
   return (isNegative ? '-' : '') + parts.join(' ');
 }
 
@@ -1718,7 +1727,7 @@ function plRecordLabel(r){
     const h = Number(r.amount || 0);
     const whole = Math.floor(h);
     const hasHalf = (h - whole) >= 0.5 - 1e-9;
-    return whole + ' jam' + (hasHalf ? ' 30 minit' : '');
+    return whole + (whole === 1 ? ' hour' : ' hours') + (hasHalf ? ' 30 min' : '');
   }
   return plFormatDuration(Number(r.amount || 0));
 }
@@ -1765,7 +1774,7 @@ function renderPersonalLeave(){
       <button type="button" class="pl-card" style="--pl-accent:${accent}; --pl-icon-bg:${bg};" onclick="plShowDetails('${type}')">
         <div class="pl-icon">${PL_ICONS[type]}</div>
         <div class="pl-balance ${balance < 0 ? 'negative' : ''}">${plFormatDuration(balance)}</div>
-        <div class="pl-available">BAKI TERSEDIA</div>
+        <div class="pl-available">AVAILABLE</div>
         <div class="pl-arrow">↗</div>
       </button>`;
   }).join('');
@@ -1778,7 +1787,7 @@ function renderPlRecords(){
   if (!box) return;
   const records = getPlRecords();
   if (records.length === 0){
-    box.innerHTML = '<div class="empty" style="text-align:center; padding:14px 0;">Tiada rekod cuti lagi</div>';
+    box.innerHTML = '<div class="empty" style="text-align:center; padding:14px 0;">No leave records yet</div>';
     return;
   }
   const sorted = records.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
@@ -1791,7 +1800,7 @@ function renderPlRecords(){
       </div>
       <div class="pl-line-right">
         <b>${plRecordLabel(r)}</b>
-        <button class="pl-delete" onclick="plDeleteRecord('${String(r.id).replace(/'/g,"\\'")}')" title="Padam rekod"></button>
+        <button class="pl-delete" onclick="plDeleteRecord('${String(r.id).replace(/'/g,"\\'")}')" title="Delete record"></button>
       </div>
     </div>
   `).join('');
@@ -1816,25 +1825,25 @@ function plShowDetails(type){
 
   overlay.innerHTML = `
     <div class="pl-modal" style="--pl-accent:${accent}; --pl-icon-bg:${bg};">
-      <button class="pl-close" onclick="this.closest('.pl-overlay').remove()" title="Tutup"></button>
+      <button class="pl-close" onclick="this.closest('.pl-overlay').remove()" title="Close"></button>
       <div class="pl-modal-head">
         <div class="pl-modal-icon">${PL_ICONS[type]}</div>
         <div>
           <div class="pl-modal-title">${type}</div>
-          <div class="pl-modal-sub">Butiran cuti</div>
+          <div class="pl-modal-sub">Leave details</div>
         </div>
       </div>
       <div class="pl-available-box">
-        <span>BAKI TERSEDIA SEKARANG</span>
+        <span>AVAILABLE NOW</span>
         <strong>${plFormatDuration(available)}</strong>
       </div>
       <div class="pl-detail-grid">
         <div class="pl-detail"><span>Entitlement</span><strong>${plFormatDuration(entitlement)}</strong></div>
-        <div class="pl-detail"><span>Terkumpul</span><strong>${plFormatDuration(accrued)}</strong></div>
-        <div class="pl-detail"><span>Diambil</span><strong>${plFormatDuration(type === 'Annual Leave' ? plGetOpeningUsed() + used : used)}</strong></div>
-        <div class="pl-detail"><span>Dibawa Ke Hadapan</span><strong>${plFormatDuration(carried)}</strong></div>
+        <div class="pl-detail"><span>Accrued</span><strong>${plFormatDuration(accrued)}</strong></div>
+        <div class="pl-detail"><span>Used</span><strong>${plFormatDuration(type === 'Annual Leave' ? plGetOpeningUsed() + used : used)}</strong></div>
+        <div class="pl-detail"><span>Carried Forward</span><strong>${plFormatDuration(carried)}</strong></div>
       </div>
-      ${type === 'Annual Leave' ? `<div class="pl-note">Pengumpulan bulanan dikemaskini automatik. Cuti yang terkumpul pada bulan semasa hanya boleh digunakan pada bulan berikutnya.</div>` : ''}
+      ${type === 'Annual Leave' ? `<div class="pl-note">Monthly accrual updates automatically. Leave accrued in the current month can only be used starting next month.</div>` : ''}
     </div>`;
 
   document.body.appendChild(overlay);
@@ -1848,57 +1857,57 @@ function plShowSettings(){
   modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 
   const hourOpts = [0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5]
-    .map(h => `<option value="${h}" ${Number(s.carryHours) === h ? 'selected' : ''}>${h} jam</option>`).join('');
+    .map(h => `<option value="${h}" ${Number(s.carryHours) === h ? 'selected' : ''}>${h} hours</option>`).join('');
 
   modal.innerHTML = `
     <div class="pl-modal pl-settings-modal">
-      <button class="pl-close" onclick="this.closest('.pl-overlay').remove()" title="Tutup"></button>
+      <button class="pl-close" onclick="this.closest('.pl-overlay').remove()" title="Close"></button>
       <div class="pl-modal-head">
         <div class="pl-modal-icon">⚙️</div>
         <div>
-          <div class="pl-modal-title">Tetapan Cuti</div>
-          <div class="pl-modal-sub">Urus entitlement dan baki Annual Leave</div>
+          <div class="pl-modal-title">Leave Settings</div>
+          <div class="pl-modal-sub">Manage entitlement and Annual Leave balance</div>
         </div>
       </div>
 
-      <div class="pl-settings-section-title">Entitlement Cuti</div>
+      <div class="pl-settings-section-title">Leave Entitlement</div>
       <div class="pl-settings-list">
         <div class="pl-setting-row">
-          <div><div class="pl-setting-name">Annual Leave</div><div class="pl-setting-desc">Entitlement tahunan</div></div>
-          <div class="pl-setting-inputs"><input id="plSetAnnual" type="number" min="0" step="0.5" value="${s.annual}"><span>hari</span></div>
+          <div><div class="pl-setting-name">Annual Leave</div><div class="pl-setting-desc">Annual entitlement</div></div>
+          <div class="pl-setting-inputs"><input id="plSetAnnual" type="number" min="0" step="0.5" value="${s.annual}"><span>days</span></div>
         </div>
         <div class="pl-setting-row">
           <div><div class="pl-setting-name">Medical Leave</div></div>
-          <div class="pl-setting-inputs"><input id="plSetMedical" type="number" min="0" step="0.5" value="${s.medical}"><span>hari</span></div>
+          <div class="pl-setting-inputs"><input id="plSetMedical" type="number" min="0" step="0.5" value="${s.medical}"><span>days</span></div>
         </div>
         <div class="pl-setting-row">
           <div><div class="pl-setting-name">Hospitalization</div></div>
-          <div class="pl-setting-inputs"><input id="plSetHosp" type="number" min="0" step="0.5" value="${s.hospitalization}"><span>hari</span></div>
+          <div class="pl-setting-inputs"><input id="plSetHosp" type="number" min="0" step="0.5" value="${s.hospitalization}"><span>days</span></div>
         </div>
         <div class="pl-setting-row">
           <div><div class="pl-setting-name">Compassionate Leave</div></div>
-          <div class="pl-setting-inputs"><input id="plSetComp" type="number" min="0" step="0.5" value="${s.compassionate}"><span>hari</span></div>
+          <div class="pl-setting-inputs"><input id="plSetComp" type="number" min="0" step="0.5" value="${s.compassionate}"><span>days</span></div>
         </div>
       </div>
 
       <div class="pl-settings-section-title">Annual Leave</div>
       <div class="pl-settings-list">
         <div class="pl-setting-row">
-          <div><div class="pl-setting-name">Dibawa Ke Hadapan</div><div class="pl-setting-desc">Baki dibawa dari tahun sebelumnya</div></div>
+          <div><div class="pl-setting-name">Carried Forward</div><div class="pl-setting-desc">Balance carried over from the previous year</div></div>
           <div class="pl-setting-inputs">
-            <input id="plSetCarryDays" type="number" min="0" step="0.5" value="${s.carryDays}"><span>hari</span>
+            <input id="plSetCarryDays" type="number" min="0" step="0.5" value="${s.carryDays}"><span>days</span>
             <select id="plSetCarryHours">${hourOpts}</select>
           </div>
         </div>
         <div class="pl-setting-row">
-          <div><div class="pl-setting-name">Sudah Diambil</div><div class="pl-setting-desc">Annual Leave diambil sebelum tracker ini bermula</div></div>
-          <div class="pl-setting-inputs"><input id="plSetOpeningUsed" type="number" min="0" step="0.5" value="${s.openingUsed}"><span>hari</span></div>
+          <div><div class="pl-setting-name">Already Used</div><div class="pl-setting-desc">Annual Leave taken before this tracker started</div></div>
+          <div class="pl-setting-inputs"><input id="plSetOpeningUsed" type="number" min="0" step="0.5" value="${s.openingUsed}"><span>days</span></div>
         </div>
       </div>
 
       <div class="pl-settings-actions">
-        <button class="pl-settings-cancel" onclick="this.closest('.pl-overlay').remove()">Batal</button>
-        <button class="pl-settings-save" onclick="plSaveSettings()">Simpan</button>
+        <button class="pl-settings-cancel" onclick="this.closest('.pl-overlay').remove()">Cancel</button>
+        <button class="pl-settings-save" onclick="plSaveSettings()">Save</button>
       </div>
     </div>`;
 
@@ -1916,7 +1925,7 @@ async function plSaveSettings(){
     openingUsed: Number(document.getElementById('plSetOpeningUsed').value) || 0
   };
   const saveBtn = document.querySelector('.pl-settings-save');
-  if (saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Menyimpan...'; }
+  if (saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
   await apiPost(Object.assign({ action: 'saveLeaveSettings' }, settings));
   const overlay = document.getElementById('plSettingsOverlay');
   if (overlay) overlay.remove();
@@ -1930,9 +1939,21 @@ function plPopulateHoursInput(){
   for (let h = 1; h <= PL_WORK_HOURS; h += 0.5){
     const whole = Math.floor(h);
     const hasHalf = (h - whole) >= 0.5 - 1e-9;
-    opts.push(`<option value="${h}">${whole} jam${hasHalf ? ' 30 minit' : ''}</option>`);
+    opts.push(`<option value="${h}">${whole} hour${whole===1?'':'s'}${hasHalf ? ' 30 min' : ''}</option>`);
   }
   sel.innerHTML = opts.join('');
+}
+
+function togglePlAddForm(){
+  const form = document.getElementById('plAddForm');
+  const btn = document.getElementById('plAddToggle');
+  if (!form) return;
+  const opening = form.style.display === 'none';
+  form.style.display = opening ? 'grid' : 'none';
+  if (btn){
+    btn.textContent = opening ? '− Cancel' : '+ Add Leave Record';
+    btn.classList.toggle('open', opening);
+  }
 }
 
 function togglePlUnit(){
@@ -1960,7 +1981,7 @@ async function addPlRecord(){
   const remark = remarkInput.value.trim();
 
   if (!date || !amount || amount <= 0){
-    alert(unit === 'hours' ? 'Sila isi tarikh dan pilih tempoh jam.' : 'Sila isi tarikh dan jumlah hari cuti.');
+    alert(unit === 'hours' ? 'Please enter the date and select a duration.' : 'Please enter the date and number of leave days.');
     return;
   }
 
@@ -1971,11 +1992,16 @@ async function addPlRecord(){
   if (hoursInput.options.length) hoursInput.selectedIndex = 0;
   remarkInput.value = '';
 
+  const form = document.getElementById('plAddForm');
+  const btn = document.getElementById('plAddToggle');
+  if (form) form.style.display = 'none';
+  if (btn){ btn.textContent = '+ Add Leave Record'; btn.classList.remove('open'); }
+
   loadData();
 }
 
 async function plDeleteRecord(id){
-  if (!confirm('Padam rekod cuti ini?')) return;
+  if (!confirm('Delete this leave record?')) return;
   await apiPost({ action: 'deleteLeaveRecord', id });
   loadData();
 }
@@ -2031,7 +2057,7 @@ function renderCommitteeNoItemsList(){
 
 async function deleteCommitteeInspectionGroup(inspectionId){
   if (!inspectionId) return;
-  if (!confirm('Padam rekod pemeriksaan ini beserta semua item "Tidak" berkaitan? Tindakan ini tidak boleh dibatalkan.')) return;
+  if (!confirm('Delete this inspection record along with all related "No" items? This action cannot be undone.')) return;
   await apiPost({ action: 'deleteCommitteeInspection', inspectionId });
   loadData();
 }
@@ -3022,7 +3048,7 @@ function renderObsFeed(){
   }
 
   if(monthEntries.length === 0){
-    grid.innerHTML = '<div class="empty">Tiada pemerhatian direkod bulan ini</div>';
+    grid.innerHTML = '<div class="empty">No observations recorded this month</div>';
     return;
   }
 
@@ -3051,7 +3077,7 @@ function renderObsFeed(){
 }
 
 async function deleteObsEntry(id){
-  if (!confirm('Padam rekod pemerhatian ini? Tindakan ini tidak boleh dibatalkan.')) return;
+  if (!confirm('Delete this observation record? This action cannot be undone.')) return;
   await apiPost({ action: 'deleteObservation', timestamp: id });
   loadData();
 }
@@ -3066,7 +3092,7 @@ function renderIncidentFeed(){
   const monthEntries = entries.filter(e => e.date && e.date.indexOf(curMonthKey) === 0);
 
   if (monthEntries.length === 0){
-    grid.innerHTML = '<div class="empty">Tiada laporan insiden direkod bulan ini</div>';
+    grid.innerHTML = '<div class="empty">No incident reports recorded this month</div>';
     return;
   }
 
@@ -3094,7 +3120,7 @@ function renderIncidentFeed(){
 }
 
 async function deleteIncidentEntry(id){
-  if (!confirm('Padam laporan insiden ini? Tindakan ini tidak boleh dibatalkan.')) return;
+  if (!confirm('Delete this incident report? This action cannot be undone.')) return;
   await apiPost({ action: 'deleteIncidentReport', timestamp: id });
   loadData();
 }
@@ -3170,7 +3196,7 @@ async function saveTaskEdit(id){
 }
 
 async function deleteTask(id){
-  if (!confirm('Padam task ni?')) return;
+  if (!confirm('Delete this task?')) return;
   await apiPost({ action:'deleteTask', id });
   loadData();
 }
