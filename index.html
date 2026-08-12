@@ -1474,7 +1474,7 @@ const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
 };
 
-let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null, committeeInspections: [], committeeInspectionNoItems: [], trainingMatrix: null, incidentEntries: [] };
+let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null, committeeInspections: [], committeeInspectionNoItems: [], trainingMatrix: null, incidentEntries: [], leaveRecords: [], leaveSettings: null };
 let currentCategory = 'Dashboard';
 let editingTaskId = null;
 const QUARTERS = ['Q1','Q2','Q3','Q4'];
@@ -1638,7 +1638,7 @@ function openInspectionSection(sectionName){
   window.open('inspection.html?section=' + encodeURIComponent(sectionName) + '&month=' + monthKey, '_blank');
 }
 
-/* ---------------- Personal leave tracker v2 (localStorage only) ---------------- */
+/* ---------------- Personal leave tracker v2 (Google Sheets backend) ---------------- */
 
 const PL_WORK_HOURS = 8;
 const PL_TYPES = ['Annual Leave', 'Medical Leave', 'Hospitalization', 'Compassionate Leave'];
@@ -1655,26 +1655,21 @@ const PL_ACCENTS = {
   'Compassionate Leave': ['#7c3aed', '#f5f3ff']
 };
 const PL_DEFAULT_SETTINGS = { annual: 14, medical: 14, hospitalization: 60, compassionate: 3, carryDays: 0, carryHours: 0, openingUsed: 0 };
-const PL_SETTINGS_KEY = 'sci_hse_leave_settings_v2';
-const PL_RECORDS_KEY = 'sci_hse_leave_records_v2';
 
 function getPlSettings(){
-  try {
-    const raw = localStorage.getItem(PL_SETTINGS_KEY);
-    if (raw) return Object.assign({}, PL_DEFAULT_SETTINGS, JSON.parse(raw));
-  } catch(e){}
-  return Object.assign({}, PL_DEFAULT_SETTINGS);
+  return Object.assign({}, PL_DEFAULT_SETTINGS, STATE.leaveSettings || {});
 }
-function setPlSettings(s){ try { localStorage.setItem(PL_SETTINGS_KEY, JSON.stringify(s)); } catch(e){} }
 
 function getPlRecords(){
-  try {
-    const raw = localStorage.getItem(PL_RECORDS_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e){}
-  return [];
+  return (STATE.leaveRecords || []).map(r => ({
+    id: r.ID,
+    type: r.Type,
+    date: r.Date,
+    unit: r.Unit || 'days',
+    amount: Number(r.Amount) || 0,
+    remark: r.Remark || ''
+  }));
 }
-function setPlRecords(r){ try { localStorage.setItem(PL_RECORDS_KEY, JSON.stringify(r)); } catch(e){} }
 
 // Converts a (possibly fractional) day count into a readable "X hari Y jam 30 minit" label.
 function plFormatDuration(days){
@@ -1765,10 +1760,9 @@ function renderPlRecords(){
     box.innerHTML = '<div class="empty" style="text-align:center; padding:14px 0;">Tiada rekod cuti lagi</div>';
     return;
   }
-  const indexed = records.map((r, i) => ({ r, i }));
-  indexed.sort((a, b) => String(b.r.date || '').localeCompare(String(a.r.date || '')));
+  const sorted = records.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
 
-  box.innerHTML = indexed.map(({ r, i }) => `
+  box.innerHTML = sorted.map(r => `
     <div class="pl-line">
       <div class="pl-line-left">
         <b>${escapeHtml(r.type)}</b>
@@ -1776,7 +1770,7 @@ function renderPlRecords(){
       </div>
       <div class="pl-line-right">
         <b>${plRecordLabel(r)}</b>
-        <button class="pl-delete" onclick="plDeleteRecord(${i})" title="Padam rekod"></button>
+        <button class="pl-delete" onclick="plDeleteRecord('${String(r.id).replace(/'/g,"\\'")}')" title="Padam rekod"></button>
       </div>
     </div>
   `).join('');
@@ -1890,19 +1884,22 @@ function plShowSettings(){
   document.body.appendChild(modal);
 }
 
-function plSaveSettings(){
-  const s = getPlSettings();
-  s.annual = Number(document.getElementById('plSetAnnual').value) || 0;
-  s.medical = Number(document.getElementById('plSetMedical').value) || 0;
-  s.hospitalization = Number(document.getElementById('plSetHosp').value) || 0;
-  s.compassionate = Number(document.getElementById('plSetComp').value) || 0;
-  s.carryDays = Number(document.getElementById('plSetCarryDays').value) || 0;
-  s.carryHours = Number(document.getElementById('plSetCarryHours').value) || 0;
-  s.openingUsed = Number(document.getElementById('plSetOpeningUsed').value) || 0;
-  setPlSettings(s);
+async function plSaveSettings(){
+  const settings = {
+    annual: Number(document.getElementById('plSetAnnual').value) || 0,
+    medical: Number(document.getElementById('plSetMedical').value) || 0,
+    hospitalization: Number(document.getElementById('plSetHosp').value) || 0,
+    compassionate: Number(document.getElementById('plSetComp').value) || 0,
+    carryDays: Number(document.getElementById('plSetCarryDays').value) || 0,
+    carryHours: Number(document.getElementById('plSetCarryHours').value) || 0,
+    openingUsed: Number(document.getElementById('plSetOpeningUsed').value) || 0
+  };
+  const saveBtn = document.querySelector('.pl-settings-save');
+  if (saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Menyimpan...'; }
+  await apiPost(Object.assign({ action: 'saveLeaveSettings' }, settings));
   const overlay = document.getElementById('plSettingsOverlay');
   if (overlay) overlay.remove();
-  renderPersonalLeave();
+  loadData();
 }
 
 function plPopulateHoursInput(){
@@ -1931,7 +1928,7 @@ function togglePlUnit(){
   }
 }
 
-function addPlRecord(){
+async function addPlRecord(){
   const type = document.getElementById('plType').value;
   const date = document.getElementById('plDate').value;
   const unit = document.getElementById('plUnit').value;
@@ -1946,24 +1943,20 @@ function addPlRecord(){
     return;
   }
 
-  const records = getPlRecords();
-  records.push({ type, date, unit, amount, remark });
-  setPlRecords(records);
+  await apiPost({ action: 'addLeaveRecord', type, date, unit, amount, remark });
 
   document.getElementById('plDate').value = '';
   daysInput.value = '';
   if (hoursInput.options.length) hoursInput.selectedIndex = 0;
   remarkInput.value = '';
 
-  renderPersonalLeave();
+  loadData();
 }
 
-function plDeleteRecord(index){
+async function plDeleteRecord(id){
   if (!confirm('Padam rekod cuti ini?')) return;
-  const records = getPlRecords();
-  records.splice(index, 1);
-  setPlRecords(records);
-  renderPersonalLeave();
+  await apiPost({ action: 'deleteLeaveRecord', id });
+  loadData();
 }
 
 function renderCommitteeNoItemsList(){
