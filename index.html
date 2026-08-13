@@ -1576,11 +1576,9 @@ function switchCategory(category, el){
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCard = document.getElementById('committeeNoItemsCard');
   const personalCard = document.getElementById('personalCard');
-
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonal) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCard) noItemsCard.style.display = (!isDashboard && category === 'Monthly Inspection') ? 'block' : 'none';
-
   // Personal is a standalone card outside mainBoardCard, so it must
   // always be explicitly hidden when leaving the Personal menu.
   if(personalCard) personalCard.style.display = isPersonal ? 'block' : 'none';
@@ -1616,7 +1614,6 @@ function switchCategory(category, el){
   if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
   if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
   if(othersLinkBox) othersLinkBox.style.display = isOthers ? 'flex' : 'none';
-  if(personalCard) personalCard.style.display = isPersonalItem ? 'block' : 'none';
   if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
   if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
   if(obsSubCard) obsSubCard.style.display = isObsFeed ? 'block' : 'none';
@@ -1689,7 +1686,7 @@ const PL_ACCENTS = {
   'Hospitalization': ['#dc2626', '#fef2f2'],
   'Compassionate Leave': ['#7c3aed', '#f5f3ff']
 };
-const PL_DEFAULT_SETTINGS = { annual: 14, medical: 14, hospitalization: 60, compassionate: 3, carryDays: 0, carryHours: 0, openingUsed: 0 };
+const PL_DEFAULT_SETTINGS = { annual: 14, medical: 14, hospitalization: 60, compassionate: 3, carryDays: 0, carryHours: 0, openingUsed: 0, openingUsedHours: 0 };
 
 function getPlSettings(){
   return Object.assign({}, PL_DEFAULT_SETTINGS, STATE.leaveSettings || {});
@@ -1750,7 +1747,8 @@ function plGetCarryForward(){
   return (Number(s.carryDays) || 0) + (Number(s.carryHours) || 0) / PL_WORK_HOURS;
 }
 function plGetOpeningUsed(){
-  return Number(getPlSettings().openingUsed) || 0;
+  const s = getPlSettings();
+  return (Number(s.openingUsed) || 0) + (Number(s.openingUsedHours) || 0) / PL_WORK_HOURS;
 }
 // Annual Leave accrues monthly; leave earned in the current month isn't usable until next month.
 function plAnnualAccrued(){
@@ -1861,8 +1859,10 @@ function plShowSettings(){
   modal.id = 'plSettingsOverlay';
   modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 
-  const hourOpts = [0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5]
-    .map(h => `<option value="${h}" ${Number(s.carryHours) === h ? 'selected' : ''}>${h} hours</option>`).join('');
+  const buildHourOpts = (selected) => [0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5]
+    .map(h => `<option value="${h}" ${Number(selected) === h ? 'selected' : ''}>${h} hours</option>`).join('');
+  const hourOpts = buildHourOpts(s.carryHours);
+  const openingUsedHourOpts = buildHourOpts(s.openingUsedHours);
 
   modal.innerHTML = `
     <div class="pl-modal pl-settings-modal">
@@ -1906,7 +1906,10 @@ function plShowSettings(){
         </div>
         <div class="pl-setting-row">
           <div><div class="pl-setting-name">Already Used</div><div class="pl-setting-desc">Annual Leave taken before this tracker started</div></div>
-          <div class="pl-setting-inputs"><input id="plSetOpeningUsed" type="number" min="0" step="0.5" value="${s.openingUsed}"><span>days</span></div>
+          <div class="pl-setting-inputs">
+            <input id="plSetOpeningUsed" type="number" min="0" step="0.5" value="${s.openingUsed}"><span>days</span>
+            <select id="plSetOpeningUsedHours">${openingUsedHourOpts}</select>
+          </div>
         </div>
       </div>
 
@@ -1927,7 +1930,8 @@ async function plSaveSettings(){
     compassionate: Number(document.getElementById('plSetComp').value) || 0,
     carryDays: Number(document.getElementById('plSetCarryDays').value) || 0,
     carryHours: Number(document.getElementById('plSetCarryHours').value) || 0,
-    openingUsed: Number(document.getElementById('plSetOpeningUsed').value) || 0
+    openingUsed: Number(document.getElementById('plSetOpeningUsed').value) || 0,
+    openingUsedHours: Number(document.getElementById('plSetOpeningUsedHours').value) || 0
   };
   const saveBtn = document.querySelector('.pl-settings-save');
   if (saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
@@ -2116,11 +2120,9 @@ function render(){
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCardTop = document.getElementById('committeeNoItemsCard');
   const personalCard = document.getElementById('personalCard');
-
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonalCategory) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCardTop) noItemsCardTop.style.display = isInspectionCategory ? 'block' : 'none';
-
   // Personal is outside mainBoardCard; always reset its visibility on every render.
   if(personalCard) personalCard.style.display = isPersonalCategory ? 'block' : 'none';
 
@@ -2143,7 +2145,6 @@ function render(){
     if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
     if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
     if(othersLinkBox) othersLinkBox.style.display = isOthers ? 'flex' : 'none';
-    if(personalCard) personalCard.style.display = isPersonal ? 'block' : 'none';
     if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
     if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
     if(obsSubCard) obsSubCard.style.display = isObsFeed ? 'block' : 'none';
