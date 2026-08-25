@@ -1576,12 +1576,16 @@ function switchCategory(category, el){
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCard = document.getElementById('committeeNoItemsCard');
   const personalCard = document.getElementById('personalCard');
+  const obsSubCard = document.getElementById('obsSubCard');
+  const incidentSubCard = document.getElementById('incidentSubCard');
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonal) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCard) noItemsCard.style.display = (!isDashboard && category === 'Monthly Inspection') ? 'block' : 'none';
-  // Personal is a standalone card outside mainBoardCard, so it must
-  // always be explicitly hidden when leaving the Personal menu.
+  // Personal, Safety Observation and Incident Report are standalone cards outside
+  // mainBoardCard, so they must always be explicitly hidden when leaving their menu.
   if(personalCard) personalCard.style.display = isPersonal ? 'block' : 'none';
+  if(obsSubCard) obsSubCard.style.display = isReporting ? 'block' : 'none';
+  if(incidentSubCard) incidentSubCard.style.display = isReporting ? 'block' : 'none';
 
   if(isDashboard){
     renderDonut();
@@ -1608,16 +1612,12 @@ function switchCategory(category, el){
   const obsCaption=document.getElementById('obsCaption');
   const obsFeedGrid=document.getElementById('obsFeedGrid');
   const obsNotifBanner=document.getElementById('obsNotifBanner');
-  const obsSubCard=document.getElementById('obsSubCard');
-  const incidentSubCard=document.getElementById('incidentSubCard');
   const boardCols=document.getElementById('boardColumns');
   if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
   if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
   if(othersLinkBox) othersLinkBox.style.display = isOthers ? 'flex' : 'none';
   if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
   if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
-  if(obsSubCard) obsSubCard.style.display = isObsFeed ? 'block' : 'none';
-  if(incidentSubCard) incidentSubCard.style.display = isObsFeed ? 'block' : 'none';
   if(obsNotifBanner && !isObsFeed) obsNotifBanner.style.display = 'none';
   if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonalItem) ? 'none' : 'grid';
   if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
@@ -2120,11 +2120,16 @@ function render(){
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCardTop = document.getElementById('committeeNoItemsCard');
   const personalCard = document.getElementById('personalCard');
+  const obsSubCard = document.getElementById('obsSubCard');
+  const incidentSubCard = document.getElementById('incidentSubCard');
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonalCategory) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCardTop) noItemsCardTop.style.display = isInspectionCategory ? 'block' : 'none';
-  // Personal is outside mainBoardCard; always reset its visibility on every render.
+  // Personal, Safety Observation and Incident Report are outside mainBoardCard;
+  // always reset their visibility on every render.
   if(personalCard) personalCard.style.display = isPersonalCategory ? 'block' : 'none';
+  if(obsSubCard) obsSubCard.style.display = isReporting ? 'block' : 'none';
+  if(incidentSubCard) incidentSubCard.style.display = isReporting ? 'block' : 'none';
 
   if(!isDashboard){
     const isInspection = currentCategory === 'Monthly Inspection';
@@ -2139,16 +2144,12 @@ function render(){
     const othersLinkBox=document.getElementById('othersLinkBox');
     const obsCaption=document.getElementById('obsCaption');
     const obsFeedGrid=document.getElementById('obsFeedGrid');
-    const obsSubCard=document.getElementById('obsSubCard');
-    const incidentSubCard=document.getElementById('incidentSubCard');
     const boardCols=document.getElementById('boardColumns');
     if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
     if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
     if(othersLinkBox) othersLinkBox.style.display = isOthers ? 'flex' : 'none';
     if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
     if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
-    if(obsSubCard) obsSubCard.style.display = isObsFeed ? 'block' : 'none';
-    if(incidentSubCard) incidentSubCard.style.display = isObsFeed ? 'block' : 'none';
     if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonal) ? 'none' : 'grid';
     if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
     if(isObsFeed){ renderObsFeed(true); renderIncidentFeed(); }
