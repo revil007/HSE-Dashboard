@@ -685,6 +685,12 @@
   .add-task-row{
     display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;
   }
+  .task-search-row{margin-bottom:16px;}
+  .task-search-row input{
+    width:100%; box-sizing:border-box; border:1px solid var(--border); border-radius:9px;
+    padding:10px 14px; font-size:13.5px; font-family:'Inter',sans-serif; background:var(--surface);
+  }
+  .task-search-row input:focus{outline:none; border-color:var(--navy); background:#fff;}
   .add-task-row input[type=text]{
     flex:1; min-width:110px; border:1px dashed var(--border); border-radius:6px; padding:8px 10px; font-size:13px; font-family:'Inter',sans-serif;
     background:transparent;
@@ -1085,11 +1091,31 @@
     40%,60%{transform:translateX(5px);}
   }
   .login-box.shake{animation:shake 0.5s;}
+
+  .loading-spinner{
+    width:34px; height:34px; margin:0 auto;
+    border:3px solid var(--surface); border-top-color:var(--navy); border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .sync-indicator{
+    display:none; align-items:center; gap:6px; font-size:11px; color:#9AA6B8;
+    position:fixed; top:calc(env(safe-area-inset-top) + 8px); right:12px; z-index:60;
+    background:rgba(23,32,51,0.92); padding:5px 10px; border-radius:20px;
+  }
+  .sync-indicator.show{display:flex;}
+  .sync-indicator .dot{
+    width:7px; height:7px; border-radius:50%; background:var(--yellow);
+    animation:pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.3;}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
+<div class="sync-indicator" id="syncIndicator"><span class="dot"></span> Syncing…</div>
 <div class="login-gate" id="loginGate">
   <div class="login-box" id="loginBox">
     <div class="mark">HSE</div>
@@ -1098,6 +1124,15 @@
     <input type="password" id="loginPasswordInput" placeholder="Password" autocomplete="current-password">
     <button onclick="attemptLogin()">Login</button>
     <div class="error" id="loginError">Incorrect password. Please try again.</div>
+  </div>
+</div>
+
+<div class="login-gate" id="loadingGate" style="display:none;">
+  <div class="login-box" style="text-align:center;">
+    <div class="mark" style="margin-bottom:14px;">HSE</div>
+    <div class="loading-spinner"></div>
+    <p style="margin-top:14px; margin-bottom:0;">Loading dashboard data…</p>
+    <p style="font-size:11px; color:var(--muted); margin-top:4px;">This can take a few seconds on first load</p>
   </div>
 </div>
 
@@ -1213,9 +1248,13 @@
         <div id="othersLinkBox" style="display:none;">
           <a class="card-link-btn" href="https://sites.google.com/view/sci-hse-dashboard/home" target="_blank" rel="noopener">📚 Safety Documentation ↗</a>
         </div>
+        <button class="card-link-btn" id="exportCsvBtn" onclick="exportBoardCsv()" style="display:none; border:none; cursor:pointer;">⬇ Export CSV</button>
       </div>
       <div class="caption" id="inspectionCaption" style="display:none;">Click a section to start this month's inspection — status auto-resets every new month</div>
       <div class="inspection-sections" id="inspectionSectionsGrid" style="display:none;"></div>
+      <div class="task-search-row" id="taskSearchRow" style="display:none;">
+        <input type="text" id="taskSearchInput" placeholder="🔍 Search tasks by name or assignee…" oninput="renderBoard()">
+      </div>
       <div class="board-columns" id="boardColumns">
         <div class="column" id="col-todo">
           <h2>To Do <span class="count mono" id="count-todo">0</span></h2>
@@ -1328,6 +1367,7 @@
     </section>
 
     <div id="dashboardView" style="display:flex; flex-direction:column; gap:24px;">
+      <div id="lastSyncedLabel" style="font-size:11.5px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-bottom:-10px;"></div>
       <section class="panels">
         <div class="panel">
           <h3 style="margin-bottom:2px; padding-bottom:0; border-bottom:none;">Task Status</h3>
@@ -1620,6 +1660,10 @@ function switchCategory(category, el){
   if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
   if(obsNotifBanner && !isObsFeed) obsNotifBanner.style.display = 'none';
   if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonalItem) ? 'none' : 'grid';
+  const taskSearchRow = document.getElementById('taskSearchRow');
+  if(taskSearchRow) taskSearchRow.style.display = (isInspection || isObsFeed || isPersonalItem) ? 'none' : 'block';
+  const exportBtn = document.getElementById('exportCsvBtn');
+  if(exportBtn) exportBtn.style.display = (isInspection || isObsFeed || isPersonalItem) ? 'none' : 'inline-flex';
   if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
   if(isObsFeed){ renderObsFeed(true); renderIncidentFeed(); }
   if(isPersonalItem) renderPersonalLeave();
@@ -2094,13 +2138,29 @@ async function apiPost(payload){
   return res.json();
 }
 
+function updateLastSyncedLabel(){
+  const el = document.getElementById('lastSyncedLabel');
+  if (!el) return;
+  const now = new Date();
+  el.textContent = 'Data as of ' + now.toLocaleTimeString('en-MY', { hour12:false }) + ' · cached up to 5 min';
+}
+
+let _hasLoadedOnce = false;
+
 async function loadData(){
   const _clientStart = performance.now();
+  const loadingGate = document.getElementById('loadingGate');
+  const syncIndicator = document.getElementById('syncIndicator');
+  if (!_hasLoadedOnce && loadingGate) loadingGate.style.display = 'flex';
+  if (_hasLoadedOnce && syncIndicator) syncIndicator.classList.add('show');
+
   try{
     STATE = await apiGet();
   }catch(err){
     console.error('Failed to load data', err);
     document.querySelectorAll('.cards').forEach(c => c.innerHTML = '<div class="empty">Could not connect. Check CONFIG.API_URL.</div>');
+    if (loadingGate) loadingGate.style.display = 'none';
+    if (syncIndicator) syncIndicator.classList.remove('show');
     return;
   }
   const roundTripMs = Math.round(performance.now() - _clientStart);
@@ -2108,6 +2168,10 @@ async function loadData(){
     console.log('%c[HSE Dashboard] Server timing breakdown (ms):', 'font-weight:bold;color:#2a78d6;', STATE._timings);
     console.log('%c[HSE Dashboard] Total round-trip (client, incl. network):', 'font-weight:bold;color:#2a78d6;', roundTripMs + 'ms');
   }
+  _hasLoadedOnce = true;
+  updateLastSyncedLabel();
+  if (loadingGate) loadingGate.style.display = 'none';
+  if (syncIndicator) syncIndicator.classList.remove('show');
   render();
 }
 
@@ -2151,6 +2215,10 @@ function render(){
     if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
     if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
     if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonal) ? 'none' : 'grid';
+    const taskSearchRow = document.getElementById('taskSearchRow');
+    if(taskSearchRow) taskSearchRow.style.display = (isInspection || isObsFeed || isPersonal) ? 'none' : 'block';
+    const exportBtn = document.getElementById('exportCsvBtn');
+    if(exportBtn) exportBtn.style.display = (isInspection || isObsFeed || isPersonal) ? 'none' : 'inline-flex';
     if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
     if(isObsFeed){ renderObsFeed(true); renderIncidentFeed(); }
     if(isPersonal) renderPersonalLeave();
@@ -2185,12 +2253,64 @@ function renderMeetingQuarters(){
   `).join('');
 }
 
+function exportBoardCsv(){
+  const searchInput = document.getElementById('taskSearchInput');
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+  const rows = (STATE.tasks || [])
+    .filter(t=>{
+      if(currentCategory==='All Tasks') return true;
+      return (t.Category || 'Monthly Inspection')===currentCategory;
+    })
+    .filter(t=>{
+      if(!query) return true;
+      const haystack = ((t.Task||'') + ' ' + (t.AssignedTo||'')).toLowerCase();
+      return haystack.includes(query);
+    });
+
+  if(rows.length === 0){
+    alert('No tasks to export.');
+    return;
+  }
+
+  const escapeCsv = (val) => {
+    const s = String(val ?? '');
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+  };
+
+  const header = ['Task','Category','Status','DueDate','AssignedTo','DateAdded'];
+  const lines = [header.join(',')];
+  rows.forEach(t => {
+    lines.push([t.Task, t.Category, t.Status, t.DueDate, t.AssignedTo, t.DateAdded].map(escapeCsv).join(','));
+  });
+
+  const csv = lines.join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `${currentCategory.replace(/\s+/g,'_')}_tasks_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function renderBoard(){
+  const searchInput = document.getElementById('taskSearchInput');
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
   const groups = { todo: [], progress: [], done: [] };
   (STATE.tasks || [])
     .filter(t=>{
       if(currentCategory==='All Tasks') return true;
       return (t.Category || 'Monthly Inspection')===currentCategory;
+    })
+    .filter(t=>{
+      if(!query) return true;
+      const haystack = ((t.Task||'') + ' ' + (t.AssignedTo||'')).toLowerCase();
+      return haystack.includes(query);
     })
     .forEach(t => {
       const key = STATUS_MAP[t.Status] || 'todo';
@@ -2202,7 +2322,7 @@ function renderBoard(){
     document.getElementById('count-' + key).textContent = groups[key].length;
     col.innerHTML = '';
     if (groups[key].length === 0){
-      col.innerHTML = '<div class="empty">No tasks</div>';
+      col.innerHTML = `<div class="empty">${query ? 'No matches' : 'No tasks'}</div>`;
       return;
     }
     groups[key].forEach(t => {
@@ -3321,6 +3441,13 @@ function initLoginGate(){
 }
 
 initLoginGate();
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  document.querySelectorAll('.pl-overlay').forEach(o => o.remove());
+  closeMoreSheet();
+  closeNotesSheet();
+});
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
