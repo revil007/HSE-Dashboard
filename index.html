@@ -169,7 +169,8 @@
     border-color:var(--navy);
     box-shadow:0 6px 16px rgba(21,28,39,.28);
   }
-  nav.sidebar .item .icon{font-size:16px;}
+  nav.sidebar .item .icon{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; flex-shrink:0;}
+  nav.sidebar .item .icon svg{width:100%; height:100%; display:block;}
   nav.sidebar .item{position:relative;}
   .nav-badge{
     margin-left:auto; background:var(--red); color:#fff; font-size:10.5px; font-weight:700;
@@ -364,7 +365,8 @@
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     width:38px; height:38px; flex-shrink:0;
     border:1px solid var(--border); border-radius:10px; background:#fff; color:#475569;
-    font-size:18px; cursor:pointer; box-shadow:0 2px 7px rgba(15,23,42,.05);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; box-shadow:0 2px 7px rgba(15,23,42,.05);
     transition:.15s ease;
   }
   .pl-settings-btn:hover{transform:translateY(-1px); background:var(--surface); border-color:#cbd5e1;}
@@ -553,6 +555,7 @@
     height:100%; color:var(--muted); gap:8px; text-align:center;
   }
   .insp-chart-empty .icon{font-size:28px; opacity:0.5;}
+  .insp-chart-empty .icon svg{width:30px; height:30px; display:block; margin:0 auto;}
   .insp-chart-empty .msg{font-size:13.5px; font-weight:600;}
   .insp-chart-empty .sub{font-size:12px; font-family:'IBM Plex Mono',monospace;}
   .board-header{
@@ -636,10 +639,12 @@
   .task-card .card-top .name{flex:1;}
   .card-icons{display:flex; gap:4px; flex-shrink:0;}
   .icon-btn-sm{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
     background:none; border:1px solid var(--border); border-radius:6px;
-    width:24px; height:24px; font-size:12px; cursor:pointer;
+    width:24px; height:24px; min-width:0; max-width:24px; box-sizing:border-box;
+    font-size:12px; cursor:pointer;
     display:flex; align-items:center; justify-content:center; color:var(--muted);
-    padding:0;
+    padding:0; flex-shrink:0;
   }
   .icon-btn-sm:hover{background:#fff; color:var(--ink);}
   .icon-btn-sm.danger:hover{background:var(--red-bg); color:var(--red); border-color:var(--red);}
@@ -654,9 +659,11 @@
     border-top:1px solid var(--border);
   }
   .icon-btn{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
     background:none; border:1px solid var(--border); border-radius:6px;
     padding:4px 9px; font-size:11px; font-weight:600; cursor:pointer; color:var(--muted);
     font-family:'Inter',sans-serif;
+    display:inline-flex; align-items:center; gap:3px;
   }
   .icon-btn:hover{background:#fff; color:var(--ink);}
   .icon-btn.danger:hover{background:var(--red-bg); color:var(--red); border-color:var(--red);}
@@ -872,7 +879,8 @@
     color:#9AA6B8; transition:color .15s ease, background .15s ease;
   }
   .bn-item.active{color:var(--yellow); background:rgba(255,255,255,0.06);}
-  .bn-icon{font-size:19px; line-height:1;}
+  .bn-icon{display:flex; align-items:center; justify-content:center; width:19px; height:19px; line-height:1;}
+  .bn-icon svg{width:100%; height:100%; display:block;}
   .bn-label{font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.02em;}
   .bn-badge{
     position:absolute; top:2px; right:calc(50% - 20px); min-width:16px; height:16px; padding:0 4px;
@@ -901,7 +909,8 @@
     display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:10px;
     font-size:15px; font-weight:600; color:var(--ink); cursor:pointer;
   }
-  .more-sheet-item .icon{font-size:18px;}
+  .more-sheet-item .icon{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; flex-shrink:0;}
+  .more-sheet-item .icon svg{width:100%; height:100%; display:block;}
   .more-sheet-item.active{background:var(--surface); color:var(--navy);}
   .more-sheet-item:active{background:var(--surface);}
 
@@ -1110,11 +1119,35 @@
     animation:pulse 1s ease-in-out infinite;
   }
   @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.3;}}
+
+  .toast-container{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+    z-index:300; display:flex; flex-direction:column; gap:8px; align-items:center;
+    pointer-events:none; width:100%; max-width:360px; padding:0 16px; box-sizing:border-box;
+  }
+  .toast{
+    display:flex; align-items:center; gap:9px; background:#171B22; color:#fff;
+    padding:11px 16px; border-radius:10px; font-size:13px; font-weight:600;
+    box-shadow:0 10px 28px rgba(15,23,42,.28); animation:toastIn .25s ease, toastOut .25s ease 2.5s forwards;
+    max-width:100%;
+  }
+  .toast.toast-error{background:#8a1f24;}
+  .toast .toast-icon{
+    width:18px; height:18px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:11px;
+    background:rgba(255,255,255,0.15);
+  }
+  @keyframes toastIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes toastOut{to{opacity:0; transform:translateY(-6px);}}
+  @media (max-width:700px){
+    .toast-container{bottom:82px;}
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
+<div class="toast-container" id="toastContainer"></div>
 <div class="sync-indicator" id="syncIndicator"><span class="dot"></span> Syncing…</div>
 <div class="login-gate" id="loginGate">
   <div class="login-box" id="loginBox">
@@ -1171,35 +1204,35 @@
 
 <nav class="bottom-nav" id="bottomNav">
   <div class="bn-item active" data-category="Dashboard" onclick="switchCategory('Dashboard', this)">
-    <span class="bn-icon">📊</span><span class="bn-label">Dashboard</span>
+    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span><span class="bn-label">Dashboard</span>
   </div>
   <div class="bn-item" data-category="All Tasks" onclick="switchCategory('All Tasks', this)">
-    <span class="bn-icon">🗂️</span><span class="bn-label">Tasks</span>
+    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></span><span class="bn-label">Tasks</span>
   </div>
   <div class="bn-item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)">
-    <span class="bn-icon">📋</span><span class="bn-label">Inspect</span>
+    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></span><span class="bn-label">Inspect</span>
     <span class="bn-dot" id="committeeBottomNavDot" style="display:none;"></span>
   </div>
   <div class="bn-item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)">
-    <span class="bn-icon">👁</span><span class="bn-label">Reporting</span>
+    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span><span class="bn-label">Reporting</span>
     <span class="bn-dot" id="obsBottomNavBadge" style="display:none;"></span>
   </div>
   <div class="bn-item" id="bnMoreBtn" onclick="toggleMoreSheet()">
-    <span class="bn-icon">⋯</span><span class="bn-label">More</span>
+    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg></span><span class="bn-label">More</span>
   </div>
 </nav>
 
 <div class="more-sheet-backdrop" id="moreSheetBackdrop" onclick="closeMoreSheet()"></div>
 <div class="more-sheet" id="moreSheet">
   <div class="more-sheet-handle"></div>
-  <div class="more-sheet-item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
-  <div class="more-sheet-item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
-  <div class="more-sheet-item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon">📁</span> Others</div>
-  <div class="more-sheet-item" data-category="Personal" onclick="switchCategory('Personal', this)"><span class="icon">🧑</span> Personal</div>
+  <div class="more-sheet-item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg></span> Training</div>
+  <div class="more-sheet-item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span> Meetings</div>
+  <div class="more-sheet-item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span> Others</div>
+  <div class="more-sheet-item" data-category="Personal" onclick="switchCategory('Personal', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span> Personal</div>
 </div>
 
 <button class="notes-fab" id="notesFab" onclick="toggleNotesSheet()" title="Personal Notes">
-  📌
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
   <span class="notes-fab-badge" id="notesFabBadge" style="display:none;"></span>
 </button>
 
@@ -1207,7 +1240,7 @@
 <div class="notes-sheet" id="notesSheet">
   <div class="more-sheet-handle"></div>
   <div class="notes-sheet-head">
-    <h3>📌 Personal Notes</h3>
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" style="display:inline-block;vertical-align:-2px;margin-right:4px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>Personal Notes</h3>
     <button class="notes-sheet-close" onclick="closeNotesSheet()" title="Close"></button>
   </div>
   <div class="notes-list" id="notesListMobile"></div>
@@ -1220,18 +1253,18 @@
 <div class="layout">
   <div class="sidebar-col">
     <nav class="sidebar">
-      <div class="item active" data-category="Dashboard" onclick="switchCategory('Dashboard', this)"><span class="icon">📊</span> Dashboard</div>
-      <div class="item" data-category="All Tasks" onclick="switchCategory('All Tasks', this)"><span class="icon">🗂️</span> All Tasks</div>
-      <div class="item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon">📋</span> Workplace Inspection <span class="side-dot" id="committeeSideNavDot" style="display:none;"></span></div>
-      <div class="item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon">🎓</span> Training</div>
-      <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon">📅</span> Meetings</div>
-      <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon">👁</span> Reporting <span class="nav-badge" id="obsNavBadge" style="display:none;">0</span></div>
-      <div class="item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon">📁</span> Others</div>
-      <div class="item" data-category="Personal" onclick="switchCategory('Personal', this)"><span class="icon">🧑</span> Personal</div>
+      <div class="item active" data-category="Dashboard" onclick="switchCategory('Dashboard', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span> Dashboard</div>
+      <div class="item" data-category="All Tasks" onclick="switchCategory('All Tasks', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></span> All Tasks</div>
+      <div class="item" data-category="Monthly Inspection" onclick="switchCategory('Monthly Inspection', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></span> Workplace Inspection <span class="side-dot" id="committeeSideNavDot" style="display:none;"></span></div>
+      <div class="item" data-category="Training" onclick="switchCategory('Training', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg></span> Training</div>
+      <div class="item" data-category="Meetings" onclick="switchCategory('Meetings', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span> Meetings</div>
+      <div class="item" data-category="Safety Observations" onclick="switchCategory('Safety Observations', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span> Reporting <span class="nav-badge" id="obsNavBadge" style="display:none;">0</span></div>
+      <div class="item" data-category="Others" onclick="switchCategory('Others', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span> Others</div>
+      <div class="item" data-category="Personal" onclick="switchCategory('Personal', this)"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span> Personal</div>
     </nav>
 
     <aside class="notes-widget">
-      <h3>📌 Personal Notes</h3>
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" style="display:inline-block;vertical-align:-2px;margin-right:4px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>Personal Notes</h3>
       <div class="notes-list" id="notesList"></div>
       <div class="note-add">
         <input type="text" id="newNoteInput" placeholder="Reminder...">
@@ -1246,14 +1279,14 @@
         <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">Dashboard</h2>
         <div class="meeting-date-box" id="meetingDateBox"></div>
         <div id="othersLinkBox" style="display:none;">
-          <a class="card-link-btn" href="https://sites.google.com/view/sci-hse-dashboard/home" target="_blank" rel="noopener">📚 Safety Documentation ↗</a>
+          <a class="card-link-btn" href="https://sites.google.com/view/sci-hse-dashboard/home" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Safety Documentation ↗</a>
         </div>
-        <button class="card-link-btn" id="exportCsvBtn" onclick="exportBoardCsv()" style="display:none; border:none; cursor:pointer;">⬇ Export CSV</button>
+        <button class="card-link-btn" id="exportCsvBtn" onclick="exportBoardCsv()" style="display:none; border:none; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Export CSV</button>
       </div>
       <div class="caption" id="inspectionCaption" style="display:none;">Click a section to start this month's inspection — status auto-resets every new month</div>
       <div class="inspection-sections" id="inspectionSectionsGrid" style="display:none;"></div>
       <div class="task-search-row" id="taskSearchRow" style="display:none;">
-        <input type="text" id="taskSearchInput" placeholder="🔍 Search tasks by name or assignee…" oninput="renderBoard()">
+        <input type="text" id="taskSearchInput" placeholder="Search tasks by name or assignee…" oninput="renderBoard()">
       </div>
       <div class="board-columns" id="boardColumns">
         <div class="column" id="col-todo">
@@ -1305,7 +1338,7 @@
           <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Personal</h3>
           <div class="caption" style="margin:0;">Leave records — leave balance overview</div>
         </div>
-        <button class="pl-settings-btn" onclick="plShowSettings()" title="Leave Settings" aria-label="Leave Settings">⚙</button>
+        <button class="pl-settings-btn" onclick="plShowSettings()" title="Leave Settings" aria-label="Leave Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
       </div>
 
       <div class="pl-leave-grid" id="plLeaveGrid"></div>
@@ -1359,7 +1392,7 @@
       <div style="margin-bottom:10px; padding-bottom:10px; border-bottom:2px solid var(--surface);">
         <div class="chead-top">
           <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin:0;">HSE-CPI</h3>
-          <a class="card-link-btn" href="committee-inspection.html" target="_blank" rel="noopener">🔍 Open Checklist ↗</a>
+          <a class="card-link-btn" href="committee-inspection.html" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>Open Checklist ↗</a>
         </div>
         <div class="caption" style="margin:4px 0 0;">HSE Committee pre-meeting inspection</div>
       </div>
@@ -1416,7 +1449,7 @@
           <div class="insp-chart-wrap">
             <canvas id="inspectionChart"></canvas>
             <div class="insp-chart-empty" id="inspectionChartEmpty" style="display:none;">
-              <div class="icon">📋</div>
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30" height="30" style=""><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div>
               <div class="msg">No inspection records yet</div>
               <div class="sub">Complete a section under "Monthly Inspection" to see scores here</div>
             </div>
@@ -1438,7 +1471,7 @@
           <div class="insp-chart-wrap">
             <canvas id="committeeChart"></canvas>
             <div class="insp-chart-empty" id="committeeChartEmpty" style="display:none;">
-              <div class="icon">🔍</div>
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30" height="30" style=""><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
               <div class="msg">No committee inspection records yet</div>
               <div class="sub">Complete a section under "HSE Committee Pre-Meeting Inspection" to see scores here</div>
             </div>
@@ -1456,7 +1489,7 @@
         <div class="trend-chart-wrap tall" style="margin-top:10px;">
           <canvas id="siChart"></canvas>
           <div class="insp-chart-empty" id="siEmpty" style="display:none;">
-            <div class="icon">🪪</div>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30" height="30" style=""><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></div>
             <div class="msg">No induction data yet</div>
             <div class="sub">Data will appear once the sheet is populated</div>
           </div>
@@ -1495,7 +1528,7 @@
           </div>
         </div>
         <div class="insp-chart-empty" id="trainingMatrixEmpty" style="display:none;">
-          <div class="icon">🎓</div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30" height="30" style=""><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg></div>
           <div class="msg">No training matrix data yet</div>
           <div class="sub">Data will appear once the Training Matrix sheet is populated</div>
         </div>
@@ -1513,7 +1546,7 @@
           <div class="trend-chart-wrap" style="margin-top:10px;">
             <canvas id="hseIncidentChart"></canvas>
             <div class="insp-chart-empty" id="hseIncidentEmpty" style="display:none;">
-              <div class="icon">📈</div>
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30" height="30" style=""><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></div>
               <div class="msg">No HSE statistic data yet</div>
               <div class="sub">Data will appear once the sheet is populated</div>
             </div>
@@ -1525,7 +1558,7 @@
           <div class="trend-chart-wrap" style="margin-top:10px;">
             <canvas id="hseRatesChart"></canvas>
             <div class="insp-chart-empty" id="hseRatesEmpty" style="display:none;">
-              <div class="icon">📈</div>
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30" height="30" style=""><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></div>
               <div class="msg">No rate data yet</div>
               <div class="sub">Data will appear once the sheet is populated</div>
             </div>
@@ -1701,7 +1734,7 @@ function renderInspectionSections(){
     return `
       <div class="insp-card ${isDone ? 'done' : ''}" ${isDone ? '' : `onclick="openInspectionSection('${sec.name.replace(/'/g,"\\'")}')"`}>
         <div class="i-name">${sec.name}</div>
-        <span class="i-status ${isDone ? 'done' : 'pending'}">${isDone ? '✓ Done' : 'Pending'}</span>
+        <span class="i-status ${isDone ? 'done' : 'pending'}">${isDone ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><polyline points="20 6 9 17 4 12"></polyline></svg> Done' : 'Pending'}</span>
         ${isDone
           ? `<div class="i-meta">Score: ${rec.ScorePercent}% · ${rec.Date}</div>`
           : `<div class="i-meta">Click to start inspection →</div>`}
@@ -1912,7 +1945,7 @@ function plShowSettings(){
     <div class="pl-modal pl-settings-modal">
       <button class="pl-close" onclick="this.closest('.pl-overlay').remove()" title="Close"></button>
       <div class="pl-modal-head">
-        <div class="pl-modal-icon">⚙️</div>
+        <div class="pl-modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
         <div>
           <div class="pl-modal-title">Leave Settings</div>
           <div class="pl-modal-sub">Manage entitlement and Annual Leave balance</div>
@@ -1982,6 +2015,7 @@ async function plSaveSettings(){
   await apiPost(Object.assign({ action: 'saveLeaveSettings' }, settings));
   const overlay = document.getElementById('plSettingsOverlay');
   if (overlay) overlay.remove();
+  showToast('Leave settings saved');
   loadData();
 }
 
@@ -2050,12 +2084,14 @@ async function addPlRecord(){
   if (form) form.style.display = 'none';
   if (btn){ btn.textContent = '+ Add Leave Record'; btn.classList.remove('open'); }
 
+  showToast('Leave record added');
   loadData();
 }
 
 async function plDeleteRecord(id){
   if (!confirm('Delete this leave record?')) return;
   await apiPost({ action: 'deleteLeaveRecord', id });
+  showToast('Leave record deleted');
   loadData();
 }
 
@@ -2112,6 +2148,7 @@ async function deleteCommitteeInspectionGroup(inspectionId){
   if (!inspectionId) return;
   if (!confirm('Delete this inspection record along with all related "No" items? This action cannot be undone.')) return;
   await apiPost({ action: 'deleteCommitteeInspection', inspectionId });
+  showToast('Inspection record deleted');
   loadData();
 }
 
@@ -2138,6 +2175,17 @@ async function apiPost(payload){
   return res.json();
 }
 
+function showToast(message, isError){
+  const container = document.getElementById('toastContainer');
+  if(!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast' + (isError ? ' toast-error' : '');
+  const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  toast.innerHTML = `<span class="toast-icon">${isError ? '!' : checkSvg}</span><span>${escapeHtml(message)}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 2900);
+}
+
 function updateLastSyncedLabel(){
   const el = document.getElementById('lastSyncedLabel');
   if (!el) return;
@@ -2161,6 +2209,7 @@ async function loadData(){
     document.querySelectorAll('.cards').forEach(c => c.innerHTML = '<div class="empty">Could not connect. Check CONFIG.API_URL.</div>');
     if (loadingGate) loadingGate.style.display = 'none';
     if (syncIndicator) syncIndicator.classList.remove('show');
+    if (_hasLoadedOnce) showToast('Could not sync — check your connection', true);
     return;
   }
   const roundTripMs = Math.round(performance.now() - _clientStart);
@@ -2246,7 +2295,7 @@ function renderMeetingQuarters(){
     <div class="quarter-card ${m.done ? 'done' : ''}" id="qcard-${m.quarter}">
       <div class="q-top">
         <span class="q-label">${m.quarter}</span>
-        <button class="q-done-btn" onclick="toggleMeetingDone('${m.quarter}')">${m.done ? '✓ Done' : 'Mark Done'}</button>
+        <button class="q-done-btn" onclick="toggleMeetingDone('${m.quarter}')">${m.done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><polyline points="20 6 9 17 4 12"></polyline></svg> Done' : 'Mark Done'}</button>
       </div>
       <input type="date" value="${m.expectedDate || ''}" onchange="updateMeetingDate('${m.quarter}', this.value)">
     </div>
@@ -2295,6 +2344,7 @@ function exportBoardCsv(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  showToast(`Exported ${rows.length} task${rows.length===1?'':'s'} to CSV`);
 }
 
 function renderBoard(){
@@ -2338,8 +2388,8 @@ function renderBoard(){
           <label class="edit-input small-label">Assigned to</label>
           <input type="text" class="edit-input" id="edit-assigned-${t.ID}" value="${escapeHtml(t.AssignedTo || '')}">
           <div class="actions">
-            <button class="icon-btn" onclick="saveTaskEdit('${t.ID}')">💾 Save</button>
-            <button class="icon-btn" onclick="cancelEdit()">✕ Cancel</button>
+            <button class="icon-btn" onclick="saveTaskEdit('${t.ID}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>Save</button>
+            <button class="icon-btn" onclick="cancelEdit()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>Cancel</button>
           </div>`;
         col.appendChild(card);
         return;
@@ -2354,17 +2404,17 @@ function renderBoard(){
         <div class="card-top">
           <div class="name">${escapeHtml(t.Task)}</div>
           <div class="card-icons">
-            <button class="icon-btn-sm" onclick="editTask('${t.ID}')" title="Edit">✏️</button>
-            <button class="icon-btn-sm danger" onclick="deleteTask('${t.ID}')" title="Delete">🗑️</button>
+            <button class="icon-btn-sm" onclick="editTask('${t.ID}')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="display:block;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+            <button class="icon-btn-sm danger" onclick="deleteTask('${t.ID}')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="display:block;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
           </div>
         </div>
         ${currentCategory==='All Tasks'
-          ? `<div style="font-size:11px;color:#6B7480;margin-bottom:6px;">📁 ${escapeHtml(CATEGORY_DISPLAY_NAMES[t.Category] || t.Category || 'HSE Monthly Inspection')}</div>`
+          ? `<div style="font-size:11px;color:#6B7480;margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>${escapeHtml(CATEGORY_DISPLAY_NAMES[t.Category] || t.Category || 'HSE Monthly Inspection')}</div>`
           : ''}
         ${(t.DueDate || t.AssignedTo) ? `
         <div class="meta">
-          ${t.DueDate ? `<span class="${isOverdue ? 'overdue' : ''}">📆 ${formatDate(t.DueDate)}${isOverdue ? ' (Overdue)' : ''}</span>` : ''}
-          ${t.AssignedTo ? `<span>👤 ${escapeHtml(t.AssignedTo)}</span>` : ''}
+          ${t.DueDate ? `<span class="${isOverdue ? 'overdue' : ''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>${formatDate(t.DueDate)}${isOverdue ? ' (Overdue)' : ''}</span>` : ''}
+          ${t.AssignedTo ? `<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${escapeHtml(t.AssignedTo)}</span>` : ''}
         </div>` : ''}
         <div class="row">
           <span class="badge ${key}">${STATUS_LABEL[key]}</span>
@@ -2485,7 +2535,7 @@ function renderTrend(){
     if(!emptyEl){
       emptyEl = document.createElement('div');
       emptyEl.className = 'trend-empty insp-chart-empty';
-      emptyEl.innerHTML = '<div class="icon">👁</div><div class="msg">No observation data</div><div class="sub">Records sync automatically from the Observation Form</div>';
+      emptyEl.innerHTML = '<div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30" height="30" style=""><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></div><div class="msg">No observation data</div><div class="sub">Records sync automatically from the Observation Form</div>';
       wrap.appendChild(emptyEl);
     }
     emptyEl.style.display='flex';
@@ -2752,7 +2802,7 @@ function renderHseIncidentChart(stats){
   const totalIncidents = series.reduce((sum,s) => sum + stats.metrics[s.key].months.reduce((a,v) => a + (v || 0), 0), 0);
   if(noteEl){
     if(totalIncidents === 0){
-      noteEl.textContent = '✅ No incidents reported so far.';
+      noteEl.textContent = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> No incidents reported so far.';
       noteEl.style.display = 'flex';
     } else {
       noteEl.style.display = 'none';
@@ -3171,7 +3221,7 @@ function renderObsFeed(){
     if(newEntries.length > 0){
       banner.style.display = 'flex';
       banner.innerHTML =
-        '<span class="txt">🔔 <b>' + newEntries.length + '</b> pemerhatian keselamatan baru dihantar</span>' +
+        '<span class="txt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><b>' + newEntries.length + '</b> pemerhatian keselamatan baru dihantar</span>' +
         '<button onclick="markObsSeen()">Tandakan Sudah Dibaca</button>';
     } else {
       banner.style.display = 'none';
@@ -3199,9 +3249,9 @@ function renderObsFeed(){
         </div>
         <div class="oc-desc">${escapeHtml(e.description || '—')}</div>
         <div class="oc-meta">
-          <span>📍 ${escapeHtml(e.section || '—')}</span>
-          <span>🧭 ${escapeHtml(e.location || '—')}</span>
-          ${e.reporter ? `<span>👤 ${escapeHtml(e.reporter)}</span>` : ''}
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${escapeHtml(e.section || '—')}</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>${escapeHtml(e.location || '—')}</span>
+          ${e.reporter ? `<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${escapeHtml(e.reporter)}</span>` : ''}
         </div>
       </div>`;
   }).join('');
@@ -3210,6 +3260,7 @@ function renderObsFeed(){
 async function deleteObsEntry(id){
   if (!confirm('Delete this observation record? This action cannot be undone.')) return;
   await apiPost({ action: 'deleteObservation', timestamp: id });
+  showToast('Observation deleted');
   loadData();
 }
 
@@ -3241,10 +3292,10 @@ function renderIncidentFeed(){
       </div>
       <div class="oc-desc">${escapeHtml(e.description || '—')}</div>
       <div class="oc-meta">
-        <span>📍 ${escapeHtml(e.section || e.department || '—')}</span>
-        <span>🧭 ${escapeHtml(e.location || '—')}</span>
-        ${e.reporter ? `<span>👤 ${escapeHtml(e.reporter)}</span>` : ''}
-        ${e.daysAway ? `<span>🗓️ ${escapeHtml(e.daysAway)} hari tidak bekerja</span>` : ''}
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${escapeHtml(e.section || e.department || '—')}</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>${escapeHtml(e.location || '—')}</span>
+        ${e.reporter ? `<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${escapeHtml(e.reporter)}</span>` : ''}
+        ${e.daysAway ? `<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>${escapeHtml(e.daysAway)} hari tidak bekerja</span>` : ''}
       </div>
     </div>`
   ).join('');
@@ -3253,6 +3304,7 @@ function renderIncidentFeed(){
 async function deleteIncidentEntry(id){
   if (!confirm('Delete this incident report? This action cannot be undone.')) return;
   await apiPost({ action: 'deleteIncidentReport', timestamp: id });
+  showToast('Incident report deleted');
   loadData();
 }
 
@@ -3296,6 +3348,7 @@ async function addTask(){
   if (dueDateInput) dueDateInput.value = '';
   if (assignedInput) assignedInput.value = '';
   await apiPost({ action:'addTask', task, status:'To Do', category: currentCategory, dueDate, assignedTo });
+  showToast('Task added');
   loadData();
 }
 
@@ -3323,12 +3376,14 @@ async function saveTaskEdit(id){
     assignedTo: assignedInput.value.trim()
   });
   editingTaskId = null;
+  showToast('Task updated');
   loadData();
 }
 
 async function deleteTask(id){
   if (!confirm('Delete this task?')) return;
   await apiPost({ action:'deleteTask', id });
+  showToast('Task deleted');
   loadData();
 }
 
@@ -3356,11 +3411,13 @@ async function addNote(inputId){
   if (!text) return;
   input.value = '';
   await apiPost({ action:'addNote', text });
+  showToast('Note pinned');
   loadData();
 }
 
 async function deleteNote(id){
   await apiPost({ action:'deleteNote', id });
+  showToast('Note deleted');
   loadData();
 }
 
