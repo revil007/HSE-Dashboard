@@ -2802,7 +2802,7 @@ function renderHseIncidentChart(stats){
   const totalIncidents = series.reduce((sum,s) => sum + stats.metrics[s.key].months.reduce((a,v) => a + (v || 0), 0), 0);
   if(noteEl){
     if(totalIncidents === 0){
-      noteEl.textContent = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> No incidents reported so far.';
+      noteEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> No incidents reported so far.';
       noteEl.style.display = 'flex';
     } else {
       noteEl.style.display = 'none';
