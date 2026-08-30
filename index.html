@@ -1494,15 +1494,16 @@
         <div class="insp-chart-head">
           <div>
             <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">HSE Training Matrix 2026</h3>
-            <div class="caption" style="margin:0;">Planned vs completed status, and completion rate by department</div>
+            <div class="caption" style="margin:0;">Planned, completed & upcoming status, and completion rate by department</div>
           </div>
         </div>
         <div class="training-matrix-grid" id="trainingMatrixGrid">
           <div class="training-matrix-col">
-            <div class="tm-subhead">Planned vs completed — overall</div>
+            <div class="tm-subhead">Training status — overall</div>
             <div class="tm-legend">
+              <span><i style="background:var(--navy);"></i> Planned <b id="tmPlannedTotalStat">—</b></span>
               <span><i style="background:var(--green);"></i> Completed <b id="tmCompletedStat">—</b></span>
-              <span><i style="background:#3B82A6;"></i> Planned <b id="tmPlannedStat">—</b></span>
+              <span><i style="background:#3B82A6;"></i> Upcoming <b id="tmUpcomingStat">—</b></span>
             </div>
             <div class="tm-donut-wrap">
               <div class="tm-donut-svg-wrap">
@@ -3100,7 +3101,7 @@ function renderTrainingMatrix(){
 
   const status = { completed: tm ? tm.completed : 0, planned: tm ? tm.planned : 0 };
   const deptCompletion = (tm && tm.departments ? tm.departments : [])
-    .map(function(d){ return { dept: d.department, pct: d.completionRate }; });
+    .map(function(d){ return { dept: (d.department === 'All' ? 'All Employees' : d.department), pct: d.completionRate }; });
 
   const total = status.completed + status.planned;
 
@@ -3112,8 +3113,9 @@ function renderTrainingMatrix(){
   if(grid) grid.style.display = 'grid';
   if(emptyEl) emptyEl.style.display = 'none';
 
+  document.getElementById('tmPlannedTotalStat').textContent = total;
   document.getElementById('tmCompletedStat').textContent = status.completed + ' (' + Math.round(status.completed/total*100) + '%)';
-  document.getElementById('tmPlannedStat').textContent = status.planned + ' (' + Math.round(status.planned/total*100) + '%)';
+  document.getElementById('tmUpcomingStat').textContent = status.planned + ' (' + Math.round(status.planned/total*100) + '%)';
 
   const svg = document.getElementById('tmStatusDonut');
   const centerN = document.querySelector('#tmStatusCenter .n');
@@ -3152,7 +3154,7 @@ function renderTrainingMatrix(){
 
   if(centerN){
     centerN.textContent = Math.round(status.completed/total*100) + '%';
-    centerL.textContent = 'Complete';
+    centerL.textContent = 'Completed';
   }
 
   const deptCanvas = document.getElementById('tmDeptChart');
