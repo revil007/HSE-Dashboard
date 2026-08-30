@@ -370,6 +370,7 @@
     transition:.15s ease;
   }
   .pl-settings-btn:hover{transform:translateY(-1px); background:var(--surface); border-color:#cbd5e1;}
+  .pl-header-actions{display:flex; gap:8px; flex-shrink:0;}
 
   .pl-leave-grid{
     display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px;
@@ -403,19 +404,15 @@
     margin-top:7px; position:relative; z-index:1;
   }
   .pl-arrow{position:absolute; right:16px; bottom:14px; color:#a2aabb; z-index:2; font-size:14px;}
+  .pl-progress{
+    width:100%; height:4px; border-radius:3px; background:rgba(0,0,0,0.06);
+    margin-top:10px; position:relative; z-index:1; overflow:hidden;
+  }
+  .pl-progress-fill{height:100%; background:var(--pl-accent); border-radius:3px; transition:width .3s ease;}
+  .pl-progress-label{
+    font-size:9px; color:var(--muted); margin-top:4px; position:relative; z-index:1;
+  }
 
-  .pl-add-section{
-    padding-top:18px; border-top:1px solid var(--border);
-  }
-  .pl-add-toggle{
-    -webkit-appearance:none; -moz-appearance:none; appearance:none;
-    display:block; width:100%; text-align:left; background:var(--surface);
-    border:1px dashed var(--border); border-radius:9px; padding:12px 14px;
-    font-weight:700; font-size:13px; color:var(--navy); cursor:pointer;
-    margin-bottom:14px;
-  }
-  .pl-add-toggle:hover{background:#eef1f5; border-color:#c9d0da;}
-  .pl-add-toggle.open{background:var(--navy); color:#fff; border-style:solid; border-color:var(--navy);}
   .pl-form{
     display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:9px; align-items:end;
   }
@@ -437,13 +434,31 @@
   .pl-add-btn:hover{background:var(--navy-3);}
 
   .pl-records{margin-top:18px; background:#fff; border:1px solid var(--border); border-radius:18px; padding:18px;}
-  .pl-records-head{display:flex; justify-content:space-between; align-items:center;}
+  .pl-records-head{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    width:100%; background:none; border:none; padding:0; cursor:pointer; text-align:left;
+  }
   .pl-records-head strong{font-size:14px; color:var(--ink);}
+  .pl-records-count{font-size:11px; color:var(--muted); margin-right:auto; margin-left:8px;}
+  .pl-records-chevron{color:var(--muted); flex-shrink:0; transition:transform .2s ease;}
+  .pl-records-head.collapsed .pl-records-chevron{transform:rotate(-90deg);}
+  .pl-filter-chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;}
+  .pl-filter-chip{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    border:1px solid var(--border); background:#fff; color:var(--muted);
+    font-size:11px; font-weight:600; padding:5px 11px; border-radius:20px; cursor:pointer;
+  }
+  .pl-filter-chip.active{
+    background:var(--pl-chip-accent, var(--navy)); border-color:var(--pl-chip-accent, var(--navy)); color:#fff;
+  }
   .pl-line{
     display:flex; justify-content:space-between; align-items:center;
     border-top:1px solid #f0f2f5; padding:11px 0; margin-top:12px; font-size:12px; gap:10px;
   }
   .pl-line:first-child{border-top:none; margin-top:0; padding-top:0;}
+  .pl-line-left{display:flex; align-items:flex-start; gap:8px; min-width:0;}
+  .pl-line-dot{width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0;}
   .pl-line-left b{font-size:13px; color:var(--ink);}
   .pl-line-muted{color:var(--muted); font-size:10px; margin-top:3px;}
   .pl-line-right{display:flex; align-items:center; gap:8px; flex-shrink:0;}
@@ -1034,7 +1049,7 @@
     #personalCard .insp-chart-head > div:first-child{
       min-width:0; flex:1 1 auto; max-width:100%;
     }
-    #personalCard .pl-settings-btn{flex:0 0 auto;}
+    #personalCard .pl-header-actions{flex:0 0 auto; display:flex; gap:8px;}
   }
 
   @media (max-width: 700px){
@@ -1141,6 +1156,14 @@
   @keyframes toastOut{to{opacity:0; transform:translateY(-6px);}}
   @media (max-width:700px){
     .toast-container{bottom:82px;}
+    .pl-leave-grid{grid-template-columns:repeat(4,1fr); gap:8px;}
+    .pl-card{
+      min-height:0; aspect-ratio:1/1; padding:0; align-items:center; justify-content:center;
+    }
+    .pl-card::after{display:none;}
+    .pl-icon{margin-bottom:0; width:36px; height:36px;}
+    .pl-icon svg{width:20px; height:20px;}
+    .pl-balance, .pl-available, .pl-progress, .pl-progress-label, .pl-arrow{display:none;}
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1335,56 +1358,27 @@
     <section class="board-card" id="personalCard" style="display:none;">
       <div class="insp-chart-head" style="margin-bottom:18px; padding-bottom:14px;">
         <div>
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Personal</h3>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Leave Record</h3>
           <div class="caption" style="margin:0;">Leave records — leave balance overview</div>
         </div>
-        <button class="pl-settings-btn" onclick="plShowSettings()" title="Leave Settings" aria-label="Leave Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+        <div class="pl-header-actions">
+          <button class="pl-settings-btn" onclick="plShowAddForm()" title="Add Leave Record" aria-label="Add Leave Record"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+          <button class="pl-settings-btn" onclick="plShowSettings()" title="Leave Settings" aria-label="Leave Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+        </div>
       </div>
 
       <div class="pl-leave-grid" id="plLeaveGrid"></div>
 
-      <div class="pl-add-section">
-        <button class="pl-add-toggle" onclick="togglePlAddForm()" id="plAddToggle">+ Add Leave Record</button>
-        <div class="pl-form" id="plAddForm" style="display:none;">
-          <div class="pl-field">
-            <label for="plType">Leave Type</label>
-            <select id="plType">
-              <option>Annual Leave</option>
-              <option>Medical Leave</option>
-              <option>Hospitalization</option>
-              <option>Compassionate Leave</option>
-            </select>
-          </div>
-          <div class="pl-field">
-            <label for="plDate">Date</label>
-            <input type="date" id="plDate">
-          </div>
-          <div class="pl-field pl-field-narrow">
-            <label for="plUnit">Unit</label>
-            <select id="plUnit" onchange="togglePlUnit()">
-              <option value="days">Days</option>
-              <option value="hours">Hours</option>
-            </select>
-          </div>
-          <div class="pl-field pl-field-narrow" id="plDaysField">
-            <label for="plDays">Days</label>
-            <input type="number" id="plDays" min="0.5" step="0.5" placeholder="1">
-          </div>
-          <div class="pl-field pl-field-narrow" id="plHoursField" style="display:none;">
-            <label for="plHours">Duration</label>
-            <select id="plHours"></select>
-          </div>
-          <div class="pl-field pl-field-wide">
-            <label for="plRemark">Remarks</label>
-            <input type="text" id="plRemark" placeholder="Optional">
-          </div>
-          <button class="pl-add-btn" onclick="addPlRecord()">+ Add Record</button>
-        </div>
-      </div>
-
       <div class="pl-records">
-        <div class="pl-records-head"><strong>Recent Leave Records</strong></div>
-        <div id="plRecords"></div>
+        <button type="button" class="pl-records-head" onclick="togglePlRecordsCollapse()" id="plRecordsToggle">
+          <strong>Recent Leave Records</strong>
+          <span class="pl-records-count" id="plRecordsCount"></span>
+          <svg class="pl-records-chevron" id="plRecordsChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div id="plRecordsBody">
+          <div class="pl-filter-chips" id="plRecordsFilters"></div>
+          <div id="plRecords"></div>
+        </div>
       </div>
     </section>
 
@@ -1850,11 +1844,16 @@ function renderPersonalLeave(){
   grid.innerHTML = PL_TYPES.map(type => {
     const [accent, bg] = PL_ACCENTS[type];
     const balance = plGetBalance(type);
+    const entitlementDays = type === 'Annual Leave' ? (plGetCarryForward() + plAnnualAccrued()) : plGetEntitlement(type);
+    const used = type === 'Annual Leave' ? (plGetOpeningUsed() + plGetUsed(type)) : plGetUsed(type);
+    const pct = entitlementDays > 0 ? Math.min(100, Math.max(0, Math.round((used / entitlementDays) * 100))) : 0;
     return `
       <button type="button" class="pl-card" style="--pl-accent:${accent}; --pl-icon-bg:${bg};" onclick="plShowDetails('${type}')">
         <div class="pl-icon">${PL_ICONS[type]}</div>
         <div class="pl-balance ${balance < 0 ? 'negative' : ''}">${plFormatDuration(balance)}</div>
         <div class="pl-available">AVAILABLE</div>
+        <div class="pl-progress"><div class="pl-progress-fill" style="width:${pct}%;"></div></div>
+        <div class="pl-progress-label">${pct}% used</div>
         <div class="pl-arrow">↗</div>
       </button>`;
   }).join('');
@@ -1862,28 +1861,57 @@ function renderPersonalLeave(){
   renderPlRecords();
 }
 
+let plRecordFilter = 'All';
+
+function filterPlRecords(type){
+  plRecordFilter = type;
+  document.querySelectorAll('.pl-filter-chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.type === type);
+  });
+  renderPlRecords();
+}
+
 function renderPlRecords(){
   const box = document.getElementById('plRecords');
+  const chipsBox = document.getElementById('plRecordsFilters');
+  const countEl = document.getElementById('plRecordsCount');
   if (!box) return;
-  const records = getPlRecords();
+  const allRecords = getPlRecords();
+
+  if (chipsBox && !chipsBox.dataset.built){
+    chipsBox.innerHTML = ['All', ...PL_TYPES].map(type => {
+      const [accent] = PL_ACCENTS[type] || ['var(--navy)'];
+      return `<button type="button" class="pl-filter-chip ${type === plRecordFilter ? 'active' : ''}" data-type="${type}" style="--pl-chip-accent:${accent};" onclick="filterPlRecords('${type}')">${type === 'All' ? 'All' : type.replace(' Leave','')}</button>`;
+    }).join('');
+    chipsBox.dataset.built = '1';
+  }
+
+  const records = plRecordFilter === 'All' ? allRecords : allRecords.filter(r => r.type === plRecordFilter);
+  if (countEl) countEl.textContent = `${allRecords.length} record${allRecords.length===1?'':'s'} this year`;
+
   if (records.length === 0){
-    box.innerHTML = '<div class="empty" style="text-align:center; padding:14px 0;">No leave records yet</div>';
+    box.innerHTML = `<div class="empty" style="text-align:center; padding:14px 0;">${allRecords.length === 0 ? 'No leave records yet — add your first one above' : 'No records for this filter'}</div>`;
     return;
   }
   const sorted = records.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
 
-  box.innerHTML = sorted.map(r => `
+  box.innerHTML = sorted.map(r => {
+    const [accent] = PL_ACCENTS[r.type] || ['var(--navy)'];
+    return `
     <div class="pl-line">
       <div class="pl-line-left">
-        <b>${escapeHtml(r.type)}</b>
-        <div class="pl-line-muted">${formatDate(r.date)}${r.remark ? ' · ' + escapeHtml(r.remark) : ''}</div>
+        <span class="pl-line-dot" style="background:${accent};"></span>
+        <div>
+          <b>${escapeHtml(r.type)}</b>
+          <div class="pl-line-muted">${formatDate(r.date)}${r.remark ? ' · ' + escapeHtml(r.remark) : ''}</div>
+        </div>
       </div>
       <div class="pl-line-right">
         <b>${plRecordLabel(r)}</b>
         <button class="pl-delete" onclick="plDeleteRecord('${String(r.id).replace(/'/g,"\\'")}')" title="Delete record"></button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function plShowDetails(type){
@@ -2031,16 +2059,71 @@ function plPopulateHoursInput(){
   sel.innerHTML = opts.join('');
 }
 
-function togglePlAddForm(){
-  const form = document.getElementById('plAddForm');
-  const btn = document.getElementById('plAddToggle');
-  if (!form) return;
-  const opening = form.style.display === 'none';
-  form.style.display = opening ? 'grid' : 'none';
-  if (btn){
-    btn.textContent = opening ? '− Cancel' : '+ Add Leave Record';
-    btn.classList.toggle('open', opening);
-  }
+function plShowAddForm(){
+  const overlay = document.createElement('div');
+  overlay.className = 'pl-overlay';
+  overlay.id = 'plAddFormOverlay';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+  overlay.innerHTML = `
+    <div class="pl-modal">
+      <button class="pl-close" onclick="this.closest('.pl-overlay').remove()" title="Close"></button>
+      <div class="pl-modal-head">
+        <div class="pl-modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+        <div>
+          <div class="pl-modal-title">Add Leave Record</div>
+          <div class="pl-modal-sub">Log a new leave entry</div>
+        </div>
+      </div>
+      <div class="pl-form" style="margin-top:18px;">
+        <div class="pl-field">
+          <label for="plType">Leave Type</label>
+          <select id="plType">
+            <option>Annual Leave</option>
+            <option>Medical Leave</option>
+            <option>Hospitalization</option>
+            <option>Compassionate Leave</option>
+          </select>
+        </div>
+        <div class="pl-field">
+          <label for="plDate">Date</label>
+          <input type="date" id="plDate">
+        </div>
+        <div class="pl-field pl-field-narrow">
+          <label for="plUnit">Unit</label>
+          <select id="plUnit" onchange="togglePlUnit()">
+            <option value="days">Days</option>
+            <option value="hours">Hours</option>
+          </select>
+        </div>
+        <div class="pl-field pl-field-narrow" id="plDaysField">
+          <label for="plDays">Days</label>
+          <input type="number" id="plDays" min="0.5" step="0.5" placeholder="1">
+        </div>
+        <div class="pl-field pl-field-narrow" id="plHoursField" style="display:none;">
+          <label for="plHours">Duration</label>
+          <select id="plHours"></select>
+        </div>
+        <div class="pl-field pl-field-wide">
+          <label for="plRemark">Remarks</label>
+          <input type="text" id="plRemark" placeholder="Optional">
+        </div>
+        <button class="pl-add-btn" onclick="addPlRecord()">+ Add Record</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  const dateInput = document.getElementById('plDate');
+  if (dateInput) dateInput.focus();
+}
+
+function togglePlRecordsCollapse(){
+  const body = document.getElementById('plRecordsBody');
+  const head = document.getElementById('plRecordsToggle');
+  if (!body || !head) return;
+  const collapsing = body.style.display !== 'none';
+  body.style.display = collapsing ? 'none' : 'block';
+  head.classList.toggle('collapsed', collapsing);
 }
 
 function togglePlUnit(){
@@ -2074,15 +2157,8 @@ async function addPlRecord(){
 
   await apiPost({ action: 'addLeaveRecord', type, date, unit, amount, remark });
 
-  document.getElementById('plDate').value = '';
-  daysInput.value = '';
-  if (hoursInput.options.length) hoursInput.selectedIndex = 0;
-  remarkInput.value = '';
-
-  const form = document.getElementById('plAddForm');
-  const btn = document.getElementById('plAddToggle');
-  if (form) form.style.display = 'none';
-  if (btn){ btn.textContent = '+ Add Leave Record'; btn.classList.remove('open'); }
+  const overlay = document.getElementById('plAddFormOverlay');
+  if (overlay) overlay.remove();
 
   showToast('Leave record added');
   loadData();
