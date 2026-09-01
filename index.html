@@ -370,6 +370,7 @@
     transition:.15s ease;
   }
   .pl-settings-btn:hover{transform:translateY(-1px); background:var(--surface); border-color:#cbd5e1;}
+  .meeting-add-dates-btn{width:auto; padding:0 12px;}
   .pl-header-actions{display:flex; gap:8px; flex-shrink:0;}
 
   .pl-leave-grid{
@@ -577,6 +578,7 @@
     display:flex; align-items:center; justify-content:space-between; gap:16px;
     margin-bottom:16px; flex-wrap:wrap;
   }
+  .board-header .meeting-header-actions{display:flex; align-items:center; gap:8px; margin-left:auto;}
   .meeting-date-box{
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
@@ -1282,8 +1284,10 @@
     <section class="board-card" id="mainBoardCard" style="display:none;">
       <div class="board-header">
         <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">Dashboard</h2>
-        <button class="card-link-btn" id="exportCsvBtn" onclick="exportBoardCsv()" style="display:none; border:none; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Export CSV</button>
-        <button class="pl-settings-btn" id="addTaskIconBtn" onclick="showAddTaskModal()" title="Add Task" aria-label="Add Task" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+        <div class="board-header-actions" style="display:flex; align-items:center; gap:8px; margin-left:auto;">
+          <button class="pl-settings-btn" id="addTaskIconBtn" onclick="showAddTaskModal()" title="Add Task" aria-label="Add Task" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+          <button class="pl-settings-btn" id="exportCsvBtn" onclick="exportBoardCsv()" title="Export CSV" aria-label="Export CSV" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></button>
+        </div>
       </div>
       <div class="caption" id="inspectionCaption" style="display:none;">Click a section to start this month's inspection — status auto-resets every new month</div>
       <div class="inspection-sections" id="inspectionSectionsGrid" style="display:none;"></div>
@@ -1319,10 +1323,9 @@
     <section class="board-card" id="meetingScheduleCard" style="display:none;">
       <div class="insp-chart-head" style="margin-bottom:14px; padding-bottom:14px;">
         <div>
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Meeting Schedule</h3>
-          <div class="caption" style="margin:0;">Quarterly HSE Committee meeting dates</div>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:0;">Meeting Schedule</h3>
         </div>
-        <button class="pl-settings-btn" onclick="showSetMeetingDatesModal()" title="Set Meeting Dates" aria-label="Set Meeting Dates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+        <button class="pl-settings-btn meeting-add-dates-btn" onclick="showSetMeetingDatesModal()" title="Add Dates" aria-label="Add Dates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span style="font-size:11px; font-weight:700; margin-left:5px;">Add Dates</span></button>
       </div>
       <div class="meeting-date-box" id="meetingDateBox"></div>
     </section>
@@ -1330,8 +1333,10 @@
     <section class="board-card" id="meetingTaskCard" style="display:none;">
       <div class="board-header">
         <h2 class="display" style="font-size:20px; text-transform:uppercase; color:var(--navy);">Pending Task</h2>
-        <button class="card-link-btn" onclick="exportMeetingTaskCsv()" style="border:none; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Export CSV</button>
-        <button class="pl-settings-btn" onclick="showAddTaskModal()" title="Add Task" aria-label="Add Task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+        <div class="meeting-header-actions">
+          <button class="pl-settings-btn" onclick="showAddTaskModal()" title="Add Task" aria-label="Add Task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+          <button class="pl-settings-btn" onclick="exportMeetingTaskCsv()" title="Export CSV" aria-label="Export CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></button>
+        </div>
       </div>
       <div class="task-search-row">
         <input type="text" id="meetingTaskSearchInput" placeholder="Search tasks by name or assignee…" oninput="renderMeetingTaskBoard()">
@@ -2392,6 +2397,13 @@ function render(){
   renderNotes();
 }
 
+function formatMeetingDate(dateStr){
+  if(!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  if(Number.isNaN(d.getTime())) return formatDate(dateStr);
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
 function renderMeetingQuarters(){
   const box = document.getElementById('meetingDateBox');
   if(!box) return;
@@ -2402,7 +2414,7 @@ function renderMeetingQuarters(){
         <span class="q-label">${m.quarter}</span>
         <button class="q-done-btn" onclick="toggleMeetingDone('${m.quarter}')">${m.done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><polyline points="20 6 9 17 4 12"></polyline></svg> Done' : 'Mark Done'}</button>
       </div>
-      <div class="q-date-display">${m.expectedDate ? formatDate(m.expectedDate) : 'No date set'}</div>
+      <div class="q-date-display">${m.expectedDate ? formatMeetingDate(m.expectedDate) : 'No date set'}</div>
     </div>
   `).join('');
 }
