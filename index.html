@@ -982,7 +982,11 @@
     .panels.chart-row-2{grid-template-columns:1fr;}
   }
 
-  @media (max-width: 600px){
+  .meeting-add-dates-btn{display:inline-flex;align-items:center;justify-content:center;gap:0;}
+@media (max-width: 600px){
+    .meetingScheduleCard .insp-chart-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;}
+    .meetingScheduleCard .insp-chart-head > div:first-child{min-width:0;}
+    .meetingScheduleCard .meeting-add-dates-btn{flex:0 0 auto;margin-left:auto;}
     header.topbar{padding:14px 16px;}
     header.topbar h1{font-size:19px;}
     header.topbar .brand .mark{width:34px; height:34px; font-size:14px;}
