@@ -578,7 +578,7 @@
     margin-bottom:16px; flex-wrap:wrap;
   }
   .meeting-date-box{
-    display:none; align-items:center; gap:12px; flex-wrap:wrap;
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
   .quarter-card{
     background:#fff;
@@ -602,9 +602,9 @@
     font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14px;
     color:var(--navy); text-transform:uppercase; letter-spacing:0.02em;
   }
-  .quarter-card input[type=date]{
-    border:1px solid var(--border); border-radius:6px; padding:5px 6px;
-    font-family:'Inter',sans-serif; font-size:12px; background:#fff; width:100%;
+  .quarter-card .q-date-display{
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--ink);
+    padding:5px 0 0;
   }
   .quarter-card .q-done-btn{
     font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
@@ -704,34 +704,20 @@
     background:#fff;
     cursor:pointer;
   }
-  .add-task-row{
-    display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;
-  }
   .task-search-row{margin-bottom:16px;}
   .task-search-row input{
     width:100%; box-sizing:border-box; border:1px solid var(--border); border-radius:9px;
     padding:10px 14px; font-size:13.5px; font-family:'Inter',sans-serif; background:var(--surface);
   }
   .task-search-row input:focus{outline:none; border-color:var(--navy); background:#fff;}
-  .add-task-row input[type=text]{
-    flex:1; min-width:110px; border:1px dashed var(--border); border-radius:6px; padding:8px 10px; font-size:13px; font-family:'Inter',sans-serif;
-    background:transparent;
-  }
-  .add-task-row input[type=date]{
-    border:1px dashed var(--border); border-radius:6px; padding:8px 10px; font-size:12px; font-family:'Inter',sans-serif;
-    background:transparent;
-  }
-  .add-task-row input#newTaskAssignedTo{
-    max-width:120px;
-  }
-  .add-task-row button, .btn{
+  .btn{
     background:linear-gradient(180deg, var(--navy-3), var(--navy));
     color:#fff; border:none; border-radius:7px;
     padding:9px 16px; font-size:13px; font-weight:600; cursor:pointer;
     box-shadow:0 2px 6px rgba(21,28,39,.25);
     transition:transform .12s ease, box-shadow .12s ease;
   }
-  .add-task-row button:hover, .btn:hover{
+  .btn:hover{
     transform:translateY(-1px);
     box-shadow:0 4px 12px rgba(21,28,39,.32);
   }
@@ -1009,10 +995,6 @@
 
     .board-header{gap:10px;}
     #boardTitle{font-size:17px !important;}
-
-    .add-task-row{flex-direction:column; align-items:stretch;}
-    .add-task-row input, .add-task-row button{width:100%;}
-    .add-task-row input#newTaskAssignedTo{max-width:none;}
 
     .quarter-card{min-width:0; flex:1 1 calc(50% - 8px);}
     .meeting-date-box{gap:10px;}
@@ -1300,11 +1282,8 @@
     <section class="board-card" id="mainBoardCard" style="display:none;">
       <div class="board-header">
         <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">Dashboard</h2>
-        <div class="meeting-date-box" id="meetingDateBox"></div>
-        <div id="othersLinkBox" style="display:none;">
-          <a class="card-link-btn" href="https://sites.google.com/view/sci-hse-dashboard/home" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Safety Documentation ↗</a>
-        </div>
         <button class="card-link-btn" id="exportCsvBtn" onclick="exportBoardCsv()" style="display:none; border:none; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Export CSV</button>
+        <button class="pl-settings-btn" id="addTaskIconBtn" onclick="showAddTaskModal()" title="Add Task" aria-label="Add Task" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
       </div>
       <div class="caption" id="inspectionCaption" style="display:none;">Click a section to start this month's inspection — status auto-resets every new month</div>
       <div class="inspection-sections" id="inspectionSectionsGrid" style="display:none;"></div>
@@ -1315,12 +1294,6 @@
         <div class="column" id="col-todo">
           <h2>To Do <span class="count mono" id="count-todo">0</span></h2>
           <div class="cards"></div>
-          <div class="add-task-row">
-            <input type="text" placeholder="New task..." id="newTaskInput">
-            <input type="date" id="newTaskDueDate" title="Due date">
-            <input type="text" placeholder="Assigned to..." id="newTaskAssignedTo">
-            <button onclick="addTask()">Add</button>
-          </div>
         </div>
         <div class="column" id="col-progress">
           <h2>In Progress <span class="count mono" id="count-progress">0</span></h2>
@@ -1328,6 +1301,52 @@
         </div>
         <div class="column" id="col-done">
           <h2>Done <span class="count mono" id="count-done">0</span></h2>
+          <div class="cards"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="board-card" id="othersLinkCard" style="display:none;">
+      <div class="insp-chart-head" style="margin-bottom:0; padding-bottom:0; border-bottom:none;">
+        <div>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Safety Documentation</h3>
+          <div class="caption" style="margin:0;">SOPs, SWPs, HIRARC & HSE reference site</div>
+        </div>
+        <a class="card-link-btn" href="https://sites.google.com/view/sci-hse-dashboard/home" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Open ↗</a>
+      </div>
+    </section>
+
+    <section class="board-card" id="meetingScheduleCard" style="display:none;">
+      <div class="insp-chart-head" style="margin-bottom:14px; padding-bottom:14px;">
+        <div>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Meeting Schedule</h3>
+          <div class="caption" style="margin:0;">Quarterly HSE Committee meeting dates</div>
+        </div>
+        <button class="pl-settings-btn" onclick="showSetMeetingDatesModal()" title="Set Meeting Dates" aria-label="Set Meeting Dates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+      </div>
+      <div class="meeting-date-box" id="meetingDateBox"></div>
+    </section>
+
+    <section class="board-card" id="meetingTaskCard" style="display:none;">
+      <div class="board-header">
+        <h2 class="display" style="font-size:20px; text-transform:uppercase; color:var(--navy);">Pending Task</h2>
+        <button class="card-link-btn" onclick="exportMeetingTaskCsv()" style="border:none; cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Export CSV</button>
+        <button class="pl-settings-btn" onclick="showAddTaskModal()" title="Add Task" aria-label="Add Task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+      </div>
+      <div class="task-search-row">
+        <input type="text" id="meetingTaskSearchInput" placeholder="Search tasks by name or assignee…" oninput="renderMeetingTaskBoard()">
+      </div>
+      <div class="board-columns" id="meetingBoardColumns">
+        <div class="column" id="meeting-col-todo">
+          <h2>To Do <span class="count mono" id="meeting-count-todo">0</span></h2>
+          <div class="cards"></div>
+        </div>
+        <div class="column" id="meeting-col-progress">
+          <h2>In Progress <span class="count mono" id="meeting-count-progress">0</span></h2>
+          <div class="cards"></div>
+        </div>
+        <div class="column" id="meeting-col-done">
+          <h2>Done <span class="count mono" id="meeting-count-done">0</span></h2>
           <div class="cards"></div>
         </div>
       </div>
@@ -1370,12 +1389,12 @@
       <div class="pl-leave-grid" id="plLeaveGrid"></div>
 
       <div class="pl-records">
-        <button type="button" class="pl-records-head" onclick="togglePlRecordsCollapse()" id="plRecordsToggle">
+        <button type="button" class="pl-records-head collapsed" onclick="togglePlRecordsCollapse()" id="plRecordsToggle">
           <strong>Recent Leave Records</strong>
           <span class="pl-records-count" id="plRecordsCount"></span>
           <svg class="pl-records-chevron" id="plRecordsChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
-        <div id="plRecordsBody">
+        <div id="plRecordsBody" style="display:none;">
           <div class="pl-filter-chips" id="plRecordsFilters"></div>
           <div id="plRecords"></div>
         </div>
@@ -1634,23 +1653,23 @@ function switchCategory(category, el){
   closeNotesSheet();
   const displayName = CATEGORY_DISPLAY_NAMES[category] || category;
   document.getElementById('boardTitle').textContent = displayName;
-  document.getElementById('newTaskInput').placeholder =
-      category==='All Tasks' ? 'Select a category to add task...' : 'New ' + displayName.toLowerCase() + ' task...';
 
   const isDashboard = category === 'Dashboard';
   const isReporting = category === 'Safety Observations';
   const isPersonal = category === 'Personal';
+  const isMeetings = category === 'Meetings';
   const mainBoardCard = document.getElementById('mainBoardCard');
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCard = document.getElementById('committeeNoItemsCard');
   const personalCard = document.getElementById('personalCard');
   const obsSubCard = document.getElementById('obsSubCard');
   const incidentSubCard = document.getElementById('incidentSubCard');
-  if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonal) ? 'none' : 'block';
+  if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonal || isMeetings) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCard) noItemsCard.style.display = (!isDashboard && category === 'Monthly Inspection') ? 'block' : 'none';
-  // Personal, Safety Observation and Incident Report are standalone cards outside
-  // mainBoardCard, so they must always be explicitly hidden when leaving their menu.
+  // Personal, Safety Observation, Incident Report and Meetings are standalone
+  // cards outside mainBoardCard, so they must always be explicitly hidden
+  // when leaving their menu.
   if(personalCard) personalCard.style.display = isPersonal ? 'block' : 'none';
   if(obsSubCard) obsSubCard.style.display = isReporting ? 'block' : 'none';
   if(incidentSubCard) incidentSubCard.style.display = isReporting ? 'block' : 'none';
@@ -1669,33 +1688,36 @@ function switchCategory(category, el){
   const isOthers = category === 'Others';
   const isPersonalItem = category === 'Personal';
   const isObsFeed = category === 'Safety Observations';
-  const addRow=document.querySelector('.add-task-row');
-  if(addRow) addRow.style.display = (category==='All Tasks' || isInspection || isObsFeed || isPersonalItem) ? 'none' : 'flex';
-  const meetingBox=document.getElementById('meetingDateBox');
-  if(meetingBox) meetingBox.style.display = category==='Meetings' ? 'flex' : 'none';
-  if(category==='Meetings') renderMeetingQuarters();
+  const isMeetingsItem = category === 'Meetings';
   const inspGrid=document.getElementById('inspectionSectionsGrid');
   const inspCaption=document.getElementById('inspectionCaption');
-  const othersLinkBox=document.getElementById('othersLinkBox');
+  const othersLinkCard=document.getElementById('othersLinkCard');
+  const meetingScheduleCard=document.getElementById('meetingScheduleCard');
+  const meetingTaskCard=document.getElementById('meetingTaskCard');
   const obsCaption=document.getElementById('obsCaption');
   const obsFeedGrid=document.getElementById('obsFeedGrid');
   const obsNotifBanner=document.getElementById('obsNotifBanner');
   const boardCols=document.getElementById('boardColumns');
   if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
   if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
-  if(othersLinkBox) othersLinkBox.style.display = isOthers ? 'flex' : 'none';
+  if(othersLinkCard) othersLinkCard.style.display = isOthers ? 'block' : 'none';
+  if(meetingScheduleCard) meetingScheduleCard.style.display = isMeetingsItem ? 'block' : 'none';
+  if(meetingTaskCard) meetingTaskCard.style.display = isMeetingsItem ? 'block' : 'none';
   if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
   if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
   if(obsNotifBanner && !isObsFeed) obsNotifBanner.style.display = 'none';
-  if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonalItem) ? 'none' : 'grid';
+  if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonalItem || isMeetingsItem) ? 'none' : 'grid';
   const taskSearchRow = document.getElementById('taskSearchRow');
-  if(taskSearchRow) taskSearchRow.style.display = (isInspection || isObsFeed || isPersonalItem) ? 'none' : 'block';
+  if(taskSearchRow) taskSearchRow.style.display = (isInspection || isObsFeed || isPersonalItem || isMeetingsItem) ? 'none' : 'block';
   const exportBtn = document.getElementById('exportCsvBtn');
-  if(exportBtn) exportBtn.style.display = (isInspection || isObsFeed || isPersonalItem) ? 'none' : 'inline-flex';
+  if(exportBtn) exportBtn.style.display = (isInspection || isObsFeed || isPersonalItem || isMeetingsItem) ? 'none' : 'inline-flex';
+  const addTaskIconBtn = document.getElementById('addTaskIconBtn');
+  if(addTaskIconBtn) addTaskIconBtn.style.display = (category==='All Tasks' || isInspection || isObsFeed || isPersonalItem || isMeetingsItem) ? 'none' : 'flex';
   if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
   if(isObsFeed){ renderObsFeed(true); renderIncidentFeed(); }
   if(isPersonalItem) renderPersonalLeave();
-  renderBoard();
+  if(isMeetingsItem){ renderMeetingQuarters(); renderMeetingTaskBoard(); }
+  else { renderBoard(); }
 }
 
 const STATUS_MAP = { 'To Do': 'todo', 'In Progress': 'progress', 'Done': 'done' };
@@ -2305,6 +2327,7 @@ function render(){
   const isDashboard = currentCategory === 'Dashboard';
   const isReporting = currentCategory === 'Safety Observations';
   const isPersonalCategory = currentCategory === 'Personal';
+  const isMeetingsCategory = currentCategory === 'Meetings';
   const isInspectionCategory = !isDashboard && currentCategory === 'Monthly Inspection';
   const mainBoardCard = document.getElementById('mainBoardCard');
   const dashboardView = document.getElementById('dashboardView');
@@ -2312,11 +2335,11 @@ function render(){
   const personalCard = document.getElementById('personalCard');
   const obsSubCard = document.getElementById('obsSubCard');
   const incidentSubCard = document.getElementById('incidentSubCard');
-  if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonalCategory) ? 'none' : 'block';
+  if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonalCategory || isMeetingsCategory) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCardTop) noItemsCardTop.style.display = isInspectionCategory ? 'block' : 'none';
-  // Personal, Safety Observation and Incident Report are outside mainBoardCard;
-  // always reset their visibility on every render.
+  // Personal, Safety Observation, Incident Report and Meetings are outside
+  // mainBoardCard; always reset their visibility on every render.
   if(personalCard) personalCard.style.display = isPersonalCategory ? 'block' : 'none';
   if(obsSubCard) obsSubCard.style.display = isReporting ? 'block' : 'none';
   if(incidentSubCard) incidentSubCard.style.display = isReporting ? 'block' : 'none';
@@ -2326,29 +2349,34 @@ function render(){
     const isOthers = currentCategory === 'Others';
     const isPersonal = currentCategory === 'Personal';
     const isObsFeed = currentCategory === 'Safety Observations';
-    const addRow=document.querySelector('.add-task-row'); if(addRow){addRow.style.display=(currentCategory==='All Tasks'||isInspection||isObsFeed||isPersonal)?'none':'flex';}
-    const meetingBox=document.getElementById('meetingDateBox');
-    if(meetingBox) meetingBox.style.display = currentCategory==='Meetings' ? 'flex' : 'none';
+    const isMeetings = currentCategory === 'Meetings';
     const inspGrid=document.getElementById('inspectionSectionsGrid');
     const inspCaption=document.getElementById('inspectionCaption');
-    const othersLinkBox=document.getElementById('othersLinkBox');
+    const othersLinkCard=document.getElementById('othersLinkCard');
+    const meetingScheduleCard=document.getElementById('meetingScheduleCard');
+    const meetingTaskCard=document.getElementById('meetingTaskCard');
     const obsCaption=document.getElementById('obsCaption');
     const obsFeedGrid=document.getElementById('obsFeedGrid');
     const boardCols=document.getElementById('boardColumns');
     if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
     if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
-    if(othersLinkBox) othersLinkBox.style.display = isOthers ? 'flex' : 'none';
+    if(othersLinkCard) othersLinkCard.style.display = isOthers ? 'block' : 'none';
+    if(meetingScheduleCard) meetingScheduleCard.style.display = isMeetings ? 'block' : 'none';
+    if(meetingTaskCard) meetingTaskCard.style.display = isMeetings ? 'block' : 'none';
     if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
     if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
-    if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonal) ? 'none' : 'grid';
+    if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonal || isMeetings) ? 'none' : 'grid';
     const taskSearchRow = document.getElementById('taskSearchRow');
-    if(taskSearchRow) taskSearchRow.style.display = (isInspection || isObsFeed || isPersonal) ? 'none' : 'block';
+    if(taskSearchRow) taskSearchRow.style.display = (isInspection || isObsFeed || isPersonal || isMeetings) ? 'none' : 'block';
     const exportBtn = document.getElementById('exportCsvBtn');
-    if(exportBtn) exportBtn.style.display = (isInspection || isObsFeed || isPersonal) ? 'none' : 'inline-flex';
+    if(exportBtn) exportBtn.style.display = (isInspection || isObsFeed || isPersonal || isMeetings) ? 'none' : 'inline-flex';
+    const addTaskIconBtn = document.getElementById('addTaskIconBtn');
+    if(addTaskIconBtn) addTaskIconBtn.style.display = (currentCategory==='All Tasks' || isInspection || isObsFeed || isPersonal || isMeetings) ? 'none' : 'flex';
     if(isInspection){ renderInspectionSections(); renderCommitteeNoItemsList(); markCommitteeSeen(); }
     if(isObsFeed){ renderObsFeed(true); renderIncidentFeed(); }
     if(isPersonal) renderPersonalLeave();
-    renderBoard();
+    if(isMeetings) renderMeetingTaskBoard();
+    else renderBoard();
   }
 
   updateObsNavBadge();
@@ -2374,19 +2402,69 @@ function renderMeetingQuarters(){
         <span class="q-label">${m.quarter}</span>
         <button class="q-done-btn" onclick="toggleMeetingDone('${m.quarter}')">${m.done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><polyline points="20 6 9 17 4 12"></polyline></svg> Done' : 'Mark Done'}</button>
       </div>
-      <input type="date" value="${m.expectedDate || ''}" onchange="updateMeetingDate('${m.quarter}', this.value)">
+      <div class="q-date-display">${m.expectedDate ? formatDate(m.expectedDate) : 'No date set'}</div>
     </div>
   `).join('');
 }
 
-function exportBoardCsv(){
-  const searchInput = document.getElementById('taskSearchInput');
+function showSetMeetingDatesModal(){
+  const meetings = getMeetingsData();
+  const overlay = document.createElement('div');
+  overlay.className = 'pl-overlay';
+  overlay.id = 'meetingDatesOverlay';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+  overlay.innerHTML = `
+    <div class="pl-modal">
+      <button class="pl-close" onclick="this.closest('.pl-overlay').remove()" title="Close"></button>
+      <div class="pl-modal-head">
+        <div class="pl-modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+        <div>
+          <div class="pl-modal-title">Set Meeting Dates</div>
+          <div class="pl-modal-sub">Quarterly HSE Committee meeting schedule</div>
+        </div>
+      </div>
+      <div class="pl-settings-list" style="margin-top:18px;">
+        ${meetings.map(m => `
+          <div class="pl-setting-row">
+            <div><div class="pl-setting-name">${m.quarter}</div></div>
+            <div class="pl-setting-inputs"><input type="date" id="meetingDateInput-${m.quarter}" value="${m.expectedDate || ''}"></div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="pl-settings-actions">
+        <button class="pl-settings-cancel" onclick="this.closest('.pl-overlay').remove()">Cancel</button>
+        <button class="pl-settings-save" onclick="saveMeetingDates()">Save</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+}
+
+async function saveMeetingDates(){
+  const meetings = getMeetingsData();
+  for (const m of meetings){
+    const input = document.getElementById('meetingDateInput-' + m.quarter);
+    if (input && input.value !== (m.expectedDate || '')){
+      await updateMeetingDate(m.quarter, input.value);
+    }
+  }
+  const overlay = document.getElementById('meetingDatesOverlay');
+  if (overlay) overlay.remove();
+  showToast('Meeting dates updated');
+  loadData();
+}
+
+function exportBoardCsv(opts){
+  const category = (opts && opts.category) || currentCategory;
+  const searchInputId = (opts && opts.searchInputId) || 'taskSearchInput';
+  const searchInput = document.getElementById(searchInputId);
   const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
   const rows = (STATE.tasks || [])
     .filter(t=>{
-      if(currentCategory==='All Tasks') return true;
-      return (t.Category || 'Monthly Inspection')===currentCategory;
+      if(category==='All Tasks') return true;
+      return (t.Category || 'Monthly Inspection')===category;
     })
     .filter(t=>{
       if(!query) return true;
@@ -2416,7 +2494,7 @@ function exportBoardCsv(){
   const a = document.createElement('a');
   const stamp = new Date().toISOString().slice(0,10);
   a.href = url;
-  a.download = `${currentCategory.replace(/\s+/g,'_')}_tasks_${stamp}.csv`;
+  a.download = `${category.replace(/\s+/g,'_')}_tasks_${stamp}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -2424,15 +2502,24 @@ function exportBoardCsv(){
   showToast(`Exported ${rows.length} task${rows.length===1?'':'s'} to CSV`);
 }
 
-function renderBoard(){
-  const searchInput = document.getElementById('taskSearchInput');
+function exportMeetingTaskCsv(){
+  exportBoardCsv({ category: 'Meetings', searchInputId: 'meetingTaskSearchInput' });
+}
+
+function renderBoard(opts){
+  const category = (opts && opts.category) || currentCategory;
+  const colPrefix = (opts && opts.colPrefix) || 'col-';
+  const countPrefix = (opts && opts.countPrefix) || 'count-';
+  const searchInputId = (opts && opts.searchInputId) || 'taskSearchInput';
+
+  const searchInput = document.getElementById(searchInputId);
   const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
   const groups = { todo: [], progress: [], done: [] };
   (STATE.tasks || [])
     .filter(t=>{
-      if(currentCategory==='All Tasks') return true;
-      return (t.Category || 'Monthly Inspection')===currentCategory;
+      if(category==='All Tasks') return true;
+      return (t.Category || 'Monthly Inspection')===category;
     })
     .filter(t=>{
       if(!query) return true;
@@ -2445,8 +2532,9 @@ function renderBoard(){
     });
 
   ['todo','progress','done'].forEach(key => {
-    const col = document.querySelector('#col-' + key + ' .cards');
-    document.getElementById('count-' + key).textContent = groups[key].length;
+    const col = document.querySelector('#' + colPrefix + key + ' .cards');
+    if (!col) return;
+    document.getElementById(countPrefix + key).textContent = groups[key].length;
     col.innerHTML = '';
     if (groups[key].length === 0){
       col.innerHTML = `<div class="empty">${query ? 'No matches' : 'No tasks'}</div>`;
@@ -2485,7 +2573,7 @@ function renderBoard(){
             <button class="icon-btn-sm danger" onclick="deleteTask('${t.ID}')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="display:block;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
           </div>
         </div>
-        ${currentCategory==='All Tasks'
+        ${category==='All Tasks'
           ? `<div style="font-size:11px;color:#6B7480;margin-bottom:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>${escapeHtml(CATEGORY_DISPLAY_NAMES[t.Category] || t.Category || 'HSE Monthly Inspection')}</div>`
           : ''}
         ${(t.DueDate || t.AssignedTo) ? `
@@ -2507,6 +2595,10 @@ function renderBoard(){
 
   const globalPending = (STATE.tasks || []).filter(t => (STATUS_MAP[t.Status] || 'todo') === 'todo').length;
   document.getElementById('alertCount').textContent = globalPending;
+}
+
+function renderMeetingTaskBoard(){
+  renderBoard({ category: 'Meetings', colPrefix: 'meeting-col-', countPrefix: 'meeting-count-', searchInputId: 'meetingTaskSearchInput' });
 }
 
 function renderDonut(){
@@ -3414,6 +3506,46 @@ async function changeStatus(id, status){
   loadData();
 }
 
+function showAddTaskModal(){
+  const overlay = document.createElement('div');
+  overlay.className = 'pl-overlay';
+  overlay.id = 'addTaskOverlay';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+  const contextLabel = CATEGORY_DISPLAY_NAMES[currentCategory] || currentCategory;
+
+  overlay.innerHTML = `
+    <div class="pl-modal">
+      <button class="pl-close" onclick="this.closest('.pl-overlay').remove()" title="Close"></button>
+      <div class="pl-modal-head">
+        <div class="pl-modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+        <div>
+          <div class="pl-modal-title">Add Task</div>
+          <div class="pl-modal-sub">${escapeHtml(contextLabel)}</div>
+        </div>
+      </div>
+      <div class="pl-form" style="margin-top:18px;">
+        <div class="pl-field pl-field-wide">
+          <label for="newTaskInput">Task</label>
+          <input type="text" id="newTaskInput" placeholder="New task...">
+        </div>
+        <div class="pl-field">
+          <label for="newTaskDueDate">Due Date</label>
+          <input type="date" id="newTaskDueDate">
+        </div>
+        <div class="pl-field">
+          <label for="newTaskAssignedTo">Assigned To</label>
+          <input type="text" id="newTaskAssignedTo" placeholder="Assigned to...">
+        </div>
+        <button class="pl-add-btn" onclick="addTask()">+ Add Task</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  const input = document.getElementById('newTaskInput');
+  if (input) input.focus();
+}
+
 async function addTask(){
   const input = document.getElementById('newTaskInput');
   const dueDateInput = document.getElementById('newTaskDueDate');
@@ -3422,10 +3554,9 @@ async function addTask(){
   if (!task) return;
   const dueDate = dueDateInput ? dueDateInput.value : '';
   const assignedTo = assignedInput ? assignedInput.value.trim() : '';
-  input.value = '';
-  if (dueDateInput) dueDateInput.value = '';
-  if (assignedInput) assignedInput.value = '';
   await apiPost({ action:'addTask', task, status:'To Do', category: currentCategory, dueDate, assignedTo });
+  const overlay = document.getElementById('addTaskOverlay');
+  if (overlay) overlay.remove();
   showToast('Task added');
   loadData();
 }
