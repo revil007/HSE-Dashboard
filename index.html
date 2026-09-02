@@ -107,14 +107,6 @@
     box-shadow:0 3px 8px rgba(214,72,75,.35);
     display:flex; align-items:center; gap:6px;
   }
-  .signout-btn{
-    -webkit-appearance:none; -moz-appearance:none; appearance:none;
-    background:none; border:1px solid rgba(255,255,255,0.28); color:#AEB6C2;
-    width:32px; height:32px; border-radius:50%; cursor:pointer; box-sizing:border-box;
-    display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0;
-  }
-  .signout-btn svg{width:15px; height:15px;}
-  .signout-btn:hover{background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.5);}
 
   .layout{
     display:grid;
@@ -435,6 +427,15 @@
   .pl-add-btn:hover{background:var(--navy-3);}
 
   .pl-records{margin-top:18px; background:#fff; border:1px solid var(--border); border-radius:18px; padding:18px;}
+  .pl-signout-btn{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:12px 16px;
+    background:#fff; border:1px solid var(--red); color:var(--red);
+    border-radius:12px; font-size:13.5px; font-weight:700; cursor:pointer;
+    font-family:'Inter',sans-serif; transition:.15s ease;
+  }
+  .pl-signout-btn:hover{background:var(--red-bg);}
   .pl-records-head{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     display:flex; justify-content:space-between; align-items:center; gap:8px;
@@ -1203,13 +1204,6 @@
       <span id="alertCount">0</span> Pending
     </div>
     <div id="clock" class="mono" style="color:#AEB6C2;font-size:13px;"></div>
-    <button class="signout-btn" onclick="signOut()" title="Sign out" aria-label="Sign out">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-        <polyline points="16 17 21 12 16 7"></polyline>
-        <line x1="21" y1="12" x2="9" y2="12"></line>
-      </svg>
-    </button>
   </div>
 </header>
 
@@ -1408,6 +1402,13 @@
           <div id="plRecords"></div>
         </div>
       </div>
+    </section>
+
+    <section class="board-card" id="signOutCard" style="display:none;">
+      <button class="pl-signout-btn" onclick="signOut()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Sign Out
+      </button>
     </section>
 
     <section class="board-card" id="committeeNoItemsCard" style="display:none;">
@@ -1671,6 +1672,7 @@ function switchCategory(category, el){
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCard = document.getElementById('committeeNoItemsCard');
   const personalCard = document.getElementById('personalCard');
+  const signOutCard = document.getElementById('signOutCard');
   const obsSubCard = document.getElementById('obsSubCard');
   const incidentSubCard = document.getElementById('incidentSubCard');
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonal || isMeetings) ? 'none' : 'block';
@@ -1680,6 +1682,7 @@ function switchCategory(category, el){
   // cards outside mainBoardCard, so they must always be explicitly hidden
   // when leaving their menu.
   if(personalCard) personalCard.style.display = isPersonal ? 'block' : 'none';
+  if(signOutCard) signOutCard.style.display = isPersonal ? 'block' : 'none';
   if(obsSubCard) obsSubCard.style.display = isReporting ? 'block' : 'none';
   if(incidentSubCard) incidentSubCard.style.display = isReporting ? 'block' : 'none';
 
@@ -2342,6 +2345,7 @@ function render(){
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCardTop = document.getElementById('committeeNoItemsCard');
   const personalCard = document.getElementById('personalCard');
+  const signOutCard = document.getElementById('signOutCard');
   const obsSubCard = document.getElementById('obsSubCard');
   const incidentSubCard = document.getElementById('incidentSubCard');
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonalCategory || isMeetingsCategory) ? 'none' : 'block';
@@ -2350,6 +2354,7 @@ function render(){
   // Personal, Safety Observation, Incident Report and Meetings are outside
   // mainBoardCard; always reset their visibility on every render.
   if(personalCard) personalCard.style.display = isPersonalCategory ? 'block' : 'none';
+  if(signOutCard) signOutCard.style.display = isPersonalCategory ? 'block' : 'none';
   if(obsSubCard) obsSubCard.style.display = isReporting ? 'block' : 'none';
   if(incidentSubCard) incidentSubCard.style.display = isReporting ? 'block' : 'none';
 
