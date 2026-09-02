@@ -513,13 +513,42 @@ async function loadChecklistFromServer(){
   placeholder.textContent = originalText;
 }
 
-function toggleAdminMode(){
+async function toggleAdminMode(){
   const btn = document.getElementById('adminModeBtn');
   const saveChecklistBtn = document.getElementById('saveChecklistBtn');
 
   if (!adminMode){
     const pin = prompt('Masukkan PIN Admin untuk edit checklist:');
     if (pin === null) return; // cancelled
+
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = '⏳ Menyemak PIN...';
+
+    let valid = false;
+    try {
+      const res = await fetch(CONFIG.API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'validatePin', pin: pin })
+      });
+      const data = await res.json();
+      valid = !!(data && data.success);
+    } catch (err) {
+      alert('Tidak dapat sambung ke server untuk sahkan PIN. Cuba lagi.');
+      btn.disabled = false;
+      btn.textContent = originalText;
+      return;
+    }
+
+    btn.disabled = false;
+
+    if (!valid){
+      alert('PIN admin salah.');
+      btn.textContent = originalText;
+      return;
+    }
+
     adminPin = pin;
     adminMode = true;
     btn.textContent = '🔓 Admin Aktif (klik untuk keluar)';
