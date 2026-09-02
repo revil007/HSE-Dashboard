@@ -132,12 +132,26 @@
     width:100%; border:none; border-bottom:1px dashed var(--border); font-size:12px; font-family:'Inter',sans-serif;
     padding:3px 2px; background:transparent;
   }
-  table.checklist td.remarks input.required-mark{border-bottom:1px solid var(--red);}
-  table.checklist td.remarks input.required-mark::placeholder{color:var(--red);}
-  table.checklist td.remarks input.required-missing{background:var(--red-bg); border-bottom:1px solid var(--red);}
   .yn-group{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
   .yn-group label{display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer;}
   .yn-group input{cursor:pointer;}
+
+  .admin-item-edit{display:flex; align-items:center; gap:6px;}
+  .admin-item-edit input[type=text]{
+    flex:1; border:1px solid var(--yellow); border-radius:6px; padding:6px 8px;
+    font-size:13px; font-family:'Inter',sans-serif; background:#fffdf3;
+  }
+  .item-del-btn{
+    flex:0 0 auto; border:1px solid var(--red); background:#fff; color:var(--red);
+    border-radius:6px; padding:5px 8px; cursor:pointer; font-size:13px;
+  }
+  .item-del-btn:hover{background:var(--red); color:#fff;}
+  .item-add-btn{
+    border:1px dashed var(--navy); background:#fff; color:var(--navy);
+    border-radius:6px; padding:8px 12px; cursor:pointer; font-size:12.5px; font-weight:600; width:100%;
+  }
+  .item-add-btn:hover{background:var(--navy); color:#fff;}
+  #adminModeBtn.active{background:var(--yellow); color:var(--navy); border-color:var(--yellow);}
 
   .overall-box{
     margin-top:8px; display:flex; justify-content:flex-end; align-items:center; gap:12px;
@@ -168,49 +182,16 @@
 
   @media print{
     body{background:#fff; padding-bottom:0;}
-    header.topbar, .status-msg, .no-print, .section-picker-msg{display:none !important;}
+    header.topbar, .status-msg, .no-print, .section-picker-wrap{display:none !important;}
     .sheet{box-shadow:none; border:none; margin:0; padding:0; max-width:100%;}
     .hazard-stripe{display:none;}
     .cat-block{page-break-inside:avoid;}
     .cat-body{display:block !important;}
     .cat-head .chevron{display:none;}
-    #sectionPicker{border:none; padding:0; background:transparent; appearance:none; -webkit-appearance:none;}
     @page{ size:portrait; margin:14mm; }
   }
   @media (max-width:700px){
     .meta-row{grid-template-columns:1fr;}
-  }
-
-  @media (max-width:640px){
-    /* Turn the checklist table into stacked cards for readability on phones */
-    table.checklist thead{display:none;}
-    table.checklist, table.checklist tbody{display:block; width:100%;}
-    table.checklist tr{
-      display:flex; flex-wrap:wrap; align-items:flex-start;
-      border:1px solid var(--border); border-radius:10px; margin-bottom:10px;
-      padding:12px; background:#fff;
-    }
-    table.checklist td{border-bottom:none; padding:0;}
-    table.checklist td.no{
-      order:0; flex:1 1 100%; font-weight:700; color:var(--navy); font-size:12px; margin-bottom:4px;
-    }
-    table.checklist td:nth-child(2){
-      order:1; flex:1 1 100%; font-size:14px; line-height:1.45; margin-bottom:10px;
-    }
-    table.checklist td.yn{
-      order:2; width:100%; flex:1 1 100%; text-align:left; margin-bottom:8px;
-    }
-    table.checklist td.remarks{order:3; width:100%; flex:1 1 100%;}
-    .yn-group{justify-content:space-between; gap:6px;}
-    .yn-group label{
-      flex:1; justify-content:center; border:1px solid var(--border); border-radius:8px;
-      padding:9px 4px; font-size:13px; margin:0;
-    }
-    table.checklist td.remarks input{
-      border:1px solid var(--border); border-radius:6px; padding:8px 9px; font-size:13px;
-    }
-    .cat-head .cat-name{font-size:14px;}
-    .overall-box{justify-content:space-between;}
   }
 </style>
 </head>
@@ -226,6 +207,8 @@
   </div>
   <div class="actions">
     <button class="btn secondary" onclick="window.location.href='index.html'">← Dashboard</button>
+    <button class="btn secondary" id="adminModeBtn" onclick="toggleAdminMode()">🔒 Mod Admin</button>
+    <button class="btn secondary" id="saveChecklistBtn" onclick="saveChecklistChanges()" style="display:none;">💾 Simpan Perubahan Checklist</button>
     <button class="btn secondary" id="printSaveBtn" onclick="printAndSaveInspection()">🖨 Print & Save Record</button>
     <button class="btn" id="saveBtn" onclick="saveInspection()">💾 Save Record</button>
   </div>
@@ -296,8 +279,12 @@ const CONFIG = {
 };
 
 /* Categories 1-7, 9, 10 are shared across every section.
-   Category 8 is section-specific (equipment/area unique to that section). */
-const COMMON_CATEGORIES_TOP = [
+   Category 8 is section-specific (equipment/area unique to that section).
+   These are the built-in fallback values — used if the page can't reach the
+   server (offline) or on the very first run before ChecklistConfig exists.
+   Once loaded, admins edit the live copy in Google Sheets via Admin Mode below;
+   this hardcoded copy is never changed automatically. */
+let COMMON_CATEGORIES_TOP = [
   {
     no: '1', name: 'Susun Atur',
     items: [
@@ -360,7 +347,7 @@ const COMMON_CATEGORIES_TOP = [
   }
 ];
 
-const COMMON_CATEGORIES_BOTTOM = [
+let COMMON_CATEGORIES_BOTTOM = [
   {
     no: '9', name: 'Bahan Kimia Berbahaya',
     items: [
@@ -380,7 +367,7 @@ const COMMON_CATEGORIES_BOTTOM = [
   }
 ];
 
-const SECTION_CATEGORY_8 = {
+let SECTION_CATEGORY_8 = {
   'Maintenance': {
     no: '8', name: 'Dandang Stim dan Bengkel',
     items: [
@@ -462,6 +449,127 @@ function getCategoriesForSection(sectionName){
 
 let activeCategories = [];
 let activeSection = '';
+let adminMode = false;
+let adminPin = '';
+
+/* Load the live checklist from the backend (ChecklistConfig sheet). If this
+   fails (offline, first-ever deploy before the sheet exists, etc.) the
+   hardcoded defaults above are used silently — the page still works. */
+async function loadChecklistFromServer(){
+  const sel = document.getElementById('sectionPicker');
+  const placeholder = sel.options[0];
+  const originalText = placeholder.textContent;
+  sel.disabled = true;
+  placeholder.textContent = 'Memuatkan checklist...';
+
+  try {
+    const res = await fetch(CONFIG.API_URL + '?action=getChecklist');
+    const data = await res.json();
+    if (data && data.success && data.checklist) {
+      if (Array.isArray(data.checklist.top)) COMMON_CATEGORIES_TOP = data.checklist.top;
+      if (Array.isArray(data.checklist.bottom)) COMMON_CATEGORIES_BOTTOM = data.checklist.bottom;
+      if (data.checklist.section8) SECTION_CATEGORY_8 = data.checklist.section8;
+    }
+  } catch (err) {
+    // offline or server error — keep the built-in defaults, no need to alarm the user
+  }
+
+  sel.disabled = false;
+  placeholder.textContent = originalText;
+}
+
+function toggleAdminMode(){
+  const btn = document.getElementById('adminModeBtn');
+  const saveChecklistBtn = document.getElementById('saveChecklistBtn');
+
+  if (!adminMode){
+    const pin = prompt('Masukkan PIN Admin untuk edit checklist:');
+    if (pin === null) return; // cancelled
+    adminPin = pin;
+    adminMode = true;
+    btn.textContent = '🔓 Admin Aktif (klik untuk keluar)';
+    btn.classList.add('active');
+    if (saveChecklistBtn) saveChecklistBtn.style.display = 'inline-flex';
+  } else {
+    adminMode = false;
+    adminPin = '';
+    btn.textContent = '🔒 Mod Admin';
+    btn.classList.remove('active');
+    if (saveChecklistBtn) saveChecklistBtn.style.display = 'none';
+  }
+
+  if (activeSection){
+    activeCategories = getCategoriesForSection(activeSection);
+    buildCategories();
+  }
+}
+
+function updateItemText(ci, ii, value){
+  // Live edit — mutates the shared category object directly (categories 1-7/9/10
+  // are shared references across sections, category 8 is section-specific),
+  // no re-render needed so the input keeps focus while typing.
+  activeCategories[ci].items[ii] = value;
+}
+
+function deleteItem(ci, ii){
+  const cat = activeCategories[ci];
+  if (!confirm(`Padam item ${cat.no}.${ii + 1}?\n\n"${cat.items[ii]}"`)) return;
+  cat.items.splice(ii, 1);
+  buildCategories();
+}
+
+function addItem(ci){
+  const cat = activeCategories[ci];
+  cat.items.push('');
+  buildCategories();
+  const newIdx = cat.items.length - 1;
+  const input = document.getElementById(`item-edit-${ci}-${newIdx}`);
+  if (input) input.focus();
+}
+
+async function saveChecklistChanges(){
+  const btn = document.getElementById('saveChecklistBtn');
+  const statusEl = document.getElementById('statusMsg');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Menyimpan checklist...';
+
+  const payload = {
+    action: 'updateChecklist',
+    pin: adminPin,
+    checklist: {
+      top: COMMON_CATEGORIES_TOP,
+      bottom: COMMON_CATEGORIES_BOTTOM,
+      section8: SECTION_CATEGORY_8
+    }
+  };
+
+  try {
+    const res = await fetch(CONFIG.API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data && data.success){
+      statusEl.className = 'status-msg ok';
+      statusEl.textContent = '✓ Checklist berjaya dikemas kini untuk semua pengguna.';
+    } else {
+      statusEl.className = 'status-msg err';
+      statusEl.textContent = '⚠ Gagal simpan checklist: ' + (data && data.error ? data.error : 'unknown error');
+      if (data && data.error && data.error.indexOf('PIN') !== -1){
+        const pin = prompt('PIN admin salah. Cuba masukkan semula:');
+        if (pin !== null) adminPin = pin;
+      }
+    }
+  } catch (err) {
+    statusEl.className = 'status-msg err';
+    statusEl.textContent = '⚠ Tidak dapat sambung ke server. Cuba lagi.';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '💾 Simpan Perubahan Checklist';
+}
 
 function populateSectionPicker(){
   const sel = document.getElementById('sectionPicker');
@@ -520,17 +628,29 @@ function buildCategories(){
             ${cat.items.map((item, ii) => `
               <tr>
                 <td class="no">${cat.no}.${ii + 1}</td>
-                <td>${item}</td>
+                <td>${adminMode ? `
+                  <div class="admin-item-edit">
+                    <input type="text" id="item-edit-${ci}-${ii}" value="${item.replace(/"/g,'&quot;')}" oninput="updateItemText(${ci},${ii},this.value)">
+                    <button type="button" class="item-del-btn" title="Padam item ini" onclick="deleteItem(${ci},${ii})">🗑</button>
+                  </div>
+                ` : item}</td>
                 <td class="yn">
                   <div class="yn-group">
-                    <label><input type="radio" name="item-${ci}-${ii}" value="yes" onchange="updateCatProgress(${ci}); onAnswerChange(${ci}, ${ii})"> Ya</label>
-                    <label><input type="radio" name="item-${ci}-${ii}" value="no" onchange="updateCatProgress(${ci}); onAnswerChange(${ci}, ${ii})"> Tidak</label>
-                    <label><input type="radio" name="item-${ci}-${ii}" value="na" onchange="updateCatProgress(${ci}); onAnswerChange(${ci}, ${ii})"> N/A</label>
+                    <label><input type="radio" name="item-${ci}-${ii}" value="yes" onchange="updateCatProgress(${ci})" ${adminMode ? 'disabled' : ''}> Ya</label>
+                    <label><input type="radio" name="item-${ci}-${ii}" value="no" onchange="updateCatProgress(${ci})" ${adminMode ? 'disabled' : ''}> Tidak</label>
+                    <label><input type="radio" name="item-${ci}-${ii}" value="na" onchange="updateCatProgress(${ci})" ${adminMode ? 'disabled' : ''}> N/A</label>
                   </div>
                 </td>
-                <td class="remarks"><input type="text" placeholder="Catatan..." id="remark-${ci}-${ii}" oninput="this.classList.remove('required-missing')"></td>
+                <td class="remarks"><input type="text" placeholder="Catatan..." id="remark-${ci}-${ii}" ${adminMode ? 'disabled' : ''}></td>
               </tr>
             `).join('')}
+            ${adminMode ? `
+              <tr class="admin-add-row">
+                <td colspan="4">
+                  <button type="button" class="item-add-btn" onclick="addItem(${ci})">➕ Tambah Item</button>
+                </td>
+              </tr>
+            ` : ''}
           </tbody>
         </table>
       </div>
@@ -570,16 +690,6 @@ function updateCatProgress(ci){
   el.textContent = answered + ' / ' + cat.items.length;
   el.className = 'cat-progress' + (answered === cat.items.length ? ' complete' : '');
   updateOverall();
-}
-
-function onAnswerChange(ci, ii){
-  const checked = document.querySelector(`input[name="item-${ci}-${ii}"]:checked`);
-  const remarkInput = document.getElementById(`remark-${ci}-${ii}`);
-  if (!remarkInput) return;
-  const isNo = !!checked && checked.value === 'no';
-  remarkInput.placeholder = isNo ? 'Catatan (wajib)...' : 'Catatan...';
-  remarkInput.classList.toggle('required-mark', isNo);
-  if (!isNo) remarkInput.classList.remove('required-missing');
 }
 
 function updateOverall(){
@@ -628,8 +738,6 @@ function collectItemResults(){
       if (answer === 'na') na++;
       const remark = document.getElementById(`remark-${ci}-${ii}`).value.trim();
       items.push({
-        ci: ci,
-        ii: ii,
         categoryNo: cat.no,
         categoryName: cat.name,
         itemNo: cat.no + '.' + (ii + 1),
@@ -644,6 +752,7 @@ function collectItemResults(){
 
 async function printAndSaveInspection(){
   const printBtn = document.getElementById('printSaveBtn');
+  const saveBtn = document.getElementById('saveBtn');
 
   if (printBtn) {
     printBtn.disabled = true;
@@ -695,25 +804,6 @@ async function saveInspection(){
     return false;
   }
 
-  const missingRemarks = items.filter(it => it.answer === 'no' && !it.remark);
-  if (missingRemarks.length > 0){
-    statusEl.className = 'status-msg err';
-    statusEl.textContent = `⚠ ${missingRemarks.length} item bertanda "Tidak" belum ada catatan. Sila lengkapkan catatan sebelum simpan.`;
-    missingRemarks.forEach(it => {
-      const input = document.getElementById(`remark-${it.ci}-${it.ii}`);
-      if (input) input.classList.add('required-missing');
-    });
-    const first = missingRemarks[0];
-    const catBlock = document.getElementById('cat-' + first.ci);
-    if (catBlock && !catBlock.classList.contains('open')) catBlock.classList.add('open');
-    const firstInput = document.getElementById(`remark-${first.ci}-${first.ii}`);
-    if (firstInput){
-      firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      firstInput.focus();
-    }
-    return false;
-  }
-
   const payload = {
     action: 'submitCommitteeInspection',
     inspectionId: 'CINSP-' + Date.now(),
@@ -759,6 +849,7 @@ async function saveInspection(){
 }
 
 populateSectionPicker();
+loadChecklistFromServer();
 document.getElementById('digitalSignature')?.addEventListener('input', updateDigitalSignature);
 </script>
 </body>
