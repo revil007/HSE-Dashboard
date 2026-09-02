@@ -107,6 +107,12 @@
     background:var(--yellow); color:var(--navy); border-radius:6px; padding:2px 9px; min-width:24px; text-align:center;
   }
   .cat-head .cat-name{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; text-transform:uppercase;}
+  .cat-head .cat-name-edit{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; text-transform:uppercase;
+    background:transparent; border:none; border-bottom:1px dashed var(--yellow); color:#fff;
+    padding:2px 2px; min-width:120px; flex:1;
+  }
+  .cat-head .cat-name-edit:focus{outline:none; border-bottom-color:#fff;}
   .cat-head .cat-progress{
     font-family:'IBM Plex Mono',monospace; font-size:12px; background:rgba(255,255,255,0.12);
     padding:3px 10px; border-radius:20px;
@@ -598,6 +604,12 @@ async function toggleAdminMode(){
   }
 }
 
+function updateCategoryName(ci, value){
+  // Same shared-reference pattern as updateItemText — mutates in place so it
+  // persists through re-renders and gets included when Save Checklist is pressed.
+  activeCategories[ci].name = value;
+}
+
 function updateItemText(ci, ii, value){
   // Live edit — mutates the shared category object directly (categories 1-7/9/10
   // are shared references across sections, category 8 is section-specific),
@@ -706,7 +718,7 @@ function buildCategories(){
       <div class="cat-head" onclick="toggleCat(${ci})">
         <div class="cat-title">
           <span class="cat-no">${cat.no}</span>
-          <span class="cat-name">${cat.name}</span>
+          ${adminMode ? `<input type="text" class="cat-name-edit" value="${cat.name.replace(/"/g,'&quot;')}" oninput="updateCategoryName(${ci}, this.value)" onclick="event.stopPropagation()">` : `<span class="cat-name">${cat.name}</span>`}
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
           <span class="cat-progress" id="cat-progress-${ci}">0 / ${cat.items.length}</span>
