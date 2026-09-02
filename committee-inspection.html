@@ -113,6 +113,30 @@
     padding:2px 2px; min-width:120px; flex:1;
   }
   .cat-head .cat-name-edit:focus{outline:none; border-bottom-color:#fff;}
+  .cat-del-btn{
+    background:rgba(214,72,75,0.18); border:1px solid var(--red); color:#fff;
+    border-radius:6px; padding:4px 10px; cursor:pointer; font-size:11.5px; font-weight:600; white-space:nowrap;
+  }
+  .cat-del-btn:hover{background:var(--red);}
+  .cat-hide-btn{
+    background:rgba(242,183,5,0.18); border:1px solid var(--yellow); color:#fff;
+    border-radius:6px; padding:4px 10px; cursor:pointer; font-size:11.5px; font-weight:600; white-space:nowrap;
+  }
+  .cat-hide-btn:hover{background:var(--yellow); color:var(--navy);}
+  .hidden-cats-panel{
+    border:1px dashed var(--muted); border-radius:10px; padding:12px 14px; margin-bottom:14px; background:#FAFAF7;
+  }
+  .hidden-cats-title{font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.03em; margin-bottom:8px;}
+  .hidden-cat-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    font-size:13px; padding:6px 0; border-top:1px solid var(--border);
+  }
+  .hidden-cat-row:first-of-type{border-top:none;}
+  .hidden-cat-restore{
+    background:transparent; border:1px solid var(--green); color:var(--green);
+    border-radius:6px; padding:4px 10px; cursor:pointer; font-size:11.5px; font-weight:600; white-space:nowrap;
+  }
+  .hidden-cat-restore:hover{background:var(--green); color:#fff;}
   .cat-head .cat-progress{
     font-family:'IBM Plex Mono',monospace; font-size:12px; background:rgba(255,255,255,0.12);
     padding:3px 10px; border-radius:20px;
@@ -513,9 +537,42 @@ let SECTION_CATEGORY_8 = {
 
 const SECTION_NAMES = ['Kawasan Store','Maintenance','Glue Plant','Formalin','Quality Control','Hardener','Admin'];
 
+// Per-section hiding for SHARED categories (1-7, 9, 10). { 'Admin': ['9','10'] }
+// means categories 9 and 10 are hidden just for the Admin section — the
+// category itself still exists and still shows for every other section.
+let HIDDEN_CATEGORIES = {};
+
 function getCategoriesForSection(sectionName){
   const cat8 = SECTION_CATEGORY_8[sectionName];
-  return [...COMMON_CATEGORIES_TOP, cat8, ...COMMON_CATEGORIES_BOTTOM].filter(Boolean);
+  const hidden = HIDDEN_CATEGORIES[sectionName] || [];
+  return [...COMMON_CATEGORIES_TOP, cat8, ...COMMON_CATEGORIES_BOTTOM]
+    .filter(Boolean)
+    .filter(cat => !hidden.includes(cat.no));
+}
+
+function getHiddenCategoriesInfo(sectionName){
+  const hidden = HIDDEN_CATEGORIES[sectionName] || [];
+  return hidden.map(no => {
+    const cat = COMMON_CATEGORIES_TOP.find(c => c.no === no) || COMMON_CATEGORIES_BOTTOM.find(c => c.no === no);
+    return cat ? { no: cat.no, name: cat.name } : { no, name: '(kategori tidak dijumpai)' };
+  });
+}
+
+function toggleHideCategoryForSection(no){
+  if (!HIDDEN_CATEGORIES[activeSection]) HIDDEN_CATEGORIES[activeSection] = [];
+  const idx = HIDDEN_CATEGORIES[activeSection].indexOf(no);
+  if (idx === -1) HIDDEN_CATEGORIES[activeSection].push(no);
+  else HIDDEN_CATEGORIES[activeSection].splice(idx, 1);
+
+  activeCategories = getCategoriesForSection(activeSection);
+  buildCategories();
+}
+
+function hideCategoryForSection(ci){
+  const cat = activeCategories[ci];
+  const ok = confirm(`Sembunyikan kategori "${cat.no}. ${cat.name}" untuk section "${activeSection}" sahaja?\n\nSection lain TIDAK terjejas, dan ko boleh pulihkan bila-bila masa.`);
+  if (!ok) return;
+  toggleHideCategoryForSection(cat.no);
 }
 
 let activeCategories = [];
@@ -540,6 +597,7 @@ async function loadChecklistFromServer(){
       if (Array.isArray(data.checklist.top)) COMMON_CATEGORIES_TOP = data.checklist.top;
       if (Array.isArray(data.checklist.bottom)) COMMON_CATEGORIES_BOTTOM = data.checklist.bottom;
       if (data.checklist.section8) SECTION_CATEGORY_8 = data.checklist.section8;
+      if (data.checklist.hidden) HIDDEN_CATEGORIES = data.checklist.hidden;
     }
   } catch (err) {
     // offline or server error — keep the built-in defaults, no need to alarm the user
@@ -604,6 +662,35 @@ async function toggleAdminMode(){
   }
 }
 
+function deleteCategory(ci){
+  const cat = activeCategories[ci];
+
+  const confirmText = prompt(`Untuk padam kategori "${cat.no}. ${cat.name}", taip SEMULA nama kategori ni untuk sahkan:\n\n${cat.name}`);
+  if (confirmText === null) return; // cancelled
+  if (confirmText.trim() !== cat.name.trim()){
+    alert('Nama tidak sepadan. Kategori TIDAK dipadam.');
+    return;
+  }
+
+  const isShared = COMMON_CATEGORIES_TOP.includes(cat) || COMMON_CATEGORIES_BOTTOM.includes(cat);
+  if (isShared){
+    const ok = confirm(`⚠️ Kategori "${cat.name}" digunakan oleh SEMUA section, bukan cuma "${activeSection}".\n\nMemadam ni akan buang kategori ni dari SEMUA 7 section sekali gus. Teruskan?`);
+    if (!ok) return;
+  } else {
+    const ok = confirm(`Padam kategori "${cat.name}" khas untuk section "${activeSection}"? Section lain tidak terjejas.`);
+    if (!ok) return;
+  }
+
+  const topIdx = COMMON_CATEGORIES_TOP.indexOf(cat);
+  if (topIdx !== -1) COMMON_CATEGORIES_TOP.splice(topIdx, 1);
+  const bottomIdx = COMMON_CATEGORIES_BOTTOM.indexOf(cat);
+  if (bottomIdx !== -1) COMMON_CATEGORIES_BOTTOM.splice(bottomIdx, 1);
+  if (SECTION_CATEGORY_8[activeSection] === cat) delete SECTION_CATEGORY_8[activeSection];
+
+  activeCategories = getCategoriesForSection(activeSection);
+  buildCategories();
+}
+
 function updateCategoryName(ci, value){
   // Same shared-reference pattern as updateItemText — mutates in place so it
   // persists through re-renders and gets included when Save Checklist is pressed.
@@ -646,7 +733,8 @@ async function saveChecklistChanges(){
     checklist: {
       top: COMMON_CATEGORIES_TOP,
       bottom: COMMON_CATEGORIES_BOTTOM,
-      section8: SECTION_CATEGORY_8
+      section8: SECTION_CATEGORY_8,
+      hidden: HIDDEN_CATEGORIES
     }
   };
 
@@ -713,7 +801,23 @@ function onSectionChange(){
 
 function buildCategories(){
   const container = document.getElementById('categoriesContainer');
-  container.innerHTML = activeCategories.map((cat, ci) => `
+  const hiddenInfo = adminMode ? getHiddenCategoriesInfo(activeSection) : [];
+
+  const hiddenPanelHtml = hiddenInfo.length ? `
+    <div class="hidden-cats-panel">
+      <div class="hidden-cats-title">🙈 Kategori disembunyikan untuk "${activeSection}":</div>
+      ${hiddenInfo.map(h => `
+        <div class="hidden-cat-row">
+          <span>${h.no}. ${h.name}</span>
+          <button type="button" class="hidden-cat-restore" onclick="toggleHideCategoryForSection('${h.no}')">↩️ Pulihkan</button>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
+  container.innerHTML = hiddenPanelHtml + activeCategories.map((cat, ci) => {
+    const isShared = COMMON_CATEGORIES_TOP.includes(cat) || COMMON_CATEGORIES_BOTTOM.includes(cat);
+    return `
     <div class="cat-block" id="cat-${ci}">
       <div class="cat-head" onclick="toggleCat(${ci})">
         <div class="cat-title">
@@ -721,6 +825,8 @@ function buildCategories(){
           ${adminMode ? `<input type="text" class="cat-name-edit" value="${cat.name.replace(/"/g,'&quot;')}" oninput="updateCategoryName(${ci}, this.value)" onclick="event.stopPropagation()">` : `<span class="cat-name">${cat.name}</span>`}
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
+          ${adminMode && isShared ? `<button type="button" class="cat-hide-btn" onclick="event.stopPropagation(); hideCategoryForSection(${ci})" title="Sembunyi untuk section ini sahaja">🙈 Sembunyi (section ini)</button>` : ''}
+          ${adminMode ? `<button type="button" class="cat-del-btn" onclick="event.stopPropagation(); deleteCategory(${ci})" title="${isShared ? 'Padam untuk SEMUA section' : 'Padam kategori ini'}">🗑 ${isShared ? 'Padam (semua section)' : 'Padam Kategori'}</button>` : ''}
           <span class="cat-progress" id="cat-progress-${ci}">0 / ${cat.items.length}</span>
           <span class="chevron">▾</span>
         </div>
@@ -761,7 +867,8 @@ function buildCategories(){
         </table>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   // open the first category by default
   const first = document.getElementById('cat-0');
