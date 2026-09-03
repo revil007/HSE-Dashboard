@@ -13,7 +13,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SCI HSE Dashboard</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#151C27">
+<meta name="theme-color" content="#0F141C">
 <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
@@ -57,40 +57,38 @@
     --highlight-border:#EEDFA8;
   }
   html[data-theme="dark"]{
-    --navy:#2E3B52;
-    --navy-2:#3A4A65;
-    --navy-3:#425374;
-    --surface:#11141B;
-    --card:#1A1E28;
+    --navy:#263449;
+    --navy-2:#31425B;
+    --navy-3:#3C506D;
+    --surface:#0F141C;
+    --card:#171D27;
     --ink:#E8EAEE;
     --muted:#8D96A5;
-    --border:#2B2F3B;
+    --border:#293241;
     --yellow:#F2B705;
     --yellow-deep:#D9A100;
     --red:#E8676B;
-    --red-bg:#3A2023;
+    --red-bg:#351F23;
     --amber:#E8A857;
-    --amber-bg:#3A2E19;
+    --amber-bg:#352B1A;
     --green:#4FB47F;
-    --green-bg:#1A3126;
-    --shadow-sm:0 1px 2px rgba(0,0,0,.35), 0 1px 3px rgba(0,0,0,.35);
-    --shadow-md:0 6px 18px rgba(0,0,0,.45), 0 2px 5px rgba(0,0,0,.35);
-    --shadow-lg:0 14px 34px rgba(0,0,0,.55), 0 4px 10px rgba(0,0,0,.4);
-    --overlay-bg:rgba(0,0,0,.6);
-    --modal-bg:#1E2330;
-    --input-bg:#20242F;
-    --chart-grid:#2B2F3B;
+    --green-bg:#183025;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.38), 0 2px 5px rgba(0,0,0,.24);
+    --shadow-md:0 7px 20px rgba(0,0,0,.48), 0 2px 6px rgba(0,0,0,.30);
+    --shadow-lg:0 16px 38px rgba(0,0,0,.58), 0 5px 12px rgba(0,0,0,.38);
+    --overlay-bg:rgba(0,0,0,.68);
+    --modal-bg:#1B222E;
+    --input-bg:#1C2430;
+    --chart-grid:#293241;
     --chart-text:#8D96A5;
-    --suggestion-bg:#2C2640;
+    --suggestion-bg:#2A2540;
     --suggestion-ink:#B6A6E0;
-    --highlight-bg:#332C16;
-    --highlight-border:#5A4C24;
+    --highlight-bg:#302A16;
+    --highlight-border:#594B22;
+    --info:#60A5FA;
+    --info-bg:#172A43;
   }
-  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
-  button, a{-webkit-tap-highlight-color:transparent; outline:none;}
-  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible{
-    outline:2px solid var(--navy); outline-offset:2px;
-  }
+  *{box-sizing:border-box; margin:0; padding:0;}
   html{overflow-x:hidden; max-width:100%;}
   body{
     font-family:'Inter',sans-serif;
@@ -507,7 +505,7 @@
   .theme-switch.active{background:var(--navy);}
   .theme-switch-knob{
     position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%;
-    background:#fff; transition:transform .2s ease; box-shadow:0 1px 3px rgba(0,0,0,.3);
+    background:var(--card); transition:transform .2s ease; box-shadow:0 1px 3px rgba(0,0,0,.3);
     display:flex; align-items:center; justify-content:center; color:var(--navy);
   }
   .theme-switch.active .theme-switch-knob{transform:translateX(22px); color:var(--yellow-deep);}
@@ -532,7 +530,7 @@
   }
   .pl-line{
     display:flex; justify-content:space-between; align-items:center;
-    border-top:1px solid #f0f2f5; padding:11px 0; margin-top:12px; font-size:12px; gap:10px;
+    border-top:1px solid var(--border); padding:11px 0; margin-top:12px; font-size:12px; gap:10px;
   }
   .pl-line:first-child{border-top:none; margin-top:0; padding-top:0;}
   .pl-line-left{display:flex; align-items:flex-start; gap:8px; min-width:0;}
@@ -615,8 +613,8 @@
   .pl-setting-name{font-weight:700; font-size:13px; color:var(--ink);}
   .pl-setting-desc{font-size:10px; color:var(--muted); margin-top:3px;}
   .pl-setting-inputs{display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end;}
-  .pl-setting-inputs input{width:64px; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:'IBM Plex Mono',monospace;}
-  .pl-setting-inputs select{width:88px; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:12px;}
+  .pl-setting-inputs input{width:64px; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:'IBM Plex Mono',monospace; background:var(--input-bg); color:var(--ink);}
+  .pl-setting-inputs select{width:88px; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:12px; background:var(--input-bg); color:var(--ink);}
   .pl-setting-inputs span{font-size:11px; color:var(--muted);}
   .pl-settings-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px;}
   .pl-settings-cancel{
@@ -660,7 +658,7 @@
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
   .quarter-card{
-    background:#fff;
+    background:var(--card);
     border:1px solid var(--border);
     border-radius:9px;
     padding:11px 13px;
@@ -775,12 +773,14 @@
   .badge.progress{background:var(--amber-bg); color:var(--amber);}
   .badge.done{background:var(--green-bg); color:var(--green);}
   select.status-select{
+    background:var(--input-bg); color:var(--ink);
     font-family:'Inter',sans-serif;
     font-size:12px;
     border:1px solid var(--border);
     border-radius:6px;
     padding:4px 6px;
-    background:#fff;
+    background:var(--input-bg);
+    color:var(--ink);
     cursor:pointer;
   }
   .task-search-row{margin-bottom:16px;}
@@ -1042,6 +1042,48 @@
   .notes-sheet-close::after{transform:translate(-50%,-50%) rotate(-45deg);}
   .notes-sheet-close:hover{background:var(--surface); color:var(--ink);}
 
+  /* ---------------- Dark Mode V2 refinements ---------------- */
+  html[data-theme="dark"] .board-card,
+  html[data-theme="dark"] .panel,
+  html[data-theme="dark"] .notes-widget,
+  html[data-theme="dark"] .link-card,
+  html[data-theme="dark"] .insp-card,
+  html[data-theme="dark"] .obs-card,
+  html[data-theme="dark"] .pl-records,
+  html[data-theme="dark"] .task-card{
+    border-color:var(--border);
+  }
+  html[data-theme="dark"] .quarter-card,
+  html[data-theme="dark"] select.status-select,
+  html[data-theme="dark"] .pl-setting-inputs input,
+  html[data-theme="dark"] .pl-setting-inputs select{
+    background:var(--input-bg);
+    color:var(--ink);
+    border-color:var(--border);
+  }
+  html[data-theme="dark"] .pl-line{border-top-color:var(--border);}
+  html[data-theme="dark"] .column h2,
+  html[data-theme="dark"] .insp-chart-head,
+  html[data-theme="dark"] .trend-panel-head,
+  html[data-theme="dark"] .panel h3{
+    border-color:var(--border);
+  }
+  html[data-theme="dark"] .hse-stat-card{
+    background:#121923;
+    border-color:var(--border);
+  }
+  html[data-theme="dark"] .hse-stat-card.highlight{
+    background:linear-gradient(155deg,#17263A 0%,#263449 130%);
+  }
+  html[data-theme="dark"] .link-card.disabled{
+    background:#131923;
+  }
+  html[data-theme="dark"] .theme-switch{background:#343D4B;}
+  html[data-theme="dark"] .theme-switch.active{background:var(--navy-3);}
+  html[data-theme="dark"] .more-sheet{border-top:1px solid var(--border);}
+  html[data-theme="dark"] .login-box input{background:var(--input-bg); color:var(--ink);}
+  html[data-theme="dark"] .toast{background:#202A38;}
+
   @media (max-width: 980px){
     .layout{
       grid-template-columns:1fr;
@@ -1209,7 +1251,7 @@
     pointer-events:none; width:100%; max-width:360px; padding:0 16px; box-sizing:border-box;
   }
   .toast{
-    display:flex; align-items:center; gap:9px; background:#171B22; color:#fff;
+    display:flex; align-items:center; gap:9px; background:var(--navy-2); color:#fff;
     padding:11px 16px; border-radius:10px; font-size:13px; font-weight:600;
     box-shadow:0 10px 28px rgba(15,23,42,.28); animation:toastIn .25s ease, toastOut .25s ease 2.5s forwards;
     max-width:100%;
