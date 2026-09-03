@@ -86,7 +86,11 @@
     --highlight-bg:#332C16;
     --highlight-border:#5A4C24;
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  button, a{-webkit-tap-highlight-color:transparent; outline:none;}
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible{
+    outline:2px solid var(--navy); outline-offset:2px;
+  }
   html{overflow-x:hidden; max-width:100%;}
   body{
     font-family:'Inter',sans-serif;
