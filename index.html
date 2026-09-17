@@ -27,6 +27,7 @@
 <style>
   :root{
     --navy:#151C27;
+    --heading:#151C27;
     --navy-2:#1F2937;
     --navy-3:#2A3648;
     --surface:#F2F3EE;
@@ -58,6 +59,7 @@
   }
   html[data-theme="dark"]{
     --navy:#263449;
+    --heading:#E8EAEE;
     --navy-2:#31425B;
     --navy-3:#3C506D;
     --surface:#0F141C;
@@ -197,7 +199,7 @@
   }
   .notes-widget h3{
     font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px;
-    text-transform:uppercase; letter-spacing:0.02em; color:var(--navy);
+    text-transform:uppercase; letter-spacing:0.02em; color:var(--heading);
     margin-bottom:12px; padding-bottom:9px; border-bottom:2px solid var(--surface);
   }
   nav.sidebar .item{
@@ -219,7 +221,7 @@
   nav.sidebar .item.active{
     background:linear-gradient(155deg, var(--navy) 0%, var(--navy-3) 130%);
     color:#fff;
-    border-color:var(--navy);
+    border-color:var(--heading);
     box-shadow:0 6px 16px rgba(21,28,39,.28);
   }
   nav.sidebar .item .icon{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; flex-shrink:0;}
@@ -265,7 +267,7 @@
   .insp-card.done:hover{box-shadow:none; transform:none;}
   .insp-card .i-name{
     font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px;
-    text-transform:uppercase; color:var(--navy); margin-bottom:6px;
+    text-transform:uppercase; color:var(--heading); margin-bottom:6px;
   }
   .insp-card .i-status{
     display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase;
@@ -337,7 +339,7 @@
   .link-card .lc-arrow{font-size:15px; color:var(--muted);}
   .link-card .lc-name{
     font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16.5px;
-    text-transform:uppercase; color:var(--navy);
+    text-transform:uppercase; color:var(--heading);
   }
   .link-card .lc-desc{font-size:12px; color:var(--muted); line-height:1.4;}
 
@@ -374,7 +376,7 @@
   .obs-card .oc-type.goodpractice{background:var(--green-bg); color:var(--green);}
   .obs-card .oc-newtag{
     font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
-    background:var(--yellow); color:var(--navy); border-radius:20px; padding:2px 8px;
+    background:var(--yellow); color:var(--heading); border-radius:20px; padding:2px 8px;
   }
   .obs-card .oc-date{font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; flex-shrink:0;}
   .obs-card .oc-right{display:flex; flex-wrap:nowrap; align-items:center; gap:8px; flex-shrink:0;}
@@ -510,7 +512,7 @@
   .theme-switch-knob{
     position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%;
     background:var(--card); transition:transform .2s ease; box-shadow:0 1px 3px rgba(0,0,0,.3);
-    display:flex; align-items:center; justify-content:center; color:var(--navy);
+    display:flex; align-items:center; justify-content:center; color:var(--heading);
   }
   .theme-switch.active .theme-switch-knob{transform:translateX(22px); color:var(--yellow-deep);}
   .theme-switch-knob svg{width:12px; height:12px;}
@@ -542,7 +544,7 @@
   .pl-line-left b{font-size:13px; color:var(--ink);}
   .pl-line-muted{color:var(--muted); font-size:10px; margin-top:3px;}
   .pl-line-right{display:flex; align-items:center; gap:8px; flex-shrink:0;}
-  .pl-line-right b{font-size:13px; color:var(--navy);}
+  .pl-line-right b{font-size:13px; color:var(--heading);}
   .pl-delete{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     background:none; border:none; outline:none; box-shadow:none; color:var(--muted);
@@ -588,7 +590,7 @@
     background:var(--pl-icon-bg, var(--surface)); color:var(--pl-accent, var(--navy));
   }
   .pl-modal-icon svg{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
-  .pl-modal-title{font-size:19px; font-weight:800; color:var(--navy);}
+  .pl-modal-title{font-size:19px; font-weight:800; color:var(--heading);}
   .pl-modal-sub{font-size:11px; color:var(--muted); margin-top:2px;}
   .pl-available-box{
     margin-top:17px; padding:15px; border-radius:13px; background:var(--surface); border:1px solid var(--border);
@@ -622,7 +624,7 @@
   .pl-setting-inputs span{font-size:11px; color:var(--muted);}
   .pl-settings-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px;}
   .pl-settings-cancel{
-    -webkit-appearance:none; border:1px solid var(--border); background:var(--card); color:var(--navy);
+    -webkit-appearance:none; border:1px solid var(--border); background:var(--card); color:var(--heading);
     border-radius:9px; padding:10px 14px; cursor:pointer; font-size:13px;
   }
   .pl-settings-save{
@@ -681,7 +683,7 @@
   }
   .quarter-card .q-label{
     font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14px;
-    color:var(--navy); text-transform:uppercase; letter-spacing:0.02em;
+    color:var(--heading); text-transform:uppercase; letter-spacing:0.02em;
   }
   .quarter-card .q-date-display{
     font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--ink);
@@ -726,7 +728,7 @@
   .task-card.todo{border-left-color:var(--red);}
   .task-card.progress{border-left-color:var(--amber);}
   .task-card.done{border-left-color:var(--green);}
-  .task-card.editing{border-left-color:var(--navy); background:var(--card);}
+  .task-card.editing{border-left-color:var(--heading); background:var(--card);}
   .task-card .name{font-weight:600; font-size:14.5px; margin-bottom:0;}
   .task-card .card-top{
     display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
@@ -792,7 +794,7 @@
     width:100%; box-sizing:border-box; border:1px solid var(--border); border-radius:9px;
     padding:10px 14px; font-size:13.5px; font-family:'Inter',sans-serif; background:var(--input-bg); color:var(--ink);
   }
-  .task-search-row input:focus{outline:none; border-color:var(--navy); background:var(--input-bg);}
+  .task-search-row input:focus{outline:none; border-color:var(--heading); background:var(--input-bg);}
   .btn{
     background:linear-gradient(180deg, var(--navy-3), var(--navy));
     color:#fff; border:none; border-radius:7px;
@@ -837,7 +839,7 @@
   .trend-total{text-align:right; line-height:1.1;}
   .trend-total .n{
     display:block; font-family:'Barlow Condensed',sans-serif; font-weight:800;
-    font-size:26px; color:var(--navy);
+    font-size:26px; color:var(--heading);
   }
   .trend-total .l{
     display:block; font-size:10px; color:var(--muted); text-transform:uppercase;
@@ -857,11 +859,11 @@
   }
   .hse-stat-card.highlight{
     background:linear-gradient(155deg, var(--navy) 0%, var(--navy-3) 130%);
-    border-color:var(--navy);
+    border-color:var(--heading);
   }
   .hse-stat-card .v{
     font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:27px;
-    color:var(--navy); line-height:1;
+    color:var(--heading); line-height:1;
   }
   .hse-stat-card.highlight .v{color:var(--yellow);}
   .hse-stat-card .k{
@@ -885,7 +887,7 @@
   }
   .donut-center .n{
     font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:29px;
-    color:var(--navy); line-height:1;
+    color:var(--heading); line-height:1;
   }
   .donut-center .l{
     font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;
@@ -995,7 +997,7 @@
   }
   .more-sheet-item .icon{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; flex-shrink:0;}
   .more-sheet-item .icon svg{width:100%; height:100%; display:block;}
-  .more-sheet-item.active{background:var(--surface); color:var(--navy);}
+  .more-sheet-item.active{background:var(--surface); color:var(--heading);}
   .more-sheet-item:active{background:var(--surface);}
 
   .notes-fab{
@@ -1028,7 +1030,7 @@
   }
   .notes-sheet-head h3{
     font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:19px;
-    text-transform:uppercase; color:var(--navy); margin:0;
+    text-transform:uppercase; color:var(--heading); margin:0;
   }
   .notes-sheet-close{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
@@ -1203,7 +1205,7 @@
   }
   .login-box h2{
     font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:22px;
-    text-transform:uppercase; color:var(--navy); margin:0 0 4px;
+    text-transform:uppercase; color:var(--heading); margin:0 0 4px;
   }
   .login-box p{font-size:12.5px; color:var(--muted); margin:0 0 20px;}
   .login-box input{
@@ -1211,7 +1213,7 @@
     font-size:14px; box-sizing:border-box; margin-bottom:10px; text-align:center;
     letter-spacing:0.05em;
   }
-  .login-box input:focus{outline:none; border-color:var(--navy);}
+  .login-box input:focus{outline:none; border-color:var(--heading);}
   .login-box button{
     width:100%; background:var(--navy); color:#fff; border:none; border-radius:8px;
     padding:11px 14px; font-size:14px; font-weight:700; cursor:pointer;
@@ -1232,7 +1234,7 @@
 
   .loading-spinner{
     width:34px; height:34px; margin:0 auto;
-    border:3px solid var(--surface); border-top-color:var(--navy); border-radius:50%;
+    border:3px solid var(--surface); border-top-color:var(--heading); border-radius:50%;
     animation:spin 0.8s linear infinite;
   }
   @keyframes spin{to{transform:rotate(360deg);}}
@@ -1409,7 +1411,7 @@
   <main>
     <section class="board-card" id="mainBoardCard" style="display:none;">
       <div class="board-header">
-        <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--navy);">Dashboard</h2>
+        <h2 class="display" id="boardTitle" style="font-size:20px; text-transform:uppercase; color:var(--heading);">Dashboard</h2>
         <div class="board-header-actions" style="display:flex; align-items:center; gap:8px; margin-left:auto;">
           <button class="pl-settings-btn" id="addTaskIconBtn" onclick="showAddTaskModal()" title="Add Task" aria-label="Add Task" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
           <button class="pl-settings-btn" id="exportCsvBtn" onclick="exportBoardCsv()" title="Export CSV" aria-label="Export CSV" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></button>
@@ -1439,7 +1441,7 @@
     <section class="board-card" id="othersLinkCard" style="display:none;">
       <div class="insp-chart-head" style="margin-bottom:0; padding-bottom:0; border-bottom:none;">
         <div>
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Safety Documentation</h3>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">Safety Documentation</h3>
           <div class="caption" style="margin:0;">SOPs, SWPs, HIRARC & HSE reference site</div>
         </div>
         <a class="card-link-btn" href="https://sites.google.com/view/sci-hse-dashboard/home" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Open ↗</a>
@@ -1449,7 +1451,7 @@
     <section class="board-card" id="meetingScheduleCard" style="display:none;">
       <div class="insp-chart-head" style="margin-bottom:14px; padding-bottom:14px;">
         <div>
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:0;">Meeting Schedule</h3>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:0;">Meeting Schedule</h3>
         </div>
         <button class="pl-settings-btn meeting-add-dates-btn" onclick="showSetMeetingDatesModal()" title="Add Dates" aria-label="Add Dates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span style="font-size:11px; font-weight:700; margin-left:5px;">Add Dates</span></button>
       </div>
@@ -1458,7 +1460,7 @@
 
     <section class="board-card" id="meetingTaskCard" style="display:none;">
       <div class="board-header">
-        <h2 class="display" style="font-size:20px; text-transform:uppercase; color:var(--navy);">Pending Task</h2>
+        <h2 class="display" style="font-size:20px; text-transform:uppercase; color:var(--heading);">Pending Task</h2>
         <div class="meeting-header-actions">
           <button class="pl-settings-btn" onclick="showAddTaskModal()" title="Add Task" aria-label="Add Task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
           <button class="pl-settings-btn" onclick="exportMeetingTaskCsv()" title="Export CSV" aria-label="Export CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></button>
@@ -1486,7 +1488,7 @@
     <section class="board-card" id="obsSubCard" style="display:none;">
       <div class="insp-chart-head" style="margin-bottom:10px; padding-bottom:10px;">
         <div>
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Safety Observation</h3>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">Safety Observation</h3>
         </div>
         <a class="card-link-btn" href="https://docs.google.com/forms/d/1DblIKDzVsOKHYpwBh5Ha1LmkLC9sucRV3a5bq1qESCc/viewform" target="_blank" rel="noopener">Form ↗</a>
       </div>
@@ -1497,7 +1499,7 @@
     <section class="board-card" id="incidentSubCard" style="display:none;">
       <div style="margin-bottom:10px; padding-bottom:10px;">
         <div class="chead-top">
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin:0;">Incident Report</h3>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin:0;">Incident Report</h3>
           <a class="card-link-btn" href="https://docs.google.com/forms/d/15Vc7iWF1LceyYjJK7IjKkL9pO5jBXl2iHiW8duaOVnM/viewform" target="_blank" rel="noopener">Form ↗</a>
         </div>
         <div class="caption" style="margin:4px 0 0;">Report accidents, injuries or incidents at the workplace</div>
@@ -1508,7 +1510,7 @@
     <section class="board-card" id="personalCard" style="display:none;">
       <div class="insp-chart-head" style="margin-bottom:18px; padding-bottom:14px;">
         <div>
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Leave Record</h3>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">Leave Record</h3>
           <div class="caption" style="margin:0;">Leave records — leave balance overview</div>
         </div>
         <div class="pl-header-actions">
@@ -1542,7 +1544,7 @@
     <section class="board-card" id="committeeNoItemsCard" style="display:none;">
       <div style="margin-bottom:10px; padding-bottom:10px; border-bottom:2px solid var(--surface);">
         <div class="chead-top">
-          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin:0;">HSE-CPI</h3>
+          <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin:0;">HSE-CPI</h3>
           <a class="card-link-btn" href="committee-inspection.html" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>Open Checklist ↗</a>
         </div>
         <div class="caption" style="margin:4px 0 0;">HSE Committee pre-meeting inspection</div>
@@ -1588,7 +1590,7 @@
         <div class="board-card">
           <div class="insp-chart-head">
             <div>
-              <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Inspection Score by Section</h3>
+              <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">Inspection Score by Section</h3>
               <div class="caption" style="margin:0;">Average score (%) · Target 80%</div>
             </div>
           </div>
@@ -1610,7 +1612,7 @@
         <div class="board-card">
           <div class="insp-chart-head">
             <div>
-              <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Committee Inspection Score by Section</h3>
+              <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">Committee Inspection Score by Section</h3>
               <div class="caption" style="margin:0;">Average score (%) from HSE Committee pre-meeting inspections · Target 80%</div>
             </div>
           </div>
@@ -1633,8 +1635,8 @@
       <section class="board-card">
         <div class="insp-chart-head">
           <div>
-            <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">Safety Induction</h3>
-            <div class="caption" style="margin:0;">Total YTD: <b id="siTotal" style="color:var(--navy);">—</b></div>
+            <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">Safety Induction</h3>
+            <div class="caption" style="margin:0;">Total YTD: <b id="siTotal" style="color:var(--heading);">—</b></div>
           </div>
         </div>
         <div class="trend-chart-wrap tall" style="margin-top:10px;">
@@ -1650,7 +1652,7 @@
       <section class="board-card">
         <div class="insp-chart-head">
           <div>
-            <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">HSE Training Matrix 2026</h3>
+            <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">HSE Training Matrix 2026</h3>
             <div class="caption" style="margin:0;">Planned, completed & upcoming status, and completion rate by department</div>
           </div>
         </div>
@@ -1687,7 +1689,7 @@
       </section>
 
       <section class="board-card">
-        <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--navy); margin-bottom:2px;">HSE Performance Statistics</h3>
+        <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">HSE Performance Statistics</h3>
         <div class="caption" style="margin:0 0 16px;">Year-to-date · Synced from HSE Performance Statistic sheet</div>
 
         <div class="hse-stats-row" id="hseStatsRow"></div>
@@ -1796,6 +1798,7 @@ function switchCategory(category, el){
   const isReporting = category === 'Safety Observations';
   const isPersonal = category === 'Personal';
   const isMeetings = category === 'Meetings';
+  const isOthersItem = category === 'Others';
   const mainBoardCard = document.getElementById('mainBoardCard');
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCard = document.getElementById('committeeNoItemsCard');
@@ -1803,16 +1806,22 @@ function switchCategory(category, el){
   const signOutCard = document.getElementById('signOutCard');
   const obsSubCard = document.getElementById('obsSubCard');
   const incidentSubCard = document.getElementById('incidentSubCard');
+  const othersLinkCardTop = document.getElementById('othersLinkCard');
+  const meetingScheduleCardTop = document.getElementById('meetingScheduleCard');
+  const meetingTaskCardTop = document.getElementById('meetingTaskCard');
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonal || isMeetings) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCard) noItemsCard.style.display = (!isDashboard && category === 'Monthly Inspection') ? 'block' : 'none';
-  // Personal, Safety Observation, Incident Report and Meetings are standalone
-  // cards outside mainBoardCard, so they must always be explicitly hidden
-  // when leaving their menu.
+  // Personal, Safety Observation, Incident Report, Others and Meetings are
+  // standalone cards outside mainBoardCard, so they must always be explicitly
+  // hidden when leaving their menu.
   if(personalCard) personalCard.style.display = isPersonal ? 'block' : 'none';
   if(signOutCard) signOutCard.style.display = isPersonal ? 'block' : 'none';
   if(obsSubCard) obsSubCard.style.display = isReporting ? 'block' : 'none';
   if(incidentSubCard) incidentSubCard.style.display = isReporting ? 'block' : 'none';
+  if(othersLinkCardTop) othersLinkCardTop.style.display = isOthersItem ? 'block' : 'none';
+  if(meetingScheduleCardTop) meetingScheduleCardTop.style.display = isMeetings ? 'block' : 'none';
+  if(meetingTaskCardTop) meetingTaskCardTop.style.display = isMeetings ? 'block' : 'none';
 
   if(isDashboard){
     renderDonut();
@@ -1831,18 +1840,12 @@ function switchCategory(category, el){
   const isMeetingsItem = category === 'Meetings';
   const inspGrid=document.getElementById('inspectionSectionsGrid');
   const inspCaption=document.getElementById('inspectionCaption');
-  const othersLinkCard=document.getElementById('othersLinkCard');
-  const meetingScheduleCard=document.getElementById('meetingScheduleCard');
-  const meetingTaskCard=document.getElementById('meetingTaskCard');
   const obsCaption=document.getElementById('obsCaption');
   const obsFeedGrid=document.getElementById('obsFeedGrid');
   const obsNotifBanner=document.getElementById('obsNotifBanner');
   const boardCols=document.getElementById('boardColumns');
   if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
   if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
-  if(othersLinkCard) othersLinkCard.style.display = isOthers ? 'block' : 'none';
-  if(meetingScheduleCard) meetingScheduleCard.style.display = isMeetingsItem ? 'block' : 'none';
-  if(meetingTaskCard) meetingTaskCard.style.display = isMeetingsItem ? 'block' : 'none';
   if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
   if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
   if(obsNotifBanner && !isObsFeed) obsNotifBanner.style.display = 'none';
@@ -2479,6 +2482,7 @@ function render(){
   const isReporting = currentCategory === 'Safety Observations';
   const isPersonalCategory = currentCategory === 'Personal';
   const isMeetingsCategory = currentCategory === 'Meetings';
+  const isOthersCategory = currentCategory === 'Others';
   const isInspectionCategory = !isDashboard && currentCategory === 'Monthly Inspection';
   const mainBoardCard = document.getElementById('mainBoardCard');
   const dashboardView = document.getElementById('dashboardView');
@@ -2487,15 +2491,21 @@ function render(){
   const signOutCard = document.getElementById('signOutCard');
   const obsSubCard = document.getElementById('obsSubCard');
   const incidentSubCard = document.getElementById('incidentSubCard');
+  const othersLinkCardTop = document.getElementById('othersLinkCard');
+  const meetingScheduleCardTop = document.getElementById('meetingScheduleCard');
+  const meetingTaskCardTop = document.getElementById('meetingTaskCard');
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonalCategory || isMeetingsCategory) ? 'none' : 'block';
   if(dashboardView) dashboardView.style.display = isDashboard ? 'flex' : 'none';
   if(noItemsCardTop) noItemsCardTop.style.display = isInspectionCategory ? 'block' : 'none';
-  // Personal, Safety Observation, Incident Report and Meetings are outside
-  // mainBoardCard; always reset their visibility on every render.
+  // Personal, Safety Observation, Incident Report, Others and Meetings are
+  // outside mainBoardCard; always reset their visibility on every render.
   if(personalCard) personalCard.style.display = isPersonalCategory ? 'block' : 'none';
   if(signOutCard) signOutCard.style.display = isPersonalCategory ? 'block' : 'none';
   if(obsSubCard) obsSubCard.style.display = isReporting ? 'block' : 'none';
   if(incidentSubCard) incidentSubCard.style.display = isReporting ? 'block' : 'none';
+  if(othersLinkCardTop) othersLinkCardTop.style.display = isOthersCategory ? 'block' : 'none';
+  if(meetingScheduleCardTop) meetingScheduleCardTop.style.display = isMeetingsCategory ? 'block' : 'none';
+  if(meetingTaskCardTop) meetingTaskCardTop.style.display = isMeetingsCategory ? 'block' : 'none';
 
   if(!isDashboard){
     const isInspection = currentCategory === 'Monthly Inspection';
@@ -2505,17 +2515,11 @@ function render(){
     const isMeetings = currentCategory === 'Meetings';
     const inspGrid=document.getElementById('inspectionSectionsGrid');
     const inspCaption=document.getElementById('inspectionCaption');
-    const othersLinkCard=document.getElementById('othersLinkCard');
-    const meetingScheduleCard=document.getElementById('meetingScheduleCard');
-    const meetingTaskCard=document.getElementById('meetingTaskCard');
     const obsCaption=document.getElementById('obsCaption');
     const obsFeedGrid=document.getElementById('obsFeedGrid');
     const boardCols=document.getElementById('boardColumns');
     if(inspGrid) inspGrid.style.display = isInspection ? 'grid' : 'none';
     if(inspCaption) inspCaption.style.display = isInspection ? 'block' : 'none';
-    if(othersLinkCard) othersLinkCard.style.display = isOthers ? 'block' : 'none';
-    if(meetingScheduleCard) meetingScheduleCard.style.display = isMeetings ? 'block' : 'none';
-    if(meetingTaskCard) meetingTaskCard.style.display = isMeetings ? 'block' : 'none';
     if(obsCaption) obsCaption.style.display = isObsFeed ? 'block' : 'none';
     if(obsFeedGrid) obsFeedGrid.style.display = isObsFeed ? 'flex' : 'none';
     if(boardCols) boardCols.style.display = (isInspection || isObsFeed || isPersonal || isMeetings) ? 'none' : 'grid';
