@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('sci_hse_theme_v1');
+    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  } catch(e){}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SCI HSE Dashboard</title>
 <link rel="manifest" href="manifest.json">
@@ -38,8 +46,51 @@
     --shadow-sm:0 1px 2px rgba(16,20,28,.05), 0 1px 3px rgba(16,20,28,.06);
     --shadow-md:0 6px 18px rgba(16,20,28,.09), 0 2px 5px rgba(16,20,28,.06);
     --shadow-lg:0 14px 34px rgba(16,20,28,.14), 0 4px 10px rgba(16,20,28,.08);
+    --overlay-bg:rgba(15,23,42,.45);
+    --modal-bg:#FFFFFF;
+    --input-bg:#FFFFFF;
+    --chart-grid:#E5E7E0;
+    --chart-text:#6B7280;
+    --suggestion-bg:#EBE7F5;
+    --suggestion-ink:#6E5AA8;
+    --highlight-bg:#FCF7E3;
+    --highlight-border:#EEDFA8;
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
+  html[data-theme="dark"]{
+    --navy:#2E3B52;
+    --navy-2:#3A4A65;
+    --navy-3:#425374;
+    --surface:#11141B;
+    --card:#1A1E28;
+    --ink:#E8EAEE;
+    --muted:#8D96A5;
+    --border:#2B2F3B;
+    --yellow:#F2B705;
+    --yellow-deep:#D9A100;
+    --red:#E8676B;
+    --red-bg:#3A2023;
+    --amber:#E8A857;
+    --amber-bg:#3A2E19;
+    --green:#4FB47F;
+    --green-bg:#1A3126;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.35), 0 1px 3px rgba(0,0,0,.35);
+    --shadow-md:0 6px 18px rgba(0,0,0,.45), 0 2px 5px rgba(0,0,0,.35);
+    --shadow-lg:0 14px 34px rgba(0,0,0,.55), 0 4px 10px rgba(0,0,0,.4);
+    --overlay-bg:rgba(0,0,0,.6);
+    --modal-bg:#1E2330;
+    --input-bg:#20242F;
+    --chart-grid:#2B2F3B;
+    --chart-text:#8D96A5;
+    --suggestion-bg:#2C2640;
+    --suggestion-ink:#B6A6E0;
+    --highlight-bg:#332C16;
+    --highlight-border:#5A4C24;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  button, a{-webkit-tap-highlight-color:transparent; outline:none;}
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible{
+    outline:2px solid var(--navy); outline-offset:2px;
+  }
   html{overflow-x:hidden; max-width:100%;}
   body{
     font-family:'Inter',sans-serif;
@@ -107,14 +158,14 @@
     box-shadow:0 3px 8px rgba(214,72,75,.35);
     display:flex; align-items:center; gap:6px;
   }
-  .signout-btn{
+  .header-theme-btn{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     background:none; border:1px solid rgba(255,255,255,0.28); color:#AEB6C2;
-    width:32px; height:32px; border-radius:50%; cursor:pointer; box-sizing:border-box;
+    width:30px; height:30px; border-radius:50%; cursor:pointer; box-sizing:border-box;
     display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0;
+    transition:.15s ease;
   }
-  .signout-btn svg{width:15px; height:15px;}
-  .signout-btn:hover{background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.5);}
+  .header-theme-btn:hover{background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.5);}
 
   .layout{
     display:grid;
@@ -317,7 +368,7 @@
   }
   .obs-card .oc-type.unsafeact{background:var(--red-bg); color:var(--red);}
   .obs-card .oc-type.unsafecondition{background:var(--amber-bg); color:var(--amber);}
-  .obs-card .oc-type.suggestion{background:#EBE7F5; color:#6E5AA8;}
+  .obs-card .oc-type.suggestion{background:var(--suggestion-bg); color:var(--suggestion-ink);}
   .obs-card .oc-type.goodpractice{background:var(--green-bg); color:var(--green);}
   .obs-card .oc-newtag{
     font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
@@ -364,7 +415,7 @@
   .pl-settings-btn{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     width:38px; height:38px; flex-shrink:0;
-    border:1px solid var(--border); border-radius:10px; background:#fff; color:#475569;
+    border:1px solid var(--border); border-radius:10px; background:var(--card); color:var(--muted);
     display:flex; align-items:center; justify-content:center;
     cursor:pointer; box-shadow:0 2px 7px rgba(15,23,42,.05);
     transition:.15s ease;
@@ -379,7 +430,7 @@
   .pl-card{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     position:relative; min-height:164px; border:1px solid var(--border); border-radius:18px;
-    background:#fff; padding:18px; text-align:left; cursor:pointer; overflow:hidden;
+    background:var(--card); padding:18px; text-align:left; cursor:pointer; overflow:hidden;
     transition:.18s ease; font-family:'Inter',sans-serif;
     display:flex; flex-direction:column; align-items:flex-start;
   }
@@ -423,9 +474,9 @@
   .pl-field label{
     font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.03em;
   }
-  .pl-field select, .pl-field input{
+  .pl-field select, .pl-field input, .pl-field textarea{
     width:100%; padding:10px; border:1px solid var(--border); border-radius:9px;
-    background:#fff; font-size:14px; font-family:'Inter',sans-serif; box-sizing:border-box;
+    background:var(--input-bg); color:var(--ink); font-size:14px; font-family:'Inter',sans-serif; box-sizing:border-box;
   }
   .pl-add-btn{
     border:0; border-radius:9px; padding:10px 14px; background:var(--navy); color:#fff;
@@ -434,7 +485,33 @@
   }
   .pl-add-btn:hover{background:var(--navy-3);}
 
-  .pl-records{margin-top:18px; background:#fff; border:1px solid var(--border); border-radius:18px; padding:18px;}
+  .pl-records{margin-top:18px; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:18px;}
+  .pl-signout-btn{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:12px 16px;
+    background:var(--card); border:1px solid var(--red); color:var(--red);
+    border-radius:12px; font-size:13.5px; font-weight:700; cursor:pointer;
+    font-family:'Inter',sans-serif; transition:.15s ease;
+  }
+  .pl-signout-btn:hover{background:var(--red-bg);}
+  .pl-theme-row{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+  }
+  .theme-switch{
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    border:none; cursor:pointer; padding:0;
+    width:48px; height:26px; border-radius:20px; background:var(--border);
+    position:relative; flex-shrink:0; transition:background .2s ease;
+  }
+  .theme-switch.active{background:var(--navy);}
+  .theme-switch-knob{
+    position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%;
+    background:#fff; transition:transform .2s ease; box-shadow:0 1px 3px rgba(0,0,0,.3);
+    display:flex; align-items:center; justify-content:center; color:var(--navy);
+  }
+  .theme-switch.active .theme-switch-knob{transform:translateX(22px); color:var(--yellow-deep);}
+  .theme-switch-knob svg{width:12px; height:12px;}
   .pl-records-head{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     display:flex; justify-content:space-between; align-items:center; gap:8px;
@@ -447,7 +524,7 @@
   .pl-filter-chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;}
   .pl-filter-chip{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
-    border:1px solid var(--border); background:#fff; color:var(--muted);
+    border:1px solid var(--border); background:var(--card); color:var(--muted);
     font-size:11px; font-weight:600; padding:5px 11px; border-radius:20px; cursor:pointer;
   }
   .pl-filter-chip.active{
@@ -481,19 +558,19 @@
 
   /* Modals (details + settings) */
   .pl-overlay{
-    position:fixed; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(3px);
+    position:fixed; inset:0; background:var(--overlay-bg); backdrop-filter:blur(3px);
     display:flex; align-items:center; justify-content:center; padding:18px; z-index:200;
   }
   .pl-modal{
     width:min(460px,100%); max-height:88vh; overflow-y:auto;
-    background:#fff; border-radius:20px; padding:22px; position:relative;
+    background:var(--modal-bg); border-radius:20px; padding:22px; position:relative;
     box-shadow:0 25px 70px rgba(15,23,42,.2); font-family:'Inter',sans-serif;
   }
   .pl-settings-modal{width:min(500px,100%);}
   .pl-close{
     -webkit-appearance:none; -moz-appearance:none; appearance:none;
     position:absolute; right:14px; top:14px; width:32px; height:32px;
-    border:1px solid var(--border); border-radius:9px; background:#fff; cursor:pointer;
+    border:1px solid var(--border); border-radius:9px; background:var(--card); cursor:pointer;
   }
   .pl-close::before, .pl-close::after{
     content:''; position:absolute; top:50%; left:50%;
@@ -512,7 +589,7 @@
   .pl-modal-title{font-size:19px; font-weight:800; color:var(--navy);}
   .pl-modal-sub{font-size:11px; color:var(--muted); margin-top:2px;}
   .pl-available-box{
-    margin-top:17px; padding:15px; border-radius:13px; background:#f8fafc; border:1px solid var(--border);
+    margin-top:17px; padding:15px; border-radius:13px; background:var(--surface); border:1px solid var(--border);
   }
   .pl-available-box span{display:block; font-size:9px; color:var(--muted); font-weight:800; letter-spacing:0.05em;}
   .pl-available-box strong{font-size:29px; display:block; margin-top:4px; color:var(--ink);}
@@ -543,7 +620,7 @@
   .pl-setting-inputs span{font-size:11px; color:var(--muted);}
   .pl-settings-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px;}
   .pl-settings-cancel{
-    -webkit-appearance:none; border:1px solid var(--border); background:#fff; color:var(--navy);
+    -webkit-appearance:none; border:1px solid var(--border); background:var(--card); color:var(--navy);
     border-radius:9px; padding:10px 14px; cursor:pointer; font-size:13px;
   }
   .pl-settings-save{
@@ -611,7 +688,7 @@
   .quarter-card .q-done-btn{
     font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
     padding:4px 8px; border-radius:20px; border:1px solid var(--border);
-    background:#fff; color:var(--muted); cursor:pointer;
+    background:var(--card); color:var(--muted); cursor:pointer;
   }
   .quarter-card.done .q-done-btn{
     background:var(--green); color:#fff; border-color:var(--green);
@@ -634,7 +711,7 @@
     font-size:12px;
   }
   .task-card{
-    background:#fff;
+    background:var(--card);
     border:1px solid var(--border);
     border-left:4px solid var(--muted);
     border-radius:9px;
@@ -647,7 +724,7 @@
   .task-card.todo{border-left-color:var(--red);}
   .task-card.progress{border-left-color:var(--amber);}
   .task-card.done{border-left-color:var(--green);}
-  .task-card.editing{border-left-color:var(--navy); background:#fff;}
+  .task-card.editing{border-left-color:var(--navy); background:var(--card);}
   .task-card .name{font-weight:600; font-size:14.5px; margin-bottom:0;}
   .task-card .card-top{
     display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
@@ -663,7 +740,7 @@
     display:flex; align-items:center; justify-content:center; color:var(--muted);
     padding:0; flex-shrink:0;
   }
-  .icon-btn-sm:hover{background:#fff; color:var(--ink);}
+  .icon-btn-sm:hover{background:var(--card); color:var(--ink);}
   .icon-btn-sm.danger:hover{background:var(--red-bg); color:var(--red); border-color:var(--red);}
   .task-card .row{display:flex; align-items:center; justify-content:space-between; gap:8px;}
   .task-card .meta{
@@ -671,6 +748,15 @@
     font-size:11px; color:var(--muted); margin-bottom:8px;
   }
   .task-card .meta .overdue{color:var(--red); font-weight:700;}
+  .task-note{
+    display:flex; align-items:flex-start; gap:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:7px;
+    padding:7px 9px; margin-bottom:8px; font-size:11.5px; color:var(--ink);
+    line-height:1.4; white-space:pre-wrap; word-break:break-word;
+  }
+  .edit-note{
+    resize:vertical; min-height:52px; font-family:'Inter',sans-serif;
+  }
   .task-card .actions{
     display:flex; gap:6px; margin-top:10px; padding-top:10px;
     border-top:1px solid var(--border);
@@ -682,12 +768,12 @@
     font-family:'Inter',sans-serif;
     display:inline-flex; align-items:center; gap:3px;
   }
-  .icon-btn:hover{background:#fff; color:var(--ink);}
+  .icon-btn:hover{background:var(--card); color:var(--ink);}
   .icon-btn.danger:hover{background:var(--red-bg); color:var(--red); border-color:var(--red);}
   .edit-input{
     width:100%; border:1px solid var(--border); border-radius:6px;
     padding:7px 9px; font-size:13px; font-family:'Inter',sans-serif;
-    margin-bottom:8px; background:#fff;
+    margin-bottom:8px; background:var(--input-bg); color:var(--ink);
   }
   .edit-input.small-label{font-size:10.5px; color:var(--muted); margin-bottom:2px; display:block;}
   .badge{
@@ -709,9 +795,9 @@
   .task-search-row{margin-bottom:16px;}
   .task-search-row input{
     width:100%; box-sizing:border-box; border:1px solid var(--border); border-radius:9px;
-    padding:10px 14px; font-size:13.5px; font-family:'Inter',sans-serif; background:var(--surface);
+    padding:10px 14px; font-size:13.5px; font-family:'Inter',sans-serif; background:var(--input-bg); color:var(--ink);
   }
-  .task-search-row input:focus{outline:none; border-color:var(--navy); background:#fff;}
+  .task-search-row input:focus{outline:none; border-color:var(--navy); background:var(--input-bg);}
   .btn{
     background:linear-gradient(180deg, var(--navy-3), var(--navy));
     color:#fff; border:none; border-radius:7px;
@@ -841,8 +927,8 @@
 
   .notes-list{display:flex; flex-direction:column; gap:10px; margin-bottom:12px;}
   .note-item{
-    background:#FCF7E3;
-    border:1px solid #EEDFA8;
+    background:var(--highlight-bg);
+    border:1px solid var(--highlight-border);
     border-radius:8px;
     padding:10px 12px;
     font-size:13.5px;
@@ -1044,17 +1130,20 @@
     .sidebar-col{display:none !important;}
     .bottom-nav{display:flex;}
     body{padding-bottom:70px;}
+    header.topbar{align-items:flex-start;}
     header.topbar .sub{display:none;}
     header.topbar .mobile-datetime{display:flex;}
     header.topbar #clock{display:none;}
     header.topbar .brand{align-items:center;}
     header.topbar .status-cluster{
-      flex-direction:row; align-items:center; gap:10px; font-size:12px;
+      flex-direction:column; align-items:flex-end; gap:6px; font-size:12px;
     }
     header.topbar .alert-pill{
       background:none; box-shadow:none; padding:0; border-radius:0; color:#fff; gap:5px;
     }
     header.topbar .alert-pill .alert-icon{color:var(--red);}
+    .header-theme-btn{width:26px; height:26px;}
+    .header-theme-btn svg{width:13px; height:13px;}
     .hse-stat-card.highlight{grid-column:1 / -1;}
     .notes-fab{display:flex;}
   }
@@ -1194,6 +1283,9 @@
     </div>
   </div>
   <div class="status-cluster">
+    <button class="header-theme-btn" id="headerThemeBtn" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <svg id="themeToggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+    </button>
     <div class="alert-pill">
       <svg class="alert-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
@@ -1203,13 +1295,6 @@
       <span id="alertCount">0</span> Pending
     </div>
     <div id="clock" class="mono" style="color:#AEB6C2;font-size:13px;"></div>
-    <button class="signout-btn" onclick="signOut()" title="Sign out" aria-label="Sign out">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-        <polyline points="16 17 21 12 16 7"></polyline>
-        <line x1="21" y1="12" x2="9" y2="12"></line>
-      </svg>
-    </button>
   </div>
 </header>
 
@@ -1408,6 +1493,13 @@
           <div id="plRecords"></div>
         </div>
       </div>
+    </section>
+
+    <section class="board-card" id="signOutCard" style="display:none;">
+      <button class="pl-signout-btn" onclick="signOut()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Sign Out
+      </button>
     </section>
 
     <section class="board-card" id="committeeNoItemsCard" style="display:none;">
@@ -1671,6 +1763,7 @@ function switchCategory(category, el){
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCard = document.getElementById('committeeNoItemsCard');
   const personalCard = document.getElementById('personalCard');
+  const signOutCard = document.getElementById('signOutCard');
   const obsSubCard = document.getElementById('obsSubCard');
   const incidentSubCard = document.getElementById('incidentSubCard');
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonal || isMeetings) ? 'none' : 'block';
@@ -1680,6 +1773,7 @@ function switchCategory(category, el){
   // cards outside mainBoardCard, so they must always be explicitly hidden
   // when leaving their menu.
   if(personalCard) personalCard.style.display = isPersonal ? 'block' : 'none';
+  if(signOutCard) signOutCard.style.display = isPersonal ? 'block' : 'none';
   if(obsSubCard) obsSubCard.style.display = isReporting ? 'block' : 'none';
   if(incidentSubCard) incidentSubCard.style.display = isReporting ? 'block' : 'none';
 
@@ -1731,7 +1825,9 @@ function switchCategory(category, el){
 
 const STATUS_MAP = { 'To Do': 'todo', 'In Progress': 'progress', 'Done': 'done' };
 const STATUS_LABEL = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
-const STATUS_COLORS = { todo: '#D6484B', progress: '#E2993B', done: '#2F8F5B' };
+const STATUS_COLORS_LIGHT = { todo: '#D6484B', progress: '#E2993B', done: '#2F8F5B' };
+const STATUS_COLORS_DARK = { todo: '#E8676B', progress: '#E8A857', done: '#4FB47F' };
+function getStatusColors(){ return isDarkTheme() ? STATUS_COLORS_DARK : STATUS_COLORS_LIGHT; }
 
 const INSPECTION_SECTIONS_META = [
   { name: 'Kawasan Store' },
@@ -1783,12 +1879,21 @@ const PL_ICONS = {
   'Hospitalization': '<svg viewBox="0 0 24 24"><path d="M5 20V5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V20M3 20h18M9 20v-4h6v4M10 8h4M12 6v4"/></svg>',
   'Compassionate Leave': '<svg viewBox="0 0 24 24"><path d="M20.8 8.8c0 5.2-8.8 10.2-8.8 10.2S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.1a4.8 4.8 0 0 1 8.8 2.7z"/></svg>'
 };
-const PL_ACCENTS = {
+const PL_ACCENTS_LIGHT = {
   'Annual Leave': ['#2563eb', '#eff6ff'],
   'Medical Leave': ['#16a34a', '#f0fdf4'],
   'Hospitalization': ['#dc2626', '#fef2f2'],
   'Compassionate Leave': ['#7c3aed', '#f5f3ff']
 };
+const PL_ACCENTS_DARK = {
+  'Annual Leave': ['#60A5FA', '#1E2A4A'],
+  'Medical Leave': ['#4ADE80', '#152A1E'],
+  'Hospitalization': ['#F87171', '#2E1A1A'],
+  'Compassionate Leave': ['#A78BFA', '#241A3D']
+};
+function getPlAccents(){
+  return document.documentElement.getAttribute('data-theme') === 'dark' ? PL_ACCENTS_DARK : PL_ACCENTS_LIGHT;
+}
 const PL_DEFAULT_SETTINGS = { annual: 14, medical: 14, hospitalization: 60, compassionate: 3, carryDays: 0, carryHours: 0, openingUsed: 0, openingUsedHours: 0 };
 
 function getPlSettings(){
@@ -1874,7 +1979,7 @@ function renderPersonalLeave(){
   if (!grid) return;
 
   grid.innerHTML = PL_TYPES.map(type => {
-    const [accent, bg] = PL_ACCENTS[type];
+    const [accent, bg] = getPlAccents()[type];
     const balance = plGetBalance(type);
     const entitlementDays = type === 'Annual Leave' ? (plGetCarryForward() + plAnnualAccrued()) : plGetEntitlement(type);
     const used = type === 'Annual Leave' ? (plGetOpeningUsed() + plGetUsed(type)) : plGetUsed(type);
@@ -1912,7 +2017,7 @@ function renderPlRecords(){
 
   if (chipsBox && !chipsBox.dataset.built){
     chipsBox.innerHTML = ['All', ...PL_TYPES].map(type => {
-      const [accent] = PL_ACCENTS[type] || ['var(--navy)'];
+      const [accent] = getPlAccents()[type] || ['var(--navy)'];
       return `<button type="button" class="pl-filter-chip ${type === plRecordFilter ? 'active' : ''}" data-type="${type}" style="--pl-chip-accent:${accent};" onclick="filterPlRecords('${type}')">${type === 'All' ? 'All' : type.replace(' Leave','')}</button>`;
     }).join('');
     chipsBox.dataset.built = '1';
@@ -1928,7 +2033,7 @@ function renderPlRecords(){
   const sorted = records.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
 
   box.innerHTML = sorted.map(r => {
-    const [accent] = PL_ACCENTS[r.type] || ['var(--navy)'];
+    const [accent] = getPlAccents()[r.type] || ['var(--navy)'];
     return `
     <div class="pl-line">
       <div class="pl-line-left">
@@ -1952,7 +2057,7 @@ function plShowDetails(type){
   let accrued = entitlement;
   let carried = 0;
   const available = plGetBalance(type);
-  const [accent, bg] = PL_ACCENTS[type];
+  const [accent, bg] = getPlAccents()[type];
 
   if (type === 'Annual Leave'){
     accrued = plAnnualAccrued();
@@ -2342,6 +2447,7 @@ function render(){
   const dashboardView = document.getElementById('dashboardView');
   const noItemsCardTop = document.getElementById('committeeNoItemsCard');
   const personalCard = document.getElementById('personalCard');
+  const signOutCard = document.getElementById('signOutCard');
   const obsSubCard = document.getElementById('obsSubCard');
   const incidentSubCard = document.getElementById('incidentSubCard');
   if(mainBoardCard) mainBoardCard.style.display = (isDashboard || isReporting || isPersonalCategory || isMeetingsCategory) ? 'none' : 'block';
@@ -2350,6 +2456,7 @@ function render(){
   // Personal, Safety Observation, Incident Report and Meetings are outside
   // mainBoardCard; always reset their visibility on every render.
   if(personalCard) personalCard.style.display = isPersonalCategory ? 'block' : 'none';
+  if(signOutCard) signOutCard.style.display = isPersonalCategory ? 'block' : 'none';
   if(obsSubCard) obsSubCard.style.display = isReporting ? 'block' : 'none';
   if(incidentSubCard) incidentSubCard.style.display = isReporting ? 'block' : 'none';
 
@@ -2498,10 +2605,10 @@ function exportBoardCsv(opts){
     return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
   };
 
-  const header = ['Task','Category','Status','DueDate','AssignedTo','DateAdded'];
+  const header = ['Task','Category','Status','DueDate','AssignedTo','Note','DateAdded'];
   const lines = [header.join(',')];
   rows.forEach(t => {
-    lines.push([t.Task, t.Category, t.Status, t.DueDate, t.AssignedTo, t.DateAdded].map(escapeCsv).join(','));
+    lines.push([t.Task, t.Category, t.Status, t.DueDate, t.AssignedTo, t.Note, t.DateAdded].map(escapeCsv).join(','));
   });
 
   const csv = lines.join('\r\n');
@@ -2568,6 +2675,8 @@ function renderBoard(opts){
           <input type="date" class="edit-input" id="edit-due-${t.ID}" value="${t.DueDate || ''}">
           <label class="edit-input small-label">Assigned to</label>
           <input type="text" class="edit-input" id="edit-assigned-${t.ID}" value="${escapeHtml(t.AssignedTo || '')}">
+          <label class="edit-input small-label">Progress note</label>
+          <textarea class="edit-input edit-note" id="edit-note-${t.ID}" placeholder="e.g. Waiting for vendor quotation...">${escapeHtml(t.Note || '')}</textarea>
           <div class="actions">
             <button class="icon-btn" onclick="saveTaskEdit('${t.ID}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>Save</button>
             <button class="icon-btn" onclick="cancelEdit()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>Cancel</button>
@@ -2597,6 +2706,7 @@ function renderBoard(opts){
           ${t.DueDate ? `<span class="${isOverdue ? 'overdue' : ''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>${formatDate(t.DueDate)}${isOverdue ? ' (Overdue)' : ''}</span>` : ''}
           ${t.AssignedTo ? `<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${escapeHtml(t.AssignedTo)}</span>` : ''}
         </div>` : ''}
+        ${t.Note ? `<div class="task-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:4px;flex-shrink:0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>${escapeHtml(t.Note)}</div>` : ''}
         <div class="row">
           <span class="badge ${key}">${STATUS_LABEL[key]}</span>
           <select class="status-select" onchange="changeStatus('${t.ID}', this.value)">
@@ -2616,6 +2726,15 @@ function renderBoard(opts){
 function renderMeetingTaskBoard(){
   renderBoard({ category: 'Meetings', colPrefix: 'meeting-col-', countPrefix: 'meeting-count-', searchInputId: 'meetingTaskSearchInput' });
 }
+
+function isDarkTheme(){
+  return document.documentElement.getAttribute('data-theme') === 'dark';
+}
+function chartTextColor(){ return isDarkTheme() ? '#E8EAEE' : '#171B22'; }
+function chartMutedColor(){ return isDarkTheme() ? '#8D96A5' : '#6B7280'; }
+function chartGridColor(){ return isDarkTheme() ? '#2B2F3B' : '#EDEEE9'; }
+function chartTooltipBg(){ return isDarkTheme() ? '#2A2F3D' : '#171B22'; }
+function chartCardBg(){ return isDarkTheme() ? '#1A1E28' : '#FFFFFF'; }
 
 function renderDonut(){
   const catTasks = (STATE.tasks || []).filter(t=>{
@@ -2650,7 +2769,7 @@ function renderDonut(){
   // faint track behind the segments
   const track = document.createElementNS('http://www.w3.org/2000/svg','circle');
   track.setAttribute('cx', cx); track.setAttribute('cy', cy); track.setAttribute('r', r);
-  track.setAttribute('fill', 'none'); track.setAttribute('stroke', '#EEEFEA');
+  track.setAttribute('fill', 'none'); track.setAttribute('stroke', chartGridColor());
   track.setAttribute('stroke-width', strokeW);
   svg.appendChild(track);
 
@@ -2662,7 +2781,7 @@ function renderDonut(){
     const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
     circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', r);
     circle.setAttribute('fill', 'none');
-    circle.setAttribute('stroke', STATUS_COLORS[key]);
+    circle.setAttribute('stroke', getStatusColors()[key]);
     circle.setAttribute('stroke-width', strokeW);
     circle.setAttribute('stroke-linecap', 'round');
     circle.setAttribute('stroke-dasharray', `${dash} ${circumference - dash}`);
@@ -2682,7 +2801,7 @@ function renderDonut(){
     if (groups[key] === 0) return '';
     const pct = Math.round((groups[key] / total) * 100);
     return `<div class="row">
-      <span class="label"><span class="dot" style="background:${STATUS_COLORS[key]}"></span><span class="txt">${STATUS_LABEL[key]}</span></span>
+      <span class="label"><span class="dot" style="background:${getStatusColors()[key]}"></span><span class="txt">${STATUS_LABEL[key]}</span></span>
       <span class="count"><b>${groups[key]}</b> · ${pct}%</span>
     </div>`;
   }).join('');
@@ -2745,7 +2864,7 @@ function renderTrend(){
         pointRadius: 3,
         pointHoverRadius: 6,
         pointBackgroundColor: s.color,
-        pointBorderColor: '#fff',
+        pointBorderColor: chartCardBg(),
         pointBorderWidth: 1.5,
         pointHoverBorderWidth: 2
       }))
@@ -2762,12 +2881,12 @@ function renderTrend(){
             usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8,
             padding:14,
             font:{family:"'Inter', sans-serif", size:11.5, weight:600},
-            color:'#171B22'
+            color:chartTextColor()
           }
         },
         tooltip:{
           mode:'index', intersect:false,
-          backgroundColor:'#171B22',
+          backgroundColor:chartTooltipBg(),
           padding:11,
           cornerRadius:8,
           titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700},
@@ -2780,12 +2899,12 @@ function renderTrend(){
       scales:{
         x:{
           grid:{display:false},
-          ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}
+          ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:chartMutedColor()}
         },
         y:{
           beginAtZero:true,
-          grid:{color:'#EDEEE9'},
-          ticks:{precision:0, font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}
+          grid:{color:chartGridColor()},
+          ticks:{precision:0, font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:chartMutedColor()}
         }
       }
     }
@@ -2802,7 +2921,7 @@ const targetLinePlugin = {
     if(!chartArea || !scales.x) return;
     const x = scales.x.getPixelForValue(80);
     ctx.save();
-    ctx.strokeStyle = '#B8BEC4';
+    ctx.strokeStyle = chartGridColor();
     ctx.setLineDash([4,4]);
     ctx.lineWidth = 1.5;
     ctx.beginPath();
@@ -2810,7 +2929,7 @@ const targetLinePlugin = {
     ctx.lineTo(x, chartArea.bottom);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#8A93A0';
+    ctx.fillStyle = chartMutedColor();
     ctx.font = "600 10.5px 'IBM Plex Mono', monospace";
     ctx.textAlign = 'center';
     ctx.fillText('TARGET 80%', x, chartArea.top - 6);
@@ -2828,7 +2947,7 @@ const barValueLabelPlugin = {
         const value = dataset.data[i];
         ctx.save();
         ctx.font = "700 12px 'Inter', sans-serif";
-        ctx.fillStyle = '#171B22';
+        ctx.fillStyle = chartTextColor();
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         ctx.fillText(value + '%', bar.x + 8, bar.y);
@@ -2888,7 +3007,7 @@ function renderInspectionChart(){
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'#171B22',
+          backgroundColor:chartTooltipBg(),
           padding:10,
           titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700},
           bodyFont:{family:"'Inter', sans-serif", size:12.5},
@@ -2898,12 +3017,12 @@ function renderInspectionChart(){
       scales:{
         x:{
           beginAtZero:true, max:100,
-          grid:{color:'#EDEEE9'},
-          ticks:{callback: v => v + '%', font:{family:"'IBM Plex Mono', monospace", size:11}, color:'#6B7280'}
+          grid:{color:chartGridColor()},
+          ticks:{callback: v => v + '%', font:{family:"'IBM Plex Mono', monospace", size:11}, color:chartMutedColor()}
         },
         y:{
           grid:{display:false},
-          ticks:{font:{family:"'Inter', sans-serif", size:13, weight:600}, color:'#171B22'}
+          ticks:{font:{family:"'Inter', sans-serif", size:13, weight:600}, color:chartTextColor()}
         }
       }
     },
@@ -2967,7 +3086,7 @@ function renderHseIncidentChart(stats){
     { key:'First Aid/ Medical Treatment', color:'#E2993B' },
     { key:'Minor Accident (MC < 4 days) LTI', color:'#D6484B' },
     { key:'Major Accident (MC > 4 days) LTI', color:'#A6334F' },
-    { key:'Fatality', color:'#171B22' }
+    { key:'Fatality', color:chartTextColor() }
   ].filter(s => stats.metrics[s.key]);
 
   if (hseIncidentChartInstance){ hseIncidentChartInstance.destroy(); hseIncidentChartInstance=null; }
@@ -3010,12 +3129,12 @@ function renderHseIncidentChart(stats){
     options:{
       responsive:true, maintainAspectRatio:false,
       plugins:{
-        legend:{position:'bottom', onClick:()=>{}, labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{family:"'Inter', sans-serif", size:11}, color:'#171B22'}},
-        tooltip:{backgroundColor:'#171B22', padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
+        legend:{position:'bottom', onClick:()=>{}, labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{family:"'Inter', sans-serif", size:11}, color:chartTextColor()}},
+        tooltip:{backgroundColor:chartTooltipBg(), padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
       },
       scales:{
-        x:{stacked:true, grid:{display:false}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}},
-        y:{stacked:true, beginAtZero:true, grid:{color:'#EDEEE9'}, ticks:{precision:0, font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}}
+        x:{stacked:true, grid:{display:false}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:chartMutedColor()}},
+        y:{stacked:true, beginAtZero:true, grid:{color:chartGridColor()}, ticks:{precision:0, font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:chartMutedColor()}}
       }
     }
   });
@@ -3053,19 +3172,19 @@ function renderHseRatesChart(stats){
         data: stats.metrics[s.key].months.map(v => v === null ? null : v),
         borderColor: s.color, backgroundColor: s.color,
         borderWidth: 2.5, tension:0.35, pointRadius:3, pointHoverRadius:6,
-        pointBackgroundColor: s.color, pointBorderColor:'#fff', pointBorderWidth:1.5, spanGaps:true
+        pointBackgroundColor: s.color, pointBorderColor:chartCardBg(), pointBorderWidth:1.5, spanGaps:true
       }))
     },
     options:{
       responsive:true, maintainAspectRatio:false,
       interaction:{mode:'index', intersect:false},
       plugins:{
-        legend:{position:'bottom', onClick:()=>{}, labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{family:"'Inter', sans-serif", size:11}, color:'#171B22'}},
-        tooltip:{mode:'index', intersect:false, backgroundColor:'#171B22', padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
+        legend:{position:'bottom', onClick:()=>{}, labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{family:"'Inter', sans-serif", size:11}, color:chartTextColor()}},
+        tooltip:{mode:'index', intersect:false, backgroundColor:chartTooltipBg(), padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
       },
       scales:{
-        x:{grid:{display:false}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}},
-        y:{beginAtZero:true, grid:{color:'#EDEEE9'}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}}
+        x:{grid:{display:false}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:chartMutedColor()}},
+        y:{beginAtZero:true, grid:{color:chartGridColor()}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:chartMutedColor()}}
       }
     }
   });
@@ -3111,11 +3230,11 @@ function renderSafetyInduction(){
       responsive:true, maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
-        tooltip:{backgroundColor:'#171B22', padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
+        tooltip:{backgroundColor:chartTooltipBg(), padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
       },
       scales:{
-        x:{grid:{display:false}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}},
-        y:{beginAtZero:true, grid:{color:'#EDEEE9'}, ticks:{precision:0, font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:'#6B7280'}}
+        x:{grid:{display:false}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:chartMutedColor()}},
+        y:{beginAtZero:true, grid:{color:chartGridColor()}, ticks:{precision:0, font:{family:"'IBM Plex Mono', monospace", size:10.5}, color:chartMutedColor()}}
       }
     }
   });
@@ -3173,7 +3292,7 @@ function renderCommitteeChart(){
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'#171B22',
+          backgroundColor:chartTooltipBg(),
           padding:10,
           titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700},
           bodyFont:{family:"'Inter', sans-serif", size:12.5},
@@ -3183,12 +3302,12 @@ function renderCommitteeChart(){
       scales:{
         x:{
           beginAtZero:true, max:100,
-          grid:{color:'#EDEEE9'},
-          ticks:{callback: v => v + '%', font:{family:"'IBM Plex Mono', monospace", size:11}, color:'#6B7280'}
+          grid:{color:chartGridColor()},
+          ticks:{callback: v => v + '%', font:{family:"'IBM Plex Mono', monospace", size:11}, color:chartMutedColor()}
         },
         y:{
           grid:{display:false},
-          ticks:{font:{family:"'Inter', sans-serif", size:13, weight:600}, color:'#171B22'}
+          ticks:{font:{family:"'Inter', sans-serif", size:13, weight:600}, color:chartTextColor()}
         }
       }
     },
@@ -3237,7 +3356,7 @@ function renderTrainingMatrix(){
 
   const track = document.createElementNS('http://www.w3.org/2000/svg','circle');
   track.setAttribute('cx', cx); track.setAttribute('cy', cy); track.setAttribute('r', r);
-  track.setAttribute('fill', 'none'); track.setAttribute('stroke', '#EEEFEA');
+  track.setAttribute('fill', 'none'); track.setAttribute('stroke', chartGridColor());
   track.setAttribute('stroke-width', strokeW);
   svg.appendChild(track);
 
@@ -3293,7 +3412,7 @@ function renderTrainingMatrix(){
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'#171B22',
+          backgroundColor:chartTooltipBg(),
           padding:10,
           titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700},
           bodyFont:{family:"'Inter', sans-serif", size:12.5},
@@ -3303,12 +3422,12 @@ function renderTrainingMatrix(){
       scales:{
         x:{
           beginAtZero:true, max:100,
-          grid:{color:'#EDEEE9'},
-          ticks:{callback: v => v + '%', font:{family:"'IBM Plex Mono', monospace", size:11}, color:'#6B7280'}
+          grid:{color:chartGridColor()},
+          ticks:{callback: v => v + '%', font:{family:"'IBM Plex Mono', monospace", size:11}, color:chartMutedColor()}
         },
         y:{
           grid:{display:false},
-          ticks:{font:{family:"'Inter', sans-serif", size:13, weight:600}, color:'#171B22'}
+          ticks:{font:{family:"'Inter', sans-serif", size:13, weight:600}, color:chartTextColor()}
         }
       }
     },
@@ -3553,6 +3672,10 @@ function showAddTaskModal(){
           <label for="newTaskAssignedTo">Assigned To</label>
           <input type="text" id="newTaskAssignedTo" placeholder="Assigned to...">
         </div>
+        <div class="pl-field pl-field-wide">
+          <label for="newTaskNote">Progress Note (optional)</label>
+          <textarea id="newTaskNote" class="edit-note" placeholder="e.g. Waiting for vendor quotation..."></textarea>
+        </div>
         <button class="pl-add-btn" onclick="addTask()">+ Add Task</button>
       </div>
     </div>`;
@@ -3566,11 +3689,13 @@ async function addTask(){
   const input = document.getElementById('newTaskInput');
   const dueDateInput = document.getElementById('newTaskDueDate');
   const assignedInput = document.getElementById('newTaskAssignedTo');
+  const noteInput = document.getElementById('newTaskNote');
   const task = input.value.trim();
   if (!task) return;
   const dueDate = dueDateInput ? dueDateInput.value : '';
   const assignedTo = assignedInput ? assignedInput.value.trim() : '';
-  await apiPost({ action:'addTask', task, status:'To Do', category: currentCategory, dueDate, assignedTo });
+  const note = noteInput ? noteInput.value.trim() : '';
+  await apiPost({ action:'addTask', task, status:'To Do', category: currentCategory, dueDate, assignedTo, note });
   const overlay = document.getElementById('addTaskOverlay');
   if (overlay) overlay.remove();
   showToast('Task added');
@@ -3591,6 +3716,7 @@ async function saveTaskEdit(id){
   const taskInput = document.getElementById('edit-task-' + id);
   const dueInput = document.getElementById('edit-due-' + id);
   const assignedInput = document.getElementById('edit-assigned-' + id);
+  const noteInput = document.getElementById('edit-note-' + id);
   const task = taskInput.value.trim();
   if (!task) return;
   await apiPost({
@@ -3598,7 +3724,8 @@ async function saveTaskEdit(id){
     id,
     task,
     dueDate: dueInput.value,
-    assignedTo: assignedInput.value.trim()
+    assignedTo: assignedInput.value.trim(),
+    note: noteInput ? noteInput.value.trim() : ''
   });
   editingTaskId = null;
   showToast('Task updated');
@@ -3708,6 +3835,36 @@ function signOut(){
   if (errorEl) errorEl.classList.remove('show');
 }
 
+/* ---------------- Dark mode ---------------- */
+
+const THEME_STORAGE_KEY = 'sci_hse_theme_v1';
+
+function applyTheme(theme){
+  if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  else document.documentElement.removeAttribute('data-theme');
+  try { localStorage.setItem(THEME_STORAGE_KEY, theme); } catch(e){}
+  updateThemeToggleUI();
+}
+
+function updateThemeToggleUI(){
+  const dark = isDarkTheme();
+  const toggle = document.getElementById('themeToggleSwitch');
+  const label = document.getElementById('themeToggleLabel');
+  const icon = document.getElementById('themeToggleIcon');
+  if (toggle) toggle.classList.toggle('active', dark);
+  if (label) label.textContent = dark ? 'Dark Mode' : 'Light Mode';
+  if (icon){
+    icon.innerHTML = dark
+      ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'
+      : '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+  }
+}
+
+function toggleTheme(){
+  applyTheme(isDarkTheme() ? 'light' : 'dark');
+  render();
+}
+
 function initLoginGate(){
   const input = document.getElementById('loginPasswordInput');
   if (input){
@@ -3723,6 +3880,7 @@ function initLoginGate(){
 }
 
 initLoginGate();
+updateThemeToggleUI();
 
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
