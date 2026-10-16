@@ -1739,7 +1739,7 @@ const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbwBaHuM44XM8dL6aIJkgN0IrnQP30_E1KH8aMQfICUBl3287qEkM78DgQp-CvPFRSjW4A/exec'
 };
 
-let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null, committeeInspections: [], committeeInspectionNoItems: [], trainingMatrix: null, incidentEntries: [], leaveRecords: [], leaveSettings: null };
+let STATE = { tasks: [], observations: [], notes: [], meetings: [], inspections: [], hseStats: null, obsEntries: [], safetyInduction: null, committeeInspections: [], committeeInspectionNoItems: [], trainingMatrix: null, incidentEntries: [], hiddenEntries: [], leaveRecords: [], leaveSettings: null };
 let currentCategory = 'Dashboard';
 let editingTaskId = null;
 const QUARTERS = ['Q1','Q2','Q3','Q4'];
@@ -3500,13 +3500,24 @@ function getIncidentLastSeenId(){
 function setIncidentLastSeenId(id){
   try { localStorage.setItem('sci_hse_incident_last_seen_id', String(id)); } catch(e){}
 }
+function hiddenIdSet(kind){
+  return new Set((STATE.hiddenEntries || []).filter(h => h.kind === kind).map(h => h.id));
+}
+function visibleObsEntries(){
+  const hidden = hiddenIdSet('obs');
+  return (STATE.obsEntries || []).filter(e => !hidden.has(e.id));
+}
+function visibleIncidentEntries(){
+  const hidden = hiddenIdSet('incident');
+  return (STATE.incidentEntries || []).filter(e => !hidden.has(e.id));
+}
 function countNewObs(){
   const lastSeen = getObsLastSeenId();
-  return (STATE.obsEntries || []).filter(e => e.id > lastSeen).length;
+  return visibleObsEntries().filter(e => e.id > lastSeen).length;
 }
 function countNewIncidents(){
   const lastSeen = getIncidentLastSeenId();
-  return (STATE.incidentEntries || []).filter(e => e.id > lastSeen).length;
+  return visibleIncidentEntries().filter(e => e.id > lastSeen).length;
 }
 
 /* Share "last seen" ids with the service worker (it can't read localStorage)
@@ -3522,6 +3533,8 @@ function saveBadgeStateForSW(){
         tx.objectStore('kv').put({
           obsSeen: getObsLastSeenId(),
           incSeen: getIncidentLastSeenId(),
+          hiddenObs: Array.from(hiddenIdSet('obs')),
+          hiddenInc: Array.from(hiddenIdSet('incident')),
           apiUrl: CONFIG.API_URL
         }, 'state');
         tx.oncomplete = () => req.result.close();
@@ -3605,7 +3618,7 @@ function renderObsFeed(){
   const banner = document.getElementById('obsNotifBanner');
   if(!grid) return;
 
-  const entries = STATE.obsEntries || [];
+  const entries = visibleObsEntries();
   const lastSeen = getObsLastSeenId();
 
   const now = new Date();
@@ -3644,7 +3657,7 @@ function renderObsFeed(){
           </div>
           <div class="oc-right">
             <span class="oc-date">${formatDate(e.date)}</span>
-            <button class="oc-delete" onclick="deleteObsEntry(${e.id})" title="Delete this observation"></button>
+            <button class="oc-delete" onclick="deleteObsEntry(${e.id})" title="Hide this observation"></button>
           </div>
         </div>
         <div class="oc-desc">${escapeHtml(e.description || '—')}</div>
@@ -3658,9 +3671,9 @@ function renderObsFeed(){
 }
 
 async function deleteObsEntry(id){
-  if (!confirm('Delete this observation record? This action cannot be undone.')) return;
-  await apiPost({ action: 'deleteObservation', timestamp: id });
-  showToast('Observation deleted');
+  if (!confirm('Hide this observation from the dashboard? It stays in the sheet and in the charts.')) return;
+  await apiPost({ action: 'hideEntry', kind: 'obs', id });
+  showToast('Observation hidden');
   loadData();
 }
 
@@ -3668,7 +3681,7 @@ function renderIncidentFeed(){
   const grid = document.getElementById('incidentFeedGrid');
   if (!grid) return;
 
-  const entries = STATE.incidentEntries || [];
+  const entries = visibleIncidentEntries();
   const incLastSeen = getIncidentLastSeenId();
   const now = new Date();
   const curMonthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
@@ -3691,7 +3704,7 @@ function renderIncidentFeed(){
         </div>
         <div class="oc-right">
           <span class="oc-date">${formatDate(e.date)}</span>
-          <button class="oc-delete" onclick="deleteIncidentEntry(${e.id})" title="Delete this incident report"></button>
+          <button class="oc-delete" onclick="deleteIncidentEntry(${e.id})" title="Hide this incident report"></button>
         </div>
       </div>
       <div class="oc-desc">${escapeHtml(e.description || '—')}</div>
@@ -3706,9 +3719,9 @@ function renderIncidentFeed(){
 }
 
 async function deleteIncidentEntry(id){
-  if (!confirm('Delete this incident report? This action cannot be undone.')) return;
-  await apiPost({ action: 'deleteIncidentReport', timestamp: id });
-  showToast('Incident report deleted');
+  if (!confirm('Hide this incident report from the dashboard? It stays in the sheet.')) return;
+  await apiPost({ action: 'hideEntry', kind: 'incident', id });
+  showToast('Incident report hidden');
   loadData();
 }
 

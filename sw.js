@@ -142,8 +142,11 @@ async function refreshBadge(){
     const res = await fetch(state.apiUrl);
     if (!res.ok) return;
     const data = await res.json();
-    const newObs = (data.obsEntries || []).filter(e => e.id > (state.obsSeen || 0)).length;
-    const newInc = (data.incidentEntries || []).filter(e => e.id > (state.incSeen || 0)).length;
+    const hiddenObs = new Set(state.hiddenObs || []);
+    const hiddenInc = new Set(state.hiddenInc || []);
+    (data.hiddenEntries || []).forEach(h => (h.kind === 'incident' ? hiddenInc : hiddenObs).add(h.id));
+    const newObs = (data.obsEntries || []).filter(e => e.id > (state.obsSeen || 0) && !hiddenObs.has(e.id)).length;
+    const newInc = (data.incidentEntries || []).filter(e => e.id > (state.incSeen || 0) && !hiddenInc.has(e.id)).length;
     const total = newObs + newInc;
     if (self.navigator && self.navigator.setAppBadge) {
       if (total > 0) await self.navigator.setAppBadge(total);
