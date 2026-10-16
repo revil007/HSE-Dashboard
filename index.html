@@ -3509,6 +3509,27 @@ function countNewIncidents(){
   return (STATE.incidentEntries || []).filter(e => e.id > lastSeen).length;
 }
 
+/* Share "last seen" ids with the service worker (it can't read localStorage)
+   so it can refresh the app-icon badge in the background. */
+function saveBadgeStateForSW(){
+  try {
+    if(!window.indexedDB) return;
+    const req = indexedDB.open('hse-badge', 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('kv');
+    req.onsuccess = () => {
+      try {
+        const tx = req.result.transaction('kv', 'readwrite');
+        tx.objectStore('kv').put({
+          obsSeen: getObsLastSeenId(),
+          incSeen: getIncidentLastSeenId(),
+          apiUrl: CONFIG.API_URL
+        }, 'state');
+        tx.oncomplete = () => req.result.close();
+      } catch(e){}
+    };
+  } catch(e){}
+}
+
 function updateObsNavBadge(){
   const badge = document.getElementById('obsNavBadge');
   const bnBadge = document.getElementById('obsBottomNavBadge');
@@ -3521,6 +3542,7 @@ function updateObsNavBadge(){
   if(bnBadge){
     bnBadge.style.display = newCount > 0 ? 'block' : 'none';
   }
+  saveBadgeStateForSW();
   // Home-screen / taskbar icon badge (installed PWA only; ignored elsewhere)
   try {
     if(newCount > 0 && navigator.setAppBadge) navigator.setAppBadge(newCount).catch(()=>{});
@@ -3971,9 +3993,21 @@ document.addEventListener('keydown', (e) => {
   closeNotesSheet();
 });
 
+// Ask the browser to wake the service worker now and then (Chrome/Edge, installed app only)
+// so the app-icon badge can refresh even when the dashboard is closed.
+async function registerBadgeSync(reg){
+  try {
+    if(!reg || !('periodicSync' in reg)) return;
+    const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+    if(status.state !== 'granted') return;
+    await reg.periodicSync.register('hse-badge-check', { minInterval: 3 * 60 * 60 * 1000 });
+  } catch(e){ /* unsupported or not installed: ignore */ }
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
+      .then(reg => registerBadgeSync(reg))
       .catch(err => console.warn('Service worker registration failed:', err));
   });
 }
