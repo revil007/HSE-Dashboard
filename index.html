@@ -3752,14 +3752,19 @@ async function addTask(){
   loadData();
 }
 
+function renderActiveBoard(){
+  if (currentCategory === 'Meetings') renderMeetingTaskBoard();
+  else renderBoard();
+}
+
 function editTask(id){
   editingTaskId = id;
-  renderBoard();
+  renderActiveBoard();
 }
 
 function cancelEdit(){
   editingTaskId = null;
-  renderBoard();
+  renderActiveBoard();
 }
 
 async function saveTaskEdit(id){
