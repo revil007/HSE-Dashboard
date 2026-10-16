@@ -3494,12 +3494,25 @@ function setObsLastSeenId(id){
   try { localStorage.setItem('sci_hse_obs_last_seen_id', String(id)); } catch(e){}
 }
 
+function getIncidentLastSeenId(){
+  try { return Number(localStorage.getItem('sci_hse_incident_last_seen_id') || 0); } catch(e){ return 0; }
+}
+function setIncidentLastSeenId(id){
+  try { localStorage.setItem('sci_hse_incident_last_seen_id', String(id)); } catch(e){}
+}
+function countNewObs(){
+  const lastSeen = getObsLastSeenId();
+  return (STATE.obsEntries || []).filter(e => e.id > lastSeen).length;
+}
+function countNewIncidents(){
+  const lastSeen = getIncidentLastSeenId();
+  return (STATE.incidentEntries || []).filter(e => e.id > lastSeen).length;
+}
+
 function updateObsNavBadge(){
   const badge = document.getElementById('obsNavBadge');
   const bnBadge = document.getElementById('obsBottomNavBadge');
-  const entries = STATE.obsEntries || [];
-  const lastSeen = getObsLastSeenId();
-  const newCount = entries.filter(e => e.id > lastSeen).length;
+  const newCount = countNewObs() + countNewIncidents();
   const label = newCount > 99 ? '99+' : String(newCount);
   if(badge){
     badge.textContent = label;
@@ -3508,15 +3521,21 @@ function updateObsNavBadge(){
   if(bnBadge){
     bnBadge.style.display = newCount > 0 ? 'block' : 'none';
   }
+  // Home-screen / taskbar icon badge (installed PWA only; ignored elsewhere)
+  try {
+    if(newCount > 0 && navigator.setAppBadge) navigator.setAppBadge(newCount).catch(()=>{});
+    else if(newCount === 0 && navigator.clearAppBadge) navigator.clearAppBadge().catch(()=>{});
+  } catch(e){}
 }
 
 function markObsSeen(){
   const entries = STATE.obsEntries || [];
-  if(entries.length === 0) return;
-  const maxId = Math.max(...entries.map(e => e.id));
-  setObsLastSeenId(maxId);
+  if(entries.length > 0) setObsLastSeenId(Math.max(...entries.map(e => e.id)));
+  const incidents = STATE.incidentEntries || [];
+  if(incidents.length > 0) setIncidentLastSeenId(Math.max(...incidents.map(e => e.id)));
   updateObsNavBadge();
   renderObsFeed();
+  renderIncidentFeed();
 }
 
 function obsTypeClass(type){
@@ -3571,13 +3590,17 @@ function renderObsFeed(){
   const curMonthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
   const monthEntries = entries.filter(e => e.date && e.date.indexOf(curMonthKey) === 0);
   const newEntries = entries.filter(e => e.id > lastSeen);
+  const newIncidentCount = countNewIncidents();
 
   if(banner){
-    if(newEntries.length > 0){
+    if(newEntries.length + newIncidentCount > 0){
+      const parts = [];
+      if(newEntries.length > 0) parts.push('<b>' + newEntries.length + '</b> new safety observation' + (newEntries.length > 1 ? 's' : ''));
+      if(newIncidentCount > 0) parts.push('<b>' + newIncidentCount + '</b> new incident report' + (newIncidentCount > 1 ? 's' : ''));
       banner.style.display = 'flex';
       banner.innerHTML =
-        '<span class="txt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><b>' + newEntries.length + '</b> pemerhatian keselamatan baru dihantar</span>' +
-        '<button onclick="markObsSeen()">Tandakan Sudah Dibaca</button>';
+        '<span class="txt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + parts.join(' and ') + ' submitted</span>' +
+        '<button onclick="markObsSeen()">Mark all as read</button>';
     } else {
       banner.style.display = 'none';
     }
@@ -3595,7 +3618,7 @@ function renderObsFeed(){
         <div class="oc-top">
           <div class="oc-badges">
             <span class="oc-type ${obsTypeClass(e.type)}">${escapeHtml((e.type || '—').split('(')[0].trim())}</span>
-            ${isNew ? '<span class="oc-newtag">Baru</span>' : ''}
+            ${isNew ? '<span class="oc-newtag">New</span>' : ''}
           </div>
           <div class="oc-right">
             <span class="oc-date">${formatDate(e.date)}</span>
@@ -3624,6 +3647,7 @@ function renderIncidentFeed(){
   if (!grid) return;
 
   const entries = STATE.incidentEntries || [];
+  const incLastSeen = getIncidentLastSeenId();
   const now = new Date();
   const curMonthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
   const monthEntries = entries.filter(e => e.date && e.date.indexOf(curMonthKey) === 0);
@@ -3633,11 +3657,14 @@ function renderIncidentFeed(){
     return;
   }
 
-  grid.innerHTML = monthEntries.map(e => `
-    <div class="obs-card">
+  grid.innerHTML = monthEntries.map(e => {
+    const isNew = e.id > incLastSeen;
+    return `
+    <div class="obs-card ${isNew ? 'new' : ''}">
       <div class="oc-top">
         <div class="oc-badges">
           <span class="oc-type unsafeact">${escapeHtml(e.type || '—')}</span>
+          ${isNew ? '<span class="oc-newtag">New</span>' : ''}
           ${e.severity ? `<span class="oc-type unsafecondition">${escapeHtml(e.severity)}</span>` : ''}
         </div>
         <div class="oc-right">
@@ -3650,10 +3677,10 @@ function renderIncidentFeed(){
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${escapeHtml(e.section || e.department || '—')}</span>
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>${escapeHtml(e.location || '—')}</span>
         ${e.reporter ? `<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${escapeHtml(e.reporter)}</span>` : ''}
-        ${e.daysAway ? `<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>${escapeHtml(e.daysAway)} hari tidak bekerja</span>` : ''}
+        ${e.daysAway ? `<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>${escapeHtml(e.daysAway)} days away from work</span>` : ''}
       </div>
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('');
 }
 
 async function deleteIncidentEntry(id){
