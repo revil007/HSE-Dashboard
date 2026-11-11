@@ -1612,7 +1612,7 @@
           <div class="insp-chart-head">
             <div>
               <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">Inspection Score by Section</h3>
-              <div class="caption" style="margin:0;">Average score (%) for the selected month · Target 80%</div>
+              <div class="caption" style="margin:0;">Latest inspection score (%) in the selected month · Target 80%</div>
             </div>
             <div class="month-nav">
               <button type="button" id="inspMonthPrev" onclick="shiftInspMonth(-1)" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
@@ -1639,7 +1639,12 @@
           <div class="insp-chart-head">
             <div>
               <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">Committee Inspection Score by Section</h3>
-              <div class="caption" style="margin:0;">Average score (%) from HSE Committee pre-meeting inspections · Target 80%</div>
+              <div class="caption" style="margin:0;">Latest inspection score (%) in the selected month · Target 80%</div>
+            </div>
+            <div class="month-nav">
+              <button type="button" id="cmtMonthPrev" onclick="shiftCmtMonth(-1)" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+              <span class="month-label" id="cmtMonthLabel">—</span>
+              <button type="button" id="cmtMonthNext" onclick="shiftCmtMonth(1)" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
             </div>
           </div>
           <div class="insp-legend" style="margin-bottom:10px;">
@@ -1651,8 +1656,8 @@
             <canvas id="committeeChart"></canvas>
             <div class="insp-chart-empty" id="committeeChartEmpty" style="display:none;">
               <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30" height="30" style=""><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
-              <div class="msg">No committee inspection records yet</div>
-              <div class="sub">Complete a section under "HSE Committee Pre-Meeting Inspection" to see scores here</div>
+              <div class="msg" id="cmtEmptyMsg">No committee inspection records yet</div>
+              <div class="sub" id="cmtEmptySub">Complete a section under "HSE Committee Pre-Meeting Inspection" to see scores here</div>
             </div>
           </div>
         </div>
@@ -3024,6 +3029,16 @@ const barValueLabelPlugin = {
   }
 };
 
+/* Latest inspection of a section within the selected month: newest Date wins, then highest ID. */
+function latestInspectionRecord(recs){
+  if (!recs || recs.length === 0) return null;
+  return recs.slice().sort((a, b) => {
+    const da = String(a.Date || ''), db = String(b.Date || '');
+    if (da !== db) return da < db ? 1 : -1;
+    return (Number(b.ID) || 0) - (Number(a.ID) || 0);
+  })[0];
+}
+
 let inspMonthKey = null; // 'YYYY-MM' shown in the Inspection Score chart (defaults to the current month)
 
 function currentMonthKey(){
@@ -3074,10 +3089,8 @@ function renderInspectionChart(){
   if(emptyEl) emptyEl.style.display='none';
 
   const avgScores = INSPECTION_SECTIONS.map(sec => {
-    const secRecords = records.filter(r => r.Section === sec);
-    if (secRecords.length === 0) return 0;
-    const sum = secRecords.reduce((acc, r) => acc + (Number(r.ScorePercent) || 0), 0);
-    return Math.round(sum / secRecords.length);
+    const latest = latestInspectionRecord(records.filter(r => r.Section === sec));
+    return latest ? Math.round(Number(latest.ScorePercent) || 0) : 0;
   });
 
   const barColors = avgScores.map(s => s >= 80 ? '#2F8F5B' : (s >= 60 ? '#E2993B' : '#D6484B'));
@@ -3088,7 +3101,7 @@ function renderInspectionChart(){
     data:{
       labels: INSPECTION_SECTIONS,
       datasets:[{
-        label:'Average Score (%)',
+        label:'Latest Score (%)',
         data: avgScores,
         backgroundColor: barColors,
         borderRadius: 5,
@@ -3108,7 +3121,7 @@ function renderInspectionChart(){
           padding:10,
           titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700},
           bodyFont:{family:"'Inter', sans-serif", size:12.5},
-          callbacks:{label: ctx => 'Average score: ' + ctx.parsed.x + '%'}
+          callbacks:{label: ctx => 'Latest score: ' + ctx.parsed.x + '%'}
         }
       },
       scales:{
@@ -3339,11 +3352,30 @@ function renderSafetyInduction(){
 
 let committeeChartInstance=null;
 
+let cmtMonthKey = null; // 'YYYY-MM' shown in the Committee Inspection Score chart (defaults to the current month)
+
+function shiftCmtMonth(delta){
+  const key = cmtMonthKey || currentMonthKey();
+  const [y, m] = key.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  const next = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  if (next > currentMonthKey()) return;
+  cmtMonthKey = next;
+  renderCommitteeChart();
+}
+
 function renderCommitteeChart(){
   const canvas = document.getElementById('committeeChart');
   const emptyEl = document.getElementById('committeeChartEmpty');
   if (!canvas) return;
-  const records = STATE.committeeInspections || [];
+  if (!cmtMonthKey) cmtMonthKey = currentMonthKey();
+  const cmtLabel = document.getElementById('cmtMonthLabel');
+  if (cmtLabel) cmtLabel.textContent = inspMonthLabelText(cmtMonthKey);
+  const cmtNext = document.getElementById('cmtMonthNext');
+  if (cmtNext) cmtNext.disabled = cmtMonthKey >= currentMonthKey();
+  const allRecords = STATE.committeeInspections || [];
+  // Score = the score recorded when the inspection was carried out, grouped by inspection date
+  const records = allRecords.filter(r => String(r.Date || '').slice(0, 7) === cmtMonthKey);
 
   if (committeeChartInstance){
     committeeChartInstance.destroy();
@@ -3352,6 +3384,10 @@ function renderCommitteeChart(){
 
   if (records.length === 0){
     canvas.style.display='none';
+    const em = document.getElementById('cmtEmptyMsg');
+    const es = document.getElementById('cmtEmptySub');
+    if(em) em.textContent = allRecords.length ? 'No inspections in ' + inspMonthLabelText(cmtMonthKey) : 'No committee inspection records yet';
+    if(es) es.textContent = allRecords.length ? 'Use the arrows to view another month' : 'Complete a section under "HSE Committee Pre-Meeting Inspection" to see scores here';
     if(emptyEl) emptyEl.style.display='flex';
     return;
   }
@@ -3359,10 +3395,8 @@ function renderCommitteeChart(){
   if(emptyEl) emptyEl.style.display='none';
 
   const avgScores = INSPECTION_SECTIONS.map(sec => {
-    const secRecords = records.filter(r => r.Section === sec);
-    if (secRecords.length === 0) return 0;
-    const sum = secRecords.reduce((acc, r) => acc + (Number(r.ScorePercent) || 0), 0);
-    return Math.round(sum / secRecords.length);
+    const latest = latestInspectionRecord(records.filter(r => r.Section === sec));
+    return latest ? Math.round(Number(latest.ScorePercent) || 0) : 0;
   });
 
   const barColors = avgScores.map(s => s >= 80 ? '#2F8F5B' : (s >= 60 ? '#E2993B' : '#D6484B'));
@@ -3373,7 +3407,7 @@ function renderCommitteeChart(){
     data:{
       labels: INSPECTION_SECTIONS,
       datasets:[{
-        label:'Average Score (%)',
+        label:'Latest Score (%)',
         data: avgScores,
         backgroundColor: barColors,
         borderRadius: 5,
@@ -3393,7 +3427,7 @@ function renderCommitteeChart(){
           padding:10,
           titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700},
           bodyFont:{family:"'Inter', sans-serif", size:12.5},
-          callbacks:{label: ctx => 'Average score: ' + ctx.parsed.x + '%'}
+          callbacks:{label: ctx => 'Latest score: ' + ctx.parsed.x + '%'}
         }
       },
       scales:{
