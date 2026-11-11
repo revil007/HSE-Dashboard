@@ -402,6 +402,18 @@
     display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;
     margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid var(--surface);
   }
+  .month-nav{display:inline-flex; align-items:center; gap:4px; flex-shrink:0;}
+  .month-nav button{
+    -webkit-appearance:none; appearance:none; border:1px solid var(--border); background:var(--card);
+    color:var(--heading); width:28px; height:28px; border-radius:8px; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; padding:0;
+  }
+  .month-nav button svg{width:14px; height:14px;}
+  .month-nav button:disabled{opacity:.35; cursor:default;}
+  .month-nav .month-label{
+    min-width:92px; text-align:center; font-size:12.5px; font-weight:600; color:var(--heading);
+    font-family:'IBM Plex Mono',monospace;
+  }
   .card-link-btn{
     display:inline-flex; align-items:center; gap:6px; flex-shrink:0;
     background:var(--navy); color:#fff; text-decoration:none;
@@ -1600,7 +1612,12 @@
           <div class="insp-chart-head">
             <div>
               <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">Inspection Score by Section</h3>
-              <div class="caption" style="margin:0;">Average score (%) · Target 80%</div>
+              <div class="caption" style="margin:0;">Average score (%) for the selected month · Target 80%</div>
+            </div>
+            <div class="month-nav">
+              <button type="button" id="inspMonthPrev" onclick="shiftInspMonth(-1)" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+              <span class="month-label" id="inspMonthLabel">—</span>
+              <button type="button" id="inspMonthNext" onclick="shiftInspMonth(1)" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
             </div>
           </div>
           <div class="insp-legend" style="margin-bottom:10px;">
@@ -1612,8 +1629,8 @@
             <canvas id="inspectionChart"></canvas>
             <div class="insp-chart-empty" id="inspectionChartEmpty" style="display:none;">
               <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30" height="30" style=""><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div>
-              <div class="msg">No inspection records yet</div>
-              <div class="sub">Complete a section under "Monthly Inspection" to see scores here</div>
+              <div class="msg" id="inspEmptyMsg">No inspection records yet</div>
+              <div class="sub" id="inspEmptySub">Complete a section under "Monthly Inspection" to see scores here</div>
             </div>
           </div>
         </div>
@@ -3007,11 +3024,37 @@ const barValueLabelPlugin = {
   }
 };
 
+let inspMonthKey = null; // 'YYYY-MM' shown in the Inspection Score chart (defaults to the current month)
+
+function currentMonthKey(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+function inspMonthLabelText(key){
+  const [y, m] = key.split('-').map(Number);
+  return new Date(y, m - 1, 1).toLocaleString('en-US', { month: 'short', year: 'numeric' });
+}
+function shiftInspMonth(delta){
+  const key = inspMonthKey || currentMonthKey();
+  const [y, m] = key.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  const next = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  if (next > currentMonthKey()) return;
+  inspMonthKey = next;
+  renderInspectionChart();
+}
+
 function renderInspectionChart(){
   const canvas=document.getElementById('inspectionChart');
   const emptyEl=document.getElementById('inspectionChartEmpty');
   if(!canvas) return;
-  const records = STATE.inspections || [];
+  if(!inspMonthKey) inspMonthKey = currentMonthKey();
+  const monthLabel = document.getElementById('inspMonthLabel');
+  if(monthLabel) monthLabel.textContent = inspMonthLabelText(inspMonthKey);
+  const nextBtn = document.getElementById('inspMonthNext');
+  if(nextBtn) nextBtn.disabled = inspMonthKey >= currentMonthKey();
+  const allRecords = STATE.inspections || [];
+  const records = allRecords.filter(r => String(r.Date || '').slice(0, 7) === inspMonthKey);
 
   if(inspectionChartInstance){
     inspectionChartInstance.destroy();
@@ -3020,6 +3063,10 @@ function renderInspectionChart(){
 
   if(records.length===0){
     canvas.style.display='none';
+    const em = document.getElementById('inspEmptyMsg');
+    const es = document.getElementById('inspEmptySub');
+    if(em) em.textContent = allRecords.length ? 'No inspections in ' + inspMonthLabelText(inspMonthKey) : 'No inspection records yet';
+    if(es) es.textContent = allRecords.length ? 'Use the arrows to view another month' : 'Complete a section under "Monthly Inspection" to see scores here';
     if(emptyEl) emptyEl.style.display='flex';
     return;
   }
