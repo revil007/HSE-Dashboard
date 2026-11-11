@@ -3322,22 +3322,52 @@ function renderSafetyInduction(){
   canvas.style.display='block';
   if(emptyEl) emptyEl.style.display='none';
 
+  // Show Jan up to the current month (or the latest month that has data), so
+  // future months don't leave an empty-looking gap on the right.
+  let lastIdx = new Date().getMonth();
+  data.monthlyTotals.forEach((v, i) => { if (v > 0 && i > lastIdx) lastIdx = i; });
+  const siLabels = data.months.slice(0, lastIdx + 1);
+  const siValues = data.monthlyTotals.slice(0, lastIdx + 1);
+  const siCurrentIdx = new Date().getMonth();
+  const siBarColors = siValues.map((v, i) => i === siCurrentIdx ? '#2B6E91' : '#3B82A6');
+
+  const siValueLabels = {
+    id: 'siValueLabels',
+    afterDatasetsDraw(chart){
+      const ctx2 = chart.ctx;
+      const meta = chart.getDatasetMeta(0);
+      meta.data.forEach((bar, i) => {
+        const v = chart.data.datasets[0].data[i];
+        ctx2.save();
+        ctx2.font = "600 11px 'IBM Plex Mono', monospace";
+        ctx2.textAlign = 'center';
+        ctx2.textBaseline = 'bottom';
+        ctx2.fillStyle = v > 0 ? chartTextColor() : chartMutedColor();
+        ctx2.fillText(String(v), bar.x, bar.y - 4);
+        ctx2.restore();
+      });
+    }
+  };
+
   const ctx = canvas.getContext('2d');
   siChartInstance = new Chart(ctx,{
     type:'bar',
     data:{
-      labels: data.months,
+      labels: siLabels,
       datasets:[{
         label:'Inductions',
-        data: data.monthlyTotals,
-        backgroundColor:'#3B82A6',
-        borderRadius:4,
+        data: siValues,
+        backgroundColor: siBarColors,
+        borderRadius:5,
         barPercentage:0.6,
-        categoryPercentage:0.7
+        categoryPercentage:0.7,
+        minBarLength:2
       }]
     },
+    plugins:[siValueLabels],
     options:{
       responsive:true, maintainAspectRatio:false,
+      layout:{ padding:{ top:20 } },
       plugins:{
         legend:{display:false},
         tooltip:{backgroundColor:chartTooltipBg(), padding:10, cornerRadius:8, titleFont:{family:"'Barlow Condensed', sans-serif", size:14, weight:700}, bodyFont:{family:"'Inter', sans-serif", size:12}}
