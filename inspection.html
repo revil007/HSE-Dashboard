@@ -102,7 +102,8 @@
     padding:8px 10px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:top;
   }
   table.checklist tr:last-child td{border-bottom:none;}
-  table.checklist td.no{width:26px; color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12px;}
+  table.checklist tr.group-row td{background:var(--surface); font-weight:700; font-size:12.5px; color:var(--navy); text-transform:uppercase; letter-spacing:0.02em; padding:7px 10px;}
+  table.checklist td.no{width:36px; white-space:nowrap; color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12px;}
   table.checklist td.yn{width:110px; text-align:center;}
   table.checklist td.remarks input{
     width:100%; border:none; border-bottom:1px dashed var(--border); font-size:12px; font-family:'Inter',sans-serif;
@@ -237,102 +238,332 @@ const SECTIONS = [
   {
     name: 'Kawasan Store',
     scope: 'Store Office, Loading Bay, Tank Area & Warehouse',
-    items: [
-      'Housekeeping kawasan store bersih dan tersusun',
-      'Laluan kecemasan / loading bay tidak berhalangan',
-      'Alat pemadam api tersedia & tarikh servis sah',
-      'Penyusunan/stacking barang selamat (rak tidak rosak)',
-      'Tank area — tiada tanda kebocoran / tumpahan',
-      'PPE (helmet / safety boots) dipakai oleh pekerja',
-      'Signage keselamatan & label bahan jelas dipaparkan',
-      'Pencahayaan kawasan store mencukupi'
+    groups: [
+      { title: 'Penyimpanan Bahan Mentah', items: [
+        'Beg/drum bahan disusun dengan stabil dan tidak melebihi had ketinggian',
+        'Laluan forklift dan laluan pejalan kaki jelas',
+        'Tiada tumpahan bahan di lantai',
+        'Label bahan dan SDS tersedia'
+      ]},
+      { title: 'Kawasan Loading Bay', items: [
+        'Platform dan walkway bebas halangan',
+        'Bahagian berputar pada motor mempunyai penghadang',
+        'Tiada kebocoran pada Loading Point',
+        'Tiada tumpahan bahan di kawasan pam',
+        'Papan tanda keselamatan jelas dan disediakan'
+      ]},
+      { title: 'Pengendalian Bahan Kimia', items: [
+        'Semua bekas bahan kimia berlabel dengan jelas',
+        'SDS terkini tersedia dan mudah diakses',
+        'Secondary containment disediakan',
+        'Eyewash dan safety shower berfungsi',
+        'PPE yang sesuai dipakai',
+        'Prosedur pengendalian bahan kimia dipatuhi'
+      ]},
+      { title: 'Tangki Simpanan', items: [
+        'Tiada tanda kebocoran',
+        'Label keselamatan disediakan dan tidak pudar'
+      ]},
+      { title: 'Elektrikal & Peralatan', items: [
+        'Panel elektrik berkunci dan berlabel',
+        'Tiada kabel rosak atau terdedah',
+        'Earthing system dalam keadaan baik',
+        'Motor dan pump beroperasi dengan selamat'
+      ]},
+      { title: 'Fire & Emergency Preparedness', items: [
+        'Pemadam api mencukupi dan dalam tempoh sah',
+        'Fire hose reel boleh digunakan',
+        'Laluan kecemasan tidak dihalang',
+        'Assembly point ditanda dengan jelas',
+        'Emergency contact dipaparkan'
+      ]}
     ]
   },
   {
     name: 'Maintenance',
-    scope: 'Boiler, Gen Set Room, Electrical Room & Workshop',
-    items: [
-      'Boiler room bersih, tiada kebocoran wap / minyak',
-      'Gen set room — pengudaraan & bunyi bising terkawal',
-      'Electrical room berkunci & akses terhad',
-      'Panel elektrik dilabel dan tiada wayar terdedah',
-      'Workshop — mesin dilengkapi guard yang sempurna',
-      'APD (sarung tangan, goggle, ear plug) digunakan',
-      'Alat pemadam api sesuai (Class C) tersedia berdekatan',
-      'Housekeeping workshop bebas daripada bahan mudah terbakar bertaburan'
+    scope: 'Cooling Tower, Workshop, Gen Set Room & Electrical Room',
+    groups: [
+      { title: 'Kawasan Cooling Tower', items: [
+        'Air tidak melimpah keluar dari kolam takungan',
+        'Bahagian berputar pada peralatan pam dipasang penghadang keselamatan',
+        'Pintu menara penyejuk sentiasa tertutup',
+        'Tangga menara dalam keadaan baik',
+        'Handrail dalam keadaan baik'
+      ]},
+      { title: 'Kawasan Workshop', items: [
+        'Peralatan diselenggara dengan baik',
+        'Ruang tempat kerja yang mencukupi',
+        'Penghadang keselamatan disediakan bagi peralatan berputar',
+        'Peralatan tersusun dengan kemas',
+        'Prosedur kerja selamat disediakan'
+      ]},
+      { title: 'Kawasan Genset', items: [
+        'Papan tanda amaran disediakan',
+        'Pintu sentiasa dalam keadaan tertutup',
+        'Sistem CO2 dan penggera kecemasan berfungsi dengan baik'
+      ]},
+      { title: 'Pengendalian Bahan Kimia', items: [
+        'Semua bekas bahan kimia berlabel dengan jelas',
+        'SDS terkini tersedia dan mudah diakses',
+        'Secondary containment disediakan',
+        'PPE yang sesuai dipakai',
+        'Prosedur pengendalian bahan kimia disediakan'
+      ]},
+      { title: 'Bilik Elektrik', items: [
+        'Panel elektrik sentiasa dalam keadaan tertutup',
+        'Tiada kabel rosak atau terdedah',
+        'Penebat lantai disediakan dan dalam keadaan baik',
+        'PPE disediakan',
+        'Peralatan diselenggara dan sijil kelulusan masih sah'
+      ]},
+      { title: 'Fire & Emergency Preparedness', items: [
+        'Pemadam api mencukupi dan dalam tempoh sah',
+        'Fire hose reel boleh digunakan',
+        'Laluan kecemasan tidak dihalang',
+        'Pelan laluan kecemasan disediakan',
+        'Emergency contact dipaparkan'
+      ]}
     ]
   },
   {
     name: 'Glue Plant',
-    scope: 'Reactor & Urea Storage Area',
-    items: [
-      'Reactor — tiada tanda kebocoran / kerosakan pada gasket / injap',
-      'Suhu & tekanan reactor dalam had selamat (rekod dipantau)',
-      'Urea storage — bahan disimpan mengikut SDS & tersusun',
-      'Laluan akses ke reactor dan storage bebas halangan',
-      'PPE (respirator / sarung tangan kimia) dipakai',
-      'Sistem pengudaraan berfungsi dengan baik',
-      'Tanda amaran bahan kimia jelas dipaparkan',
-      'Prosedur kecemasan tumpahan bahan kimia dipamerkan'
+    scope: 'Urea Storage, Reactor, Chemical Handling, Storage Tank, Electrical & Fire Preparedness',
+    groups: [
+      { title: 'Penyimpanan Urea & Bahan Mentah', items: [
+        'Beg/drum bahan disusun dengan stabil dan tidak melebihi had ketinggian',
+        'Laluan forklift dan laluan pejalan kaki jelas',
+        'Tiada tumpahan bahan di lantai',
+        'Label bahan dan SDS tersedia'
+      ]},
+      { title: 'Kawasan Reactor', items: [
+        'Platform dan walkway bebas halangan',
+        'Insulation pada permukaan panas dalam keadaan baik',
+        'Tiada abnormal vibration atau bunyi luar biasa',
+        'Tiada kebocoran pada reactor, flange dan valve',
+        'Lantai kering dan tidak licin',
+        'Ventilation berfungsi dengan baik'
+      ]},
+      { title: 'Pengendalian Bahan Kimia', items: [
+        'Semua bekas bahan kimia berlabel dengan jelas',
+        'SDS terkini tersedia dan mudah diakses',
+        'Secondary containment disediakan',
+        'Eyewash dan safety shower berfungsi',
+        'PPE yang sesuai dipakai',
+        'Prosedur pengendalian bahan kimia dipatuhi'
+      ]},
+      { title: 'Tangki Simpanan', items: [
+        'Tiada tanda kebocoran',
+        'Label keselamatan disediakan dan tidak pudar'
+      ]},
+      { title: 'Elektrikal & Peralatan', items: [
+        'Panel elektrik berkunci dan berlabel',
+        'Tiada kabel rosak atau terdedah',
+        'Earthing system dalam keadaan baik',
+        'Motor dan pump beroperasi dengan selamat'
+      ]},
+      { title: 'Fire & Emergency Preparedness', items: [
+        'Pemadam api mencukupi dan dalam tempoh sah',
+        'Fire hose reel boleh digunakan',
+        'Laluan kecemasan tidak dihalang',
+        'Assembly point ditanda dengan jelas',
+        'Emergency contact dipaparkan'
+      ]}
     ]
   },
   {
     name: 'Formalin',
     scope: 'Formalin Plant, Formalin Control Room & Tank Area',
-    items: [
-      'Formalin plant — tiada bau / kebocoran gas formalin dikesan',
-      'Tank area — bund wall / containment dalam keadaan baik',
-      'Control room — paparan monitor / alarm berfungsi normal',
-      'PPE (respirator formaldehyde, sarung tangan) digunakan',
-      'Eye wash / safety shower berfungsi & mudah diakses',
-      'SDS formalin tersedia dan mudah diakses',
-      'Signage bahaya kesihatan (toksik / karsinogenik) dipamerkan',
-      'Prosedur kecemasan tumpahan / kebocoran dipamerkan'
+    groups: [
+      { title: 'Housekeeping', items: [
+        'Meja kerja dan ruang penyimpanan berada dalam keadaan bersih dan teratur',
+        'Pencahayaan dan pengudaraan mencukupi',
+        'Laluan kerja dan akses ke peralatan kecemasan tidak dihalang'
+      ]},
+      { title: 'Chemical Safety & Handling', items: [
+        'Semua bekas bahan kimia dan sampel dilabel dengan jelas',
+        'SDS terkini tersedia dan mudah diakses',
+        'Bekas bahan kimia ditutup selepas digunakan',
+        'Tiada kebocoran atau tumpahan bahan kimia',
+        'Pekerja memahami risiko dan langkah keselamatan bahan kimia yang dikendalikan'
+      ]},
+      { title: 'PPE Compliance', items: [
+        'Safety glasses/goggles digunakan semasa menjalankan kerja',
+        'Sarung tangan yang bersesuaian digunakan mengikut jenis bahan kimia atau aktiviti kerja',
+        'PPE mencukupi dan berada dalam keadaan baik'
+      ]},
+      { title: 'Storage Tank Area', items: [
+        'Tangki formalin dilabel dengan jelas',
+        'Bund wall dalam keadaan baik dan bersih',
+        'Tiada tanda kebocoran pada tangki',
+        'Tangga dan platform tangki berada dalam keadaan selamat'
+      ]},
+      { title: 'Kawasan Panel Kawalan', items: [
+        'Penebat lantai bagi panel elektrik disediakan',
+        'Tiada halangan pada panel sistem kawalan kecemasan',
+        'Peralatan disusun dengan kemas',
+        'Panel penggera kecemasan berfungsi dengan baik'
+      ]},
+      { title: 'Emergency & Fire Safety', items: [
+        'Eyewash station berfungsi dengan baik dan mudah diakses',
+        'First Aid Kit lengkap dan mudah dicapai',
+        'Alat pemadam api mencukupi, mudah diakses dan masih dalam tempoh sah',
+        'Laluan dan pintu kecemasan tidak dihalang',
+        'Emergency contact dan prosedur kecemasan dipaparkan dengan jelas'
+      ]},
+      { title: 'Kawasan Loji Formalin', items: [
+        'Platform dan laluan akses bebas halangan',
+        'Handrail berada dalam keadaan baik dan kukuh',
+        'Penghadang keselamatan dipasang pada bahagian berputar',
+        'Tiada tumpahan bahan kimia di kawasan kerja',
+        'Papan tanda amaran keselamatan dipasang dengan jelas'
+      ]}
     ]
   },
   {
     name: 'Quality Control',
-    scope: 'Office, Sample Rack & Cutting Machine Area',
-    items: [
-      'Office — susun atur meja / kerusi selamat & ergonomik',
-      'Sample rack tersusun kemas dan berlabel',
-      'Cutting machine dilengkapi guard / pelindung',
-      'PPE (safety glasses, sarung tangan) dipakai semasa uji sampel',
-      'Bahan kimia makmal (jika ada) disimpan dengan betul',
-      'Laluan kerja bersih & tidak berselerak',
-      'Pencahayaan kawasan kerja mencukupi',
-      'Alat pemadam api / prosedur kecemasan berdekatan tersedia'
+    scope: 'Quality Control Laboratory',
+    groups: [
+      { title: 'Housekeeping & Laboratory Environment', items: [
+        'Makmal, meja kerja dan ruang penyimpanan berada dalam keadaan bersih dan teratur',
+        'Pencahayaan dan pengudaraan mencukupi',
+        'Laluan kerja dan akses ke peralatan kecemasan tidak dihalang'
+      ]},
+      { title: 'Chemical Safety & Handling', items: [
+        'Semua bekas bahan kimia dan sampel dilabel dengan jelas',
+        'SDS terkini tersedia dan mudah diakses',
+        'Bekas bahan kimia ditutup selepas digunakan',
+        'Tiada kebocoran atau tumpahan bahan kimia',
+        'Pekerja memahami risiko dan langkah keselamatan bahan kimia yang dikendalikan'
+      ]},
+      { title: 'PPE Compliance', items: [
+        'Safety glasses/goggles digunakan semasa menjalankan kerja',
+        'Sarung tangan yang bersesuaian digunakan mengikut jenis bahan kimia atau aktiviti kerja',
+        'PPE mencukupi dan berada dalam keadaan baik'
+      ]},
+      { title: 'Laboratory Equipment Safety', items: [
+        'Peralatan makmal berada dalam keadaan baik dan selamat digunakan',
+        'Peralatan diperiksa dan diselenggara mengikut jadual',
+        'Kabel elektrik, plug dan soket berada dalam keadaan baik serta tidak rosak atau terdedah'
+      ]},
+      { title: 'Electrical Safety', items: [
+        'Panel elektrik dilabel, berkunci dan mudah diakses oleh kakitangan yang dibenarkan',
+        'Tiada kabel elektrik merintangi laluan berjalan',
+        'Tiada sambungan elektrik yang berlebihan atau tidak selamat'
+      ]},
+      { title: 'Emergency & Fire Safety', items: [
+        'Eyewash station berfungsi dengan baik dan mudah diakses',
+        'First Aid Kit lengkap dan mudah dicapai',
+        'Alat pemadam api mencukupi, mudah diakses dan masih dalam tempoh sah',
+        'Laluan dan pintu kecemasan tidak dihalang',
+        'Emergency contact dan prosedur kecemasan dipaparkan dengan jelas'
+      ]},
+      { title: 'Safe Work Practices', items: [
+        'SOP/Work Instruction tersedia dan dipatuhi',
+        'Makan dan minum tidak dibenarkan di dalam makmal',
+        'Amalan kerja selamat dipatuhi semasa menjalankan aktiviti makmal'
+      ]}
     ]
   },
   {
     name: 'Hardener',
     scope: 'Packing Area & Hardener Process Area',
-    items: [
-      'Packing area bersih & tersusun, tiada tumpahan bahan',
-      'Hardener process area — tiada kebocoran bahan kimia',
-      'PPE (sarung tangan kimia, respirator) dipakai',
-      'Bekas / container hardener berlabel dengan betul',
-      'Sistem pengudaraan berfungsi baik',
-      'Laluan kecemasan tidak berhalangan',
-      'Signage amaran bahan reaktif / mudah terbakar dipamerkan',
-      'Eye wash / safety shower berfungsi & mudah diakses'
+    groups: [
+      { title: 'Penyimpanan Bahan Mentah (Packing Area)', items: [
+        'Beg/drum bahan disusun dengan stabil dan tidak melebihi had ketinggian',
+        'Laluan forklift dan laluan pejalan kaki jelas',
+        'Tiada tumpahan bahan di lantai',
+        'Label bahan dan SDS tersedia'
+      ]},
+      { title: 'Kawasan Hardener Mixer', items: [
+        'Platform dan walkway bebas halangan',
+        'Bahagian berputar pada motor mempunyai penghadang',
+        'Penghadang Platform tempat kerja disediakan',
+        'Papan tanda keselamatan jelas dan disediakan'
+      ]},
+      { title: 'Pengendalian Bahan Kimia', items: [
+        'Semua bekas bahan kimia berlabel dengan jelas',
+        'SDS terkini tersedia dan mudah diakses',
+        'Secondary containment disediakan',
+        'Eyewash dan safety shower berfungsi',
+        'PPE yang sesuai dipakai',
+        'Prosedur pengendalian bahan kimia dipatuhi'
+      ]},
+      { title: 'Elektrikal & Peralatan', items: [
+        'Panel elektrik berkunci dan berlabel',
+        'Tiada kabel rosak atau terdedah',
+        'Earthing system dalam keadaan baik',
+        'Motor dan pump beroperasi dengan selamat'
+      ]},
+      { title: 'Fire & Emergency Preparedness', items: [
+        'Pemadam api mencukupi dan dalam tempoh sah',
+        'Fire hose reel boleh digunakan',
+        'Laluan kecemasan tidak dihalang',
+        'Assembly point ditanda dengan jelas',
+        'Emergency contact dipaparkan'
+      ]}
     ]
   },
   {
     name: 'Admin',
-    scope: 'Admin Building & Car Park Area',
-    items: [
-      'Bangunan admin — laluan keluar kecemasan tidak berhalangan',
-      'Alat pemadam api tersedia & tarikh servis sah',
-      'Susun atur pejabat kemas, tiada wayar / kord berselerak',
-      'Tangga / laluan bebas daripada halangan',
-      'Car park — laluan kenderaan & pejalan kaki jelas',
-      'Signage keselamatan (no smoking, speed limit) dipamerkan',
-      'Pencahayaan kawasan car park mencukupi (waktu malam)',
-      'First aid kit tersedia dan lengkap'
+    scope: 'Admin Building',
+    groups: [
+      { title: 'Housekeeping & Work Environment', items: [
+        'Laluan pejalan kaki tidak dihalang',
+        'Lantai bersih dan bebas daripada risiko tergelincir',
+        'Pencahayaan mencukupi',
+        'Pengudaraan dan penghawa dingin berfungsi dengan baik'
+      ]},
+      { title: 'Ergonomic & Workstation Safety', items: [
+        'Kerusi pejabat dalam keadaan baik dan boleh dilaraskan',
+        'Kedudukan monitor sesuai dengan pengguna',
+        'Ruang kerja mencukupi untuk pergerakan pekerja'
+      ]},
+      { title: 'Electrical Safety', items: [
+        'Extension cord digunakan dengan selamat',
+        'Tiada kabel rosak atau terdedah',
+        'Peralatan elektrik berada dalam keadaan baik',
+        'Suis dan plug tidak rosak'
+      ]},
+      { title: 'Document & Storage Safety', items: [
+        'Kabinet fail stabil dan dalam keadaan baik',
+        'Laci kabinet ditutup selepas digunakan',
+        'Barang berat disimpan pada rak bawah',
+        'Rak penyimpanan tidak terlebih muatan'
+      ]},
+      { title: 'Fire & Emergency Preparedness', items: [
+        'Pemadam api mudah dicapai dan dalam tempoh sah',
+        'Laluan kecemasan tidak dihalang',
+        'Pintu keluar kecemasan boleh diakses',
+        'Pelan laluan kecemasan dipaparkan',
+        'Emergency contact dipaparkan'
+      ]},
+      { title: 'Welfare & First Aid', items: [
+        'First Aid Kit lengkap dan mudah diakses',
+        'Kotak kecemasan diperiksa secara berkala',
+        'Pantri dalam keadaan bersih'
+      ]}
     ]
   }
 ];
+
+/* Sections may define flat `items`, or `groups` (numbered categories with items).
+   Both are normalised into: items (flat list), labels (No column) and groupAt (group header rows). */
+SECTIONS.forEach(sec => {
+  sec.labels = [];
+  sec.groupAt = {};
+  if (sec.groups){
+    sec.items = [];
+    sec.groups.forEach((g, gi) => {
+      sec.groupAt[sec.items.length] = { no: gi + 1, title: g.title };
+      g.items.forEach((text, k) => {
+        sec.items.push(text);
+        sec.labels.push((gi + 1) + '.' + (k + 1));
+      });
+    });
+  } else {
+    sec.items.forEach((_, i) => sec.labels.push(String(i + 1)));
+  }
+});
 
 const urlParams = new URLSearchParams(window.location.search);
 const sectionFilter = urlParams.get('section');
@@ -366,8 +597,9 @@ function buildForm(){
         </thead>
         <tbody>
           ${sec.items.map((item, ii) => `
+            ${sec.groupAt[ii] ? `<tr class="group-row"><td colspan="4">${sec.groupAt[ii].no}. ${sec.groupAt[ii].title}</td></tr>` : ''}
             <tr>
-              <td class="no">${ii + 1}</td>
+              <td class="no">${sec.labels[ii]}</td>
               <td>${item}</td>
               <td class="yn">
                 <div class="yn-group">
