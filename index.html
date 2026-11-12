@@ -1639,12 +1639,12 @@
           <div class="insp-chart-head">
             <div>
               <h3 class="display" style="font-size:19px; text-transform:uppercase; color:var(--heading); margin-bottom:2px;">Committee Inspection Score by Section</h3>
-              <div class="caption" style="margin:0;">Latest inspection score (%) in the selected month · Target 80%</div>
+              <div class="caption" style="margin:0;">Latest inspection score (%) per quarter, before each HSE Committee meeting · Target 80%</div>
             </div>
             <div class="month-nav">
-              <button type="button" id="cmtMonthPrev" onclick="shiftCmtMonth(-1)" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+              <button type="button" id="cmtMonthPrev" onclick="shiftCmtQuarter(-1)" aria-label="Previous quarter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
               <span class="month-label" id="cmtMonthLabel">—</span>
-              <button type="button" id="cmtMonthNext" onclick="shiftCmtMonth(1)" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+              <button type="button" id="cmtMonthNext" onclick="shiftCmtQuarter(1)" aria-label="Next quarter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
             </div>
           </div>
           <div class="insp-legend" style="margin-bottom:10px;">
@@ -3382,15 +3382,44 @@ function renderSafetyInduction(){
 
 let committeeChartInstance=null;
 
-let cmtMonthKey = null; // 'YYYY-MM' shown in the Committee Inspection Score chart (defaults to the current month)
+/* Committee inspections are done once per quarter (before each HSE Committee meeting),
+   so this chart is navigated by quarter: key format 'YYYY-Qn'. */
+let cmtQuarterKey = null;
 
-function shiftCmtMonth(delta){
-  const key = cmtMonthKey || currentMonthKey();
-  const [y, m] = key.split('-').map(Number);
-  const d = new Date(y, m - 1 + delta, 1);
-  const next = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-  if (next > currentMonthKey()) return;
-  cmtMonthKey = next;
+function quarterKeyOfDate(dateStr){
+  const y = Number(String(dateStr).slice(0, 4));
+  const m = Number(String(dateStr).slice(5, 7));
+  if (!y || !m) return null;
+  return y + '-Q' + Math.ceil(m / 3);
+}
+function currentQuarterKey(){
+  const d = new Date();
+  return d.getFullYear() + '-Q' + (Math.floor(d.getMonth() / 3) + 1);
+}
+function shiftQuarterKey(key, delta){
+  const [y, q] = key.split('-Q').map(Number);
+  const idx = y * 4 + (q - 1) + delta;
+  return Math.floor(idx / 4) + '-Q' + ((idx % 4) + 1);
+}
+function quarterLabelText(key){
+  const [y, q] = key.split('-Q');
+  return 'Q' + q + ' ' + y;
+}
+function committeeQuarterKeys(){
+  const keys = new Set();
+  (STATE.committeeInspections || []).forEach(r => {
+    const k = quarterKeyOfDate(r.Date);
+    if (k) keys.add(k);
+  });
+  return Array.from(keys).sort();
+}
+function shiftCmtQuarter(delta){
+  const key = cmtQuarterKey || currentQuarterKey();
+  const next = shiftQuarterKey(key, delta);
+  const keys = committeeQuarterKeys();
+  if (next > currentQuarterKey()) return;
+  if (delta < 0 && keys.length && next < keys[0]) return; // nothing earlier than the first record
+  cmtQuarterKey = next;
   renderCommitteeChart();
 }
 
@@ -3398,14 +3427,18 @@ function renderCommitteeChart(){
   const canvas = document.getElementById('committeeChart');
   const emptyEl = document.getElementById('committeeChartEmpty');
   if (!canvas) return;
-  if (!cmtMonthKey) cmtMonthKey = currentMonthKey();
-  const cmtLabel = document.getElementById('cmtMonthLabel');
-  if (cmtLabel) cmtLabel.textContent = inspMonthLabelText(cmtMonthKey);
-  const cmtNext = document.getElementById('cmtMonthNext');
-  if (cmtNext) cmtNext.disabled = cmtMonthKey >= currentMonthKey();
   const allRecords = STATE.committeeInspections || [];
+  const quarterKeys = committeeQuarterKeys();
+  // Default view: the latest quarter that has an inspection (so the chart isn't empty before the next meeting)
+  if (!cmtQuarterKey) cmtQuarterKey = quarterKeys.length ? quarterKeys[quarterKeys.length - 1] : currentQuarterKey();
+  const cmtLabel = document.getElementById('cmtMonthLabel');
+  if (cmtLabel) cmtLabel.textContent = quarterLabelText(cmtQuarterKey);
+  const cmtNext = document.getElementById('cmtMonthNext');
+  if (cmtNext) cmtNext.disabled = cmtQuarterKey >= currentQuarterKey();
+  const cmtPrev = document.getElementById('cmtMonthPrev');
+  if (cmtPrev) cmtPrev.disabled = !quarterKeys.length || cmtQuarterKey <= quarterKeys[0];
   // Score = the score recorded when the inspection was carried out, grouped by inspection date
-  const records = allRecords.filter(r => String(r.Date || '').slice(0, 7) === cmtMonthKey);
+  const records = allRecords.filter(r => quarterKeyOfDate(r.Date) === cmtQuarterKey);
 
   if (committeeChartInstance){
     committeeChartInstance.destroy();
@@ -3416,8 +3449,8 @@ function renderCommitteeChart(){
     canvas.style.display='none';
     const em = document.getElementById('cmtEmptyMsg');
     const es = document.getElementById('cmtEmptySub');
-    if(em) em.textContent = allRecords.length ? 'No inspections in ' + inspMonthLabelText(cmtMonthKey) : 'No committee inspection records yet';
-    if(es) es.textContent = allRecords.length ? 'Use the arrows to view another month' : 'Complete a section under "HSE Committee Pre-Meeting Inspection" to see scores here';
+    if(em) em.textContent = allRecords.length ? 'No inspections in ' + quarterLabelText(cmtQuarterKey) : 'No committee inspection records yet';
+    if(es) es.textContent = allRecords.length ? 'Use the arrows to view another quarter' : 'Complete a section under "HSE Committee Pre-Meeting Inspection" to see scores here';
     if(emptyEl) emptyEl.style.display='flex';
     return;
   }
