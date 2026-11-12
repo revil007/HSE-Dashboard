@@ -102,7 +102,31 @@
     padding:8px 10px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:top;
   }
   table.checklist tr:last-child td{border-bottom:none;}
-  table.checklist tr.group-row td{background:var(--surface); font-weight:700; font-size:12.5px; color:var(--navy); text-transform:uppercase; letter-spacing:0.02em; padding:7px 10px;}
+  .cat-block{border:1px solid var(--border); border-top:none; overflow:hidden;}
+  .cat-block:last-child{border-radius:0 0 6px 6px;}
+  .cat-head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--navy-2); color:#fff; padding:11px 16px; cursor:pointer; user-select:none;
+    border-top:1px solid rgba(255,255,255,0.08);
+  }
+  .cat-head .cat-title{display:flex; align-items:center; gap:10px; min-width:0;}
+  .cat-head .cat-no{
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:15px;
+    background:var(--yellow); color:var(--navy); border-radius:6px; padding:2px 9px; min-width:24px; text-align:center;
+  }
+  .cat-head .cat-name{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; text-transform:uppercase;}
+  .cat-head .cat-progress{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; background:rgba(255,255,255,0.12);
+    padding:3px 10px; border-radius:20px; white-space:nowrap;
+  }
+  .cat-head .cat-progress.complete{background:var(--green); color:#fff;}
+  .cat-head .chevron{transition:transform .2s ease; font-size:13px;}
+  .cat-block.open .chevron{transform:rotate(180deg);}
+  .cat-body{display:none;}
+  .cat-block.open .cat-body{display:block;}
+  .cat-block table.checklist{border:none;}
+  table.checklist tr.unanswered{background:var(--red-bg) !important; box-shadow:inset 3px 0 0 var(--red);}
+  table.checklist tr.unanswered td{background:transparent;}
   table.checklist td.no{width:36px; white-space:nowrap; color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12px;}
   table.checklist td.yn{width:110px; text-align:center;}
   table.checklist td.remarks input{
@@ -145,11 +169,43 @@
     .sheet{box-shadow:none; border:none; margin:0; padding:0; max-width:100%;}
     .hazard-stripe{display:none;}
     .section-block{page-break-inside:avoid;}
+    .cat-body{display:block !important;}
+    .cat-head .chevron{display:none;}
     @page{ size:portrait; margin:14mm; }
   }
   @media (max-width:700px){
     .meta-row{grid-template-columns:1fr;}
     .sign-grid{grid-template-columns:1fr;}
+  }
+
+  @media (max-width:640px){
+    /* Checklist rows become stacked cards on phones (same as the Committee inspection form) */
+    table.checklist thead{display:none;}
+    table.checklist, table.checklist tbody{display:block; width:100%;}
+    table.checklist tr{
+      display:flex; flex-wrap:wrap; align-items:flex-start;
+      border:1px solid var(--border); border-radius:10px; margin:10px;
+      padding:12px; background:#fff;
+    }
+    table.checklist td{border-bottom:none; padding:0;}
+    table.checklist td.no{
+      order:0; flex:1 1 100%; width:auto; font-weight:700; color:var(--navy); font-size:12px; margin-bottom:4px;
+    }
+    table.checklist td:nth-child(2){
+      order:1; flex:1 1 100%; font-size:14px; line-height:1.45; margin-bottom:10px;
+    }
+    table.checklist td.yn{order:2; width:100%; flex:1 1 100%; text-align:left; margin-bottom:8px;}
+    table.checklist td.remarks{order:3; width:100%; flex:1 1 100%;}
+    .yn-group{justify-content:space-between; gap:6px;}
+    .yn-group label{
+      flex:1; justify-content:center; border:1px solid var(--border); border-radius:8px;
+      padding:9px 4px; font-size:13px; margin:0;
+    }
+    table.checklist td.remarks input{
+      border:1px solid var(--border); border-radius:6px; padding:8px 9px; font-size:13px;
+    }
+    .cat-head .cat-name{font-size:14px;}
+    .section-block .s-head{flex-wrap:wrap;}
   }
 </style>
 </head>
@@ -547,14 +603,15 @@ const SECTIONS = [
 ];
 
 /* Sections may define flat `items`, or `groups` (numbered categories with items).
-   Both are normalised into: items (flat list), labels (No column) and groupAt (group header rows). */
+   Both are normalised into: items (flat list), labels (No column) and cats (category ranges). */
 SECTIONS.forEach(sec => {
   sec.labels = [];
-  sec.groupAt = {};
+  sec.cats = null; // [{no, title, start, count}] when the section is split into categories
   if (sec.groups){
     sec.items = [];
+    sec.cats = [];
     sec.groups.forEach((g, gi) => {
-      sec.groupAt[sec.items.length] = { no: gi + 1, title: g.title };
+      sec.cats.push({ no: gi + 1, title: g.title, start: sec.items.length, count: g.items.length });
       g.items.forEach((text, k) => {
         sec.items.push(text);
         sec.labels.push((gi + 1) + '.' + (k + 1));
@@ -570,6 +627,51 @@ const sectionFilter = urlParams.get('section');
 const ACTIVE_SECTIONS = sectionFilter
   ? SECTIONS.filter(s => s.name === sectionFilter)
   : SECTIONS;
+
+function checklistTable(sec, si, from, to){
+  let rows = '';
+  for (let ii = from; ii < to; ii++){
+    rows += `
+          <tr id="row-${si}-${ii}">
+            <td class="no">${sec.labels[ii]}</td>
+            <td>${sec.items[ii]}</td>
+            <td class="yn">
+              <div class="yn-group">
+                <label><input type="radio" name="item-${si}-${ii}" value="yes" onchange="updateScore(${si})"> Ya</label>
+                <label><input type="radio" name="item-${si}-${ii}" value="no" onchange="updateScore(${si})"> Tidak</label>
+              </div>
+            </td>
+            <td class="remarks"><input type="text" placeholder="Catatan (jika ada)..." id="remark-${si}-${ii}"></td>
+          </tr>`;
+  }
+  return `<table class="checklist">
+        <thead>
+          <tr><th class="no">No</th><th>Perkara Pemeriksaan</th><th style="width:110px;text-align:center;">Keputusan</th><th style="width:180px;">Catatan</th></tr>
+        </thead>
+        <tbody>${rows}
+        </tbody>
+      </table>`;
+}
+
+function toggleCat(si, ci){
+  document.getElementById('cat-' + si + '-' + ci).classList.toggle('open');
+}
+
+function updateCatProgress(si){
+  const sec = ACTIVE_SECTIONS[si];
+  if (!sec.cats) return;
+  sec.cats.forEach((c, ci) => {
+    let answered = 0;
+    for (let ii = c.start; ii < c.start + c.count; ii++){
+      if (document.querySelector(`input[name="item-${si}-${ii}"]:checked`)) answered++;
+    }
+    const el = document.getElementById('cat-progress-' + si + '-' + ci);
+    if (el){
+      el.textContent = answered + ' / ' + c.count;
+      el.className = 'cat-progress' + (answered === c.count ? ' complete' : '');
+    }
+  });
+}
 
 function buildForm(){
   if (sectionFilter && ACTIVE_SECTIONS.length === 0){
@@ -591,27 +693,19 @@ function buildForm(){
         </div>
         <div class="s-score" id="score-${si}">0 / ${sec.items.length}</div>
       </div>
-      <table class="checklist">
-        <thead>
-          <tr><th class="no">No</th><th>Perkara Pemeriksaan</th><th style="width:110px;text-align:center;">Keputusan</th><th style="width:180px;">Catatan</th></tr>
-        </thead>
-        <tbody>
-          ${sec.items.map((item, ii) => `
-            ${sec.groupAt[ii] ? `<tr class="group-row"><td colspan="4">${sec.groupAt[ii].no}. ${sec.groupAt[ii].title}</td></tr>` : ''}
-            <tr>
-              <td class="no">${sec.labels[ii]}</td>
-              <td>${item}</td>
-              <td class="yn">
-                <div class="yn-group">
-                  <label><input type="radio" name="item-${si}-${ii}" value="yes" onchange="updateScore(${si})"> Ya</label>
-                  <label><input type="radio" name="item-${si}-${ii}" value="no" onchange="updateScore(${si})"> Tidak</label>
-                </div>
-              </td>
-              <td class="remarks"><input type="text" placeholder="Catatan (jika ada)..." id="remark-${si}-${ii}"></td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+      ${sec.cats
+        ? sec.cats.map((c, ci) => `
+        <div class="cat-block ${ci === 0 ? 'open' : ''}" id="cat-${si}-${ci}">
+          <div class="cat-head" onclick="toggleCat(${si}, ${ci})">
+            <div class="cat-title"><span class="cat-no">${c.no}</span><span class="cat-name">${c.title}</span></div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="cat-progress" id="cat-progress-${si}-${ci}">0 / ${c.count}</span>
+              <span class="chevron">▾</span>
+            </div>
+          </div>
+          <div class="cat-body">${checklistTable(sec, si, c.start, c.start + c.count)}</div>
+        </div>`).join('')
+        : checklistTable(sec, si, 0, sec.items.length)}
     </div>
   `).join('');
 
@@ -629,7 +723,11 @@ function updateScore(si){
       if (checked.value === 'yes') yes++;
     }
   });
+  document.querySelectorAll(`#section-${si} tr.unanswered`).forEach(r => {
+    if (r.querySelector('input[type=radio]:checked')) r.classList.remove('unanswered');
+  });
   document.getElementById('score-' + si).textContent = yes + ' / ' + sec.items.length;
+  updateCatProgress(si);
   updateOverall();
 }
 
@@ -672,6 +770,23 @@ function collectSectionResults(){
   });
 }
 
+function highlightUnanswered(){
+  document.querySelectorAll('tr.unanswered').forEach(r => r.classList.remove('unanswered'));
+  let first = null;
+  ACTIVE_SECTIONS.forEach((sec, si) => {
+    sec.items.forEach((item, ii) => {
+      if (document.querySelector(`input[name="item-${si}-${ii}"]:checked`)) return;
+      const row = document.getElementById(`row-${si}-${ii}`);
+      if (!row) return;
+      row.classList.add('unanswered');
+      const block = row.closest('.cat-block');
+      if (block) block.classList.add('open');
+      if (!first) first = row;
+    });
+  });
+  if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 async function saveInspection(){
   const statusEl = document.getElementById('statusMsg');
   const sections = collectSectionResults();
@@ -679,6 +794,7 @@ async function saveInspection(){
   if (unanswered > 0){
     statusEl.className = 'status-msg err';
     statusEl.textContent = `⚠ Masih ada ${unanswered} soalan belum dijawab. Sila lengkapkan semua item sebelum simpan.`;
+    highlightUnanswered();
     return;
   }
   const payload = {
